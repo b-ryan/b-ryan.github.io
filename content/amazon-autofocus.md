@@ -1,9 +1,9 @@
----
-title: Automatically Focus on Amazon's Search Bar
-date: '2013-03-07'
-description:
-categories: apps
----
+Title: Automatically Focus on Amazon's Search Bar
+Date: 2013-03-07
+Category: Programming
+Tags: chrome, extension, amazon, autofocus, javascript
+Author: Buck Ryan
+Summary: Creating a very basic Chrome extension that focuses the search bar on Amazon
 
 Whenever I visit Amazon's homepage, I do so hoping to search for things. I'm
 not one to browse around and I'm sure many others are the same. However, I get
