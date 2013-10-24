@@ -5,6 +5,7 @@ Tags: python, rest, api
 Slug: related-models-in-a-restful-api
 Author: Buck Ryan
 Summary: How to organize related models in a RESTful interface
+Status: draft
 
 I've been working on a personal finance application for the last few months. At
 the moment it is called "Buckit" - a name suggested by my housemate since my

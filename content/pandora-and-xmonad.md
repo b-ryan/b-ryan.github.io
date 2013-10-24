@@ -1,10 +1,10 @@
----
-title: Pandora and Xmonad
-date: '2013-02-17'
-description:
-categories:
-tags: [pandora xmonad pianobar]
----
+Title: Pandora and Xmonad
+Date: 2013-02-17
+Category: Programming
+Tags: pandora, xmonad, pianobar
+Author: Buck Ryan
+Summary:
+Status: draft
 
 I started using [xmonad](http://xmonad.org) a few months ago. I'm trying
 to do my best to never use a mouse. I'm also very into automating things.
