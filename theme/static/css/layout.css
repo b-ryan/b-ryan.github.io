@@ -1,0 +1,12 @@
+.navbar {
+  background-image: none;
+  background-color: #12283c;
+}
+
+.navbar > h3 > a {
+  color: white;
+}
+
+.navbar nav {
+  float: right;
+}
