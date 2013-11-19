@@ -1,0 +1,22 @@
+.navbar {
+  background-image: none;
+  background-color: #12283c;
+}
+
+.navbar  a {
+  color: white;
+}
+
+.nav > li > a:hover {
+  background-color: transparent;
+  color: #ccc;
+}
+
+.nav > li > a:focus {
+  background-color: transparent;
+}
+
+.nav > li.active > a {
+  background-color: #e5e5e5;
+  color: #555;
+}

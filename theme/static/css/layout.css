@@ -1,8 +1,7 @@
-.navbar {
-  background-image: none;
-  background-color: #12283c;
+html, body {
+  height: 100%;
 }
 
-.navbar  a {
-  color: white;
+#footer {
+  margin-top: 800px;
 }
