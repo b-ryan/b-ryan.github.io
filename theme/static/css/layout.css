@@ -3,10 +3,6 @@
   background-color: #12283c;
 }
 
-.navbar > h3 > a {
+.navbar  a {
   color: white;
-}
-
-.navbar nav {
-  float: right;
 }
