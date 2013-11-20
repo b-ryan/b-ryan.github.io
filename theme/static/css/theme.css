@@ -1,22 +1,66 @@
-.navbar {
-  background-image: none;
-  background-color: #12283c;
+/* http://smarchal.com/twbscolor/?bd=#e74c3c&bh=#c0392b&cd=#ecf0f1&ch=#ffbbbc */
+.navbar-default {
+    background-color: #12283c;
+    border-color: #12283c;
 }
-
-.navbar  a {
-  color: white;
+.navbar-default .navbar-brand {
+    color: #ffffff;
 }
-
-.nav > li > a:hover {
-  background-color: transparent;
-  color: #ccc;
+.navbar-default .navbar-brand:hover,
+.navbar-default .navbar-brand:focus {
+    color: #ffffff;
 }
-
-.nav > li > a:focus {
-  background-color: transparent;
+.navbar-default .navbar-nav > li > a {
+    color: #ffffff;
 }
-
-.nav > li.active > a {
-  background-color: #e5e5e5;
-  color: #555;
+.navbar-default .navbar-nav > li > a:hover,
+.navbar-default .navbar-nav > li > a:focus {
+    color: #ffffff;
 }
+.navbar-default .navbar-nav > .active > a, 
+.navbar-default .navbar-nav > .active > a:hover, 
+.navbar-default .navbar-nav > .active > a:focus {
+    color: #ffffff;
+    background-color: #c0392b;
+}
+.navbar-default .navbar-nav > .open > a, 
+.navbar-default .navbar-nav > .open > a:hover, 
+.navbar-default .navbar-nav > .open > a:focus {
+    color: #ffffff;
+    background-color: #c0392b;
+}
+.navbar-default .navbar-nav > .dropdown > a .caret {
+    border-top-color: #ffffff;
+    border-bottom-color: #ffffff;
+}
+.navbar-default .navbar-nav > .dropdown > a:hover .caret,
+.navbar-default .navbar-nav > .dropdown > a:focus .caret {
+    border-top-color: #ffffff;
+    border-bottom-color: #ffffff;
+}
+.navbar-default .navbar-nav > .open > a .caret, 
+.navbar-default .navbar-nav > .open > a:hover .caret, 
+.navbar-default .navbar-nav > .open > a:focus .caret {
+    border-top-color: #ffffff;
+    border-bottom-color: #ffffff;
+}
+.navbar-default .navbar-toggle {
+    border-color: #c0392b;
+}
+.navbar-default .navbar-toggle:hover,
+.navbar-default .navbar-toggle:focus {
+    background-color: #c0392b;
+}
+.navbar-default .navbar-toggle .icon-bar {
+    background-color: #ffffff;
+}
+@media (max-width: 767px) {
+    .navbar-default .navbar-nav .open .dropdown-menu > li > a {
+        color: #ffffff;
+    }
+    .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover,
+    .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
+        color: #ffffff;
+    }
+}
+/* end generated rules for navbar */
