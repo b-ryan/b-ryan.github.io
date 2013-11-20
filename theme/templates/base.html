@@ -49,14 +49,14 @@
               <a href="{{ SITEURL }}/{{ p.url }}">{{ p.title }}</a>
             </li>
           {% endfor %}
-        {% else %}
-          {% if DISPLAY_CATEGORIES_ON_MENU %}
-            {% for cat, null in categories %}
-              <li{% if cat == category %} class="active"{% endif %}>
-                <a href="{{ SITEURL }}/{{ cat.url }}">{{ cat }}</a>
-              </li>
-            {% endfor %}
-          {% endif %}
+        {% endif %}
+
+        {% if DISPLAY_CATEGORIES_ON_MENU %}
+          {% for cat, null in categories %}
+            <li{% if cat == category %} class="active"{% endif %}>
+              <a href="{{ SITEURL }}/{{ cat.url }}">{{ cat }}</a>
+            </li>
+          {% endfor %}
         {% endif %}
         </ul>
       </div>
