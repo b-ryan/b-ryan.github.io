@@ -69,12 +69,14 @@
     {% endblock %}
     </div>
 
-    <footer id="footer">
-      <address>
-        Proudly powered by <a href="http://getpelican.com/">Pelican</a>,
-        which takes great advantage of <a href="http://python.org">Python</a>.
-      </address>
-    </footer>
+    {% if DISPLAY_FOOTER %}
+      <footer id="footer">
+        <address>
+          Proudly powered by <a href="http://getpelican.com/">Pelican</a>,
+          which takes great advantage of <a href="http://python.org">Python</a>.
+        </address>
+      </footer>
+    {% endif %}
 
   </body>
 </html>
