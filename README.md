@@ -1,2 +1,10 @@
-.venv/bin/pelican --debug --autoreload -t theme/ -o output/ -s pelicanconf.py content/
-cd output && ../.venv/bin/python -m pelican.server 8080
+The content of buckryan.com
+
+# Developing
+
+pip install -r requirements.txt
+./develop.sh
+
+# Deploy to S3
+
+aws s3 sync output BUCKET
