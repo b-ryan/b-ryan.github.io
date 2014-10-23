@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+
+
+    <meta name="tags" contents="python" />
+    <meta name="tags" contents="rest" />
+    <meta name="tags" contents="api" />
+
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width-device-width, initial-scale=1.0">
+
+    <script type="text/javascript" src="/theme/lib/jquery/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" src="/theme/lib/bootstrap/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/theme/lib/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/theme/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="/theme/css/theme.css">
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-default" role="navigation">
+    <div class="container">
+      <div class="navbar-header">
+        <button
+          type="button"
+          class="navbar-toggle"
+          data-toggle="collapse"
+          data-target="#navbar-collapse"
+        >
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="/">
+          buckryan.com
+        </a>
+      </div>
+
+      <div class="collapse navbar-collapse" id="navbar-collapse">
+        <ul class="nav navbar-nav">
+
+            <li >
+              <a href="http://buckryan.com/pages/about-me.html">about me</a>
+            </li>
+
+        </ul>
+      </div>
+
+    </div>
+    </nav>
+
+    <div class="container">
+  <section id="content" class="body">
+
+    <header>
+      <h2 class="entry-title">
+        <a
+          href="http://buckryan.com/drafts/related-models-in-a-restful-api.html"
+          rel="bookmark"
+          title="Permalink to Related models in a RESTful API"
+        >Related models in a RESTful API</a>
+      </h2>
+      
+    </header>
+
+    <footer class="post-info">
+      <span>
+        2013-10-19
+      </span>
+        <address class="vcard author">
+        </address>
+    </footer>
+
+    <div class="entry-content">
+      <p>I've been working on a personal finance application for the last few months. At
+the moment it is called "Buckit" - a name suggested by my housemate since my
+name is Buck and buck is also a nickname for dollar. At some point I think I
+will come up with a way to integrate the name into the app. Maybe, since I plan
+to add budgeting functionality, the different budgets one sets will be called
+Buckits (like buckets). Anyway, the naming issue not at all the point of this
+article.</p>
+<p>The software is written in Python in the back and coffeescript/angularjs in the
+front.  I'm using <a href="http://www.sqlalchemy.org/">sqlalchemy</a> to interact with the
+database and as such, have small set of models describing a financial system.
+One of those models is the Transaction. Now, a transaction is made up of
+different stuff than you may initially think. Particularly, the transaction
+itself does not have information about amounts and where they're coming from or
+going to. Rather, a transaction contains a date, the person or institution
+giving or receiving the funds, and it has two or more "splits." The splits are
+what define an amount and the account associated with it. Let's look at an
+example.</p>
+<p>Suppose you went to your local supermarket and spent $20 on groceries using
+your debit card. This is one transaction where $20 came out of one account
+("debit card") and went into another ("groceries"). The transaction would look
+like this:</p>
+<div class="highlight"><pre><span class="p">{</span>
+    <span class="nt">&quot;date&quot;</span><span class="p">:</span> <span class="s2">&quot;today&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;splits&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;account&quot;</span><span class="p">:</span> <span class="s2">&quot;debit card&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;amount&quot;</span><span class="p">:</span> <span class="mi">-20</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;account&quot;</span><span class="p">:</span> <span class="s2">&quot;groceries&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;amount&quot;</span><span class="p">:</span> <span class="mi">20</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>To represent this, there are separate sqlalchemy models for transactions and
+splits. Here is the trimmed down code for the models:</p>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">Transaction</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">Base</span><span class="p">):</span>
+
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s">&#39;transactions&#39;</span>
+
+    <span class="nb">id</span>         <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">date</span>       <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Date</span><span class="p">)</span>
+
+    <span class="n">splits</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s">&#39;Split&#39;</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">Split</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">Base</span><span class="p">):</span>
+
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s">&#39;transaction_splits&#39;</span>
+
+    <span class="nb">id</span>                 <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">transaction_id</span>     <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s">&#39;transactions.id&#39;</span><span class="p">))</span>
+    <span class="n">account_id</span>         <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s">&#39;accounts.id&#39;</span><span class="p">))</span>
+    <span class="n">amount</span>             <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Float</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Interacting with these models over HTTP is done via a pretty basic REST
+interface. Here are some endpoints:</p>
+<div class="highlight"><pre><span class="n">GET</span> <span class="o">/</span><span class="n">transactions</span> <span class="o">-</span> <span class="n">Fetch</span> <span class="n">all</span> <span class="n">transactions</span>
+<span class="n">GET</span> <span class="o">/</span><span class="n">transactions</span><span class="o">/</span><span class="mi">3</span> <span class="o">-</span> <span class="n">Fetch</span> <span class="n">the</span> <span class="n">transaction</span> <span class="n">with</span> <span class="n">id</span> <span class="mi">3</span>
+<span class="n">POST</span> <span class="o">/</span><span class="n">transactions</span> <span class="o">-</span> <span class="n">Save</span> <span class="n">a</span> <span class="n">new</span> <span class="n">transaction</span>
+<span class="n">PUT</span> <span class="o">/</span><span class="n">transactions</span> <span class="o">-</span> <span class="n">Update</span> <span class="n">a</span> <span class="n">transaction</span>
+</pre></div>
+
+
+<p>But what exactly should, for example, the <code>GET /transactions/3</code> endpoint
+return? It could be just the transaction:</p>
+<div class="highlight"><pre><span class="p">{</span>
+    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="nt">&quot;date&quot;</span><span class="p">:</span> <span class="s2">&quot;yesterday&quot;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>Or it could include the splits:</p>
+<div class="highlight"><pre><span class="p">{</span>
+    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="nt">&quot;date&quot;</span><span class="p">:</span> <span class="s2">&quot;yesterday&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;splits&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">17</span><span class="p">,</span>
+            <span class="nt">&quot;account_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="nt">&quot;amount&quot;</span><span class="p">:</span> <span class="mi">-5</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">18</span><span class="p">,</span>
+            <span class="nt">&quot;account_id&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="nt">&quot;amount&quot;</span><span class="p">:</span> <span class="mi">5</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>But since the <code>Split</code> model references the <code>accounts</code> table, should the
+account model be included too? Where does it end!?</p>
+<p>And what about the <code>POST</code> requests? When saving a transaction with three
+splits, should I create the whole transaction and save it in one POST request?
+Ie. save this:</p>
+<div class="highlight"><pre><span class="p">{</span>
+    <span class="nt">&quot;date&quot;</span><span class="p">:</span> <span class="s2">&quot;last week&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;splits&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;account_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="nt">&quot;amount&quot;</span><span class="p">:</span> <span class="mf">-10.99</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;account_id&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="nt">&quot;amount&quot;</span><span class="p">:</span> <span class="mf">10.99</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>It's a similar question as above - if I'm able to save splits with the endpoint
+for saving transactions, is this also going to be able to save accounts? Where
+does it end!? The alternative is that in order to save the transaction and
+splits you see above, three POSTs are required. First, save the transaction.
+Use the Id of the object returned to then save each split individually. But
+this seems bothersome and I was a bit worried about the coffeescript code that
+would be needed to make this happen. This is because I knew that after saving
+the transaction and its splits to the database, I would want to show the
+resultant objects in a list of transactions. However, the angularjs <code>$http</code>
+service sends HTTP requests asynchronously. Waiting for the transaction and all
+of its splits to save before adding them to the list of transactions <em>could</em>
+look something like:</p>
+<div class="highlight"><pre><span class="nv">transaction = </span><span class="k">new</span> <span class="nx">Transaction</span>
+    <span class="nv">date: </span><span class="s">&#39;today&#39;</span>
+
+<span class="nx">transaction</span><span class="p">.</span><span class="nx">$save</span> <span class="p">()</span> <span class="nf">-&gt;</span>
+    <span class="c1"># this code will run once the POST request finishes</span>
+    <span class="nv">transaction.splits = </span><span class="p">[</span>
+        <span class="k">new</span> <span class="nx">Split</span>
+            <span class="nv">transaction_id: </span><span class="nx">transaction</span><span class="p">.</span><span class="nx">id</span>
+            <span class="nv">account_id: </span><span class="mi">1</span>
+            <span class="nv">amount: </span><span class="o">-</span><span class="mf">3.50</span>
+
+        <span class="k">new</span> <span class="nx">Split</span>
+            <span class="nv">transaction_id: </span><span class="nx">transaction</span><span class="p">.</span><span class="nx">id</span>
+            <span class="nv">account_id: </span><span class="mi">2</span>
+            <span class="nv">amount: </span><span class="mf">3.50</span>
+    <span class="p">]</span>
+
+    <span class="k">for</span> <span class="nx">split</span> <span class="k">in</span> <span class="nx">splits</span>
+        <span class="nx">split</span><span class="p">.</span><span class="nx">$save</span><span class="p">()</span>
+</pre></div>
+
+
+<p>Luckily, angular's awesome two-way data binding allows me to add the
+transaction to the list of transactions without waiting for the splits to save.
+But there's another problem we didn't think about - what if one of the splits
+fails to save? The whole transaction would be corrupted. Perhaps to fix we'd
+then go back through the splits and the transaction and delete them from the
+database or mark them in some way to indicate the transaction is not complete.</p>
+<p>In the end, it's much simpler and more reliable to save the splits along with
+the transaction in one big POST request.</p>
+    </div>
+  </section>
+    </div>
+
+
+  </body>
+</html>
