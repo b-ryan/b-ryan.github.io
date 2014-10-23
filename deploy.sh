@@ -20,5 +20,8 @@ git rm -r .
 git reset --
 rsync -r $output_dir/ .
 git add -A .
+git commit -m "Publishing $commit"
+git push
+git checkout -
 
 rm -r $output_dir
