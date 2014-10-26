@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>buckryan.com</title><link href="http://b-ryan.github.io/" rel="alternate"></link><link href="http://b-ryan.github.io/feeds/programming.atom.xml" rel="self"></link><id>http://b-ryan.github.io/</id><updated>2013-03-07T00:00:00-05:00</updated><entry><title>Automatically Focus on Amazon's Search Bar</title><link href="http://b-ryan.github.io/automatically-focus-on-amazons-search-bar.html" rel="alternate"></link><updated>2013-03-07T00:00:00-05:00</updated><author><name>Buck Ryan</name></author><id>tag:b-ryan.github.io,2013-03-07:automatically-focus-on-amazons-search-bar.html</id><summary type="html">&lt;p&gt;Whenever I visit Amazon's homepage, I do so hoping to search for things. I'm
+not one to browse around and I'm sure many others are the same. However, I get
+annoyed each time this happens because the search bar does not have the focus
+when you visit the homepage. After coming across a
+&lt;a href="http://news.ycombinator.com/item?id=5333209"&gt;comment&lt;/a&gt; on Hacker News
+describing the same problem, I realized I could fix this with a pretty simple
+Chrome extension. Check it out
+&lt;a href="https://chrome.google.com/webstore/detail/amazon-search-auto-focus/mlblghbllacignpjknjbpbefjmgnbpca"&gt;here&lt;/a&gt;
+and read on for a short description of how I put it together.&lt;/p&gt;
+&lt;p&gt;About one or two years back, I was interested in making extensions for Chrome,
+but never went very far with it. However, the brief foray meant that yesterday,
+I knew the basics I would need to make the extension. The most important part
+of this is the &lt;a href="http://developer.chrome.com/extensions/manifest.html"&gt;manifest&lt;/a&gt;,
+which describes your extension, lists the permissions it needs, files it
+contains, and so forth.&lt;/p&gt;
+&lt;p&gt;The manifest for this app was really simple:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;manifest_version&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="m"&gt;2&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Amazon Search AutoFocus&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;description&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Automatically focus on search bar when visiting Amazon&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;version&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;1&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;permissions&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="cp"&gt;[&lt;/span&gt;
+        &lt;span class="s2"&gt;&amp;quot;http://*.amazon.com/&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="s2"&gt;&amp;quot;https://*.amazon.com/&amp;quot;&lt;/span&gt;
+    &lt;span class="cp"&gt;]&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;content_scripts&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="cp"&gt;[&lt;/span&gt;
+        &lt;span class="p"&gt;{&lt;/span&gt;
+            &lt;span class="s2"&gt;&amp;quot;matches&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="err"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;http://*.amazon.com/&amp;quot;&lt;/span&gt;&lt;span class="cp"&gt;]&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+            &lt;span class="s2"&gt;&amp;quot;js&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="cp"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;script.js&amp;quot;&lt;/span&gt;&lt;span class="cp"&gt;]&lt;/span&gt;
+        &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="o"&gt;]&lt;/span&gt;
+&lt;span class="err"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Most of this is pretty obvious. The documentation on the
+&lt;a href="http://developer.chrome.com/extensions/manifest.html#manifest_version"&gt;manifest_version&lt;/a&gt;
+indicates that version 1 is deprecate. The version indicated lets Google
+manage the extension among users. This number will be used to determine if a
+user is on an older version of the extension and it needs to be updated.&lt;/p&gt;
+&lt;p&gt;Permissions are bit complicated, as they can include whether the extension
+can operate on tabs or windows, have access to sites, etc. For this really
+simple app, I only need to indicate that I want access to the amazon sites.&lt;/p&gt;
+&lt;p&gt;Finally, the hardest part of it all was figuring out how to get some javascript
+to run when I visited Amazon's homepage. Using some Google-foo, I discovered
+that &lt;a href="http://developer.chrome.com/extensions/content_scripts.html"&gt;Content Scripts&lt;/a&gt;
+are the way to do this. As the documentation says, &lt;code&gt;content scripts run in the
+context of web pages&lt;/code&gt;. This means the javascript file specified above
+(script.js) will be run when Amazon loads. This is exactly what I wanted!&lt;/p&gt;
+&lt;p&gt;So finally I just needed to write the javascript. It turned out to be dead
+simple. Here's the only line needed:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;document&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;getElementById&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;twotabsearchtextbox&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="n"&gt;focus&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I briefly examined Amazon's search box using the Chrome
+&lt;a href="https://developers.google.com/chrome-developer-tools/docs/elements"&gt;developer tools&lt;/a&gt;
+and I saw that the ID of the search box was &lt;code&gt;twotabsearchtextbox&lt;/code&gt;. So I used
+some native javascript functions to set the focus and it was done!&lt;/p&gt;
+&lt;p&gt;Hopefully this helps if you want to write your own Chrome extension! If I make
+any changes or improvements to this, the updated code will be
+&lt;a href="https://bitbucket.org/b_ryan/amazon-autofocus"&gt;on Bitbucket&lt;/a&gt; for your viewing
+pleasure.&lt;/p&gt;</summary><category term="chrome"></category><category term="extension"></category><category term="amazon"></category><category term="autofocus"></category><category term="javascript"></category></entry></feed>
