@@ -12,8 +12,8 @@ output_dir=/tmp/output
 echo "Compiling to $output_dir"
 pelican -t theme -o $output_dir -s publishconf.py content
 
-echo "Committing to gh-pages branch"
-git checkout gh-pages
+echo "Committing to master branch"
+git checkout master
 git clean -df
 git clean -Xf
 git rm -r .
