@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+
+
+    <meta name="tags" contents="vim" />
+    <meta name="tags" contents="registers" />
+    <meta name="tags" contents="macros" />
+    <meta name="tags" contents="programming" />
+
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width-device-width, initial-scale=1.0">
+
+    <script type="text/javascript"
+      src="http://b-ryan.github.io/theme/lib/jquery/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript"
+      src="http://b-ryan.github.io/theme/lib/bootstrap/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css"
+      href="http://b-ryan.github.io/theme/lib/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css"
+      href="http://b-ryan.github.io/theme/css/layout.css">
+    <link rel="stylesheet" type="text/css"
+      href="http://b-ryan.github.io/theme/css/theme.css">
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-default" role="navigation">
+    <div class="container">
+      <div class="navbar-header">
+        <button
+          type="button"
+          class="navbar-toggle"
+          data-toggle="collapse"
+          data-target="#navbar-collapse"
+        >
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="http://b-ryan.github.io">
+          buckryan.com
+        </a>
+      </div>
+
+      <div class="collapse navbar-collapse" id="navbar-collapse">
+        <ul class="nav navbar-nav">
+
+            <li >
+              <a href="http://b-ryan.github.io/pages/about-me.html">about me</a>
+            </li>
+
+        </ul>
+      </div>
+
+    </div>
+    </nav>
+
+    <div class="container">
+  <section id="content" class="body">
+
+    <header>
+      <h2 class="entry-title">
+        <a
+          href="http://b-ryan.github.io/drafts/manipulating-vim-registers.html"
+          rel="bookmark"
+          title="Permalink to Manipulating Vim Registers"
+        >Manipulating Vim Registers</a>
+      </h2>
+      
+    </header>
+
+    <footer class="post-info">
+      <span>
+        2014-10-23
+      </span>
+        <address class="vcard author">
+        </address>
+    </footer>
+
+    <div class="entry-content">
+      <p>Recently I came across PHP code that looked similar to this:</p>
+<div class="highlight"><pre><span class="k">const</span> <span class="n">YEAR</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="k">const</span> <span class="n">QUARTER</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+<span class="k">const</span> <span class="n">MONTH</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+<span class="k">const</span> <span class="n">WEEK</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>
+<span class="k">const</span> <span class="n">DAY</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+<span class="k">const</span> <span class="n">HOUR</span> <span class="o">=</span> <span class="mi">6</span><span class="p">;</span>
+<span class="k">const</span> <span class="n">SECOND</span> <span class="o">=</span> <span class="mi">7</span><span class="p">;</span>
+</pre></div>
+
+
+<p>I needed to write a switch with cases for each of these constants. The desired
+outcome was:</p>
+<div class="highlight"><pre><span class="k">const</span> <span class="n">YEAR</span><span class="o">:</span>
+<span class="k">const</span> <span class="n">QUARTER</span><span class="o">:</span>
+<span class="k">const</span> <span class="n">MONTH</span><span class="o">:</span>
+<span class="k">const</span> <span class="n">WEEK</span><span class="o">:</span>
+<span class="k">const</span> <span class="n">DAY</span><span class="o">:</span>
+<span class="k">const</span> <span class="n">HOUR</span><span class="o">:</span>
+<span class="k">const</span> <span class="n">SECOND</span><span class="o">:</span>
+</pre></div>
+
+
+<p>An obvious way to do this would be to yank the whole text, paste it where you
+want your switch statement to be, and then use a macro to modify each line
+of text. <a href="http://blog.sanctum.geek.nz/advanced-vim-macros/">This article</a> is
+a great writeup of more advanced macro techniques. Definitely read it.</p>
+<p>However, it's possible to be more succinct by directly manipulating registers
+(<a href="http://vimdoc.sourceforge.net/htmldoc/change.html#registers">:help registers</a>.
+Only basic knowledge of how to do this is necessary to enable you to do some
+cool stuff. Here are some examples to show the various ways to do that.</p>
+<p>Clear out the contents of register <code>a</code>:</p>
+<div class="highlight"><pre><span class="o">:</span><span class="n">let</span> <span class="err">@</span><span class="n">a</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+</pre></div>
+
+
+<p>Append the text <code>I'm a!</code> to register <code>a</code>:</p>
+<div class="highlight"><pre><span class="o">:</span><span class="n">let</span> <span class="err">@</span><span class="n">a</span> <span class="p">.</span><span class="o">=</span> <span class="s">&quot;I&#39;m a!&quot;</span>
+</pre></div>
+
+
+<p>Set the contents of register <code>c</code> to be the text <code>b is:</code> concatenated with the
+contents of register <code>b</code>:</p>
+<div class="highlight"><pre><span class="o">:</span><span class="n">let</span> <span class="err">@</span><span class="n">c</span> <span class="o">=</span> <span class="s">&quot;b is: &quot;</span> <span class="p">.</span> <span class="err">@</span><span class="n">b</span>
+</pre></div>
+
+
+<p>Now to see what is in register <code>c</code> you use:</p>
+<div class="highlight"><pre><span class="o">:</span><span class="n">reg</span> <span class="n">c</span>
+</pre></div>
+
+
+<p>To replace register <code>d</code> with the current line:</p>
+<div class="highlight"><pre><span class="s">&quot;dyy</span>
+</pre></div>
+
+
+<p>If you'd rather not replace what's in register <code>d</code>, but instead append to it,
+you do:</p>
+<div class="highlight"><pre><span class="s">&quot;Dyy</span>
+</pre></div>
+
+
+<p>Knowing just the above will get us far. Let's see how we can apply it toward
+making our switch statement.</p>
+<p>The first thing I'll do is show you how to get the contents of register <code>a</code>
+to be</p>
+<div class="highlight"><pre><span class="n">YEAR</span>
+<span class="n">QUARTER</span>
+<span class="n">MONTH</span>
+<span class="n">WEEK</span>
+<span class="n">DAY</span>
+<span class="n">HOUR</span>
+<span class="n">SECOND</span>
+</pre></div>
+
+
+<p>We will start by initializing register <code>a</code> to be a newline:</p>
+<div class="highlight"><pre><span class="o">:</span><span class="n">let</span> <span class="err">@</span><span class="n">a</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+</pre></div>
+
+
+<p>Note that this makes register <code>a</code> linewise
+(<a href="http://vimdoc.sourceforge.net/htmldoc/motion.html#linewise">:help linewise</a>).
+I'll explain what that means below. For now, suffice it to say that when you
+yank more text into <code>a</code>, Vim will keep a newline at the end of the register.</p>
+<p>Move your cursor to the beginning of the word <code>YEAR</code> in the first line and do</p>
+<div class="highlight"><pre><span class="s">&quot;Aye</span>
+</pre></div>
+
+
+<p>As we saw above, <code>"A</code> tells vim that the next thing we yank should be appended
+to register <code>a</code> and <code>ye</code> means to yank until the end of the word. Now if you
+example register a (<code>:reg a</code>) you will see it is set to <code>^JYEAR^J</code> (<code>^J</code> just
+stands for the newline character). You can now move down to the next line and
+do the same thing, so that register <code>a</code> is <code>^JYEAR^JQUARTER^J</code>. Do this for
+every line (or even better, record a macro to automate it) and now register
+<code>a</code> will have the text we were going for.</p>
+<p>That was a fun exercise, but if we now paste register <code>a</code> (<code>"ap</code>), we still
+have to do some text manipulation to add <code>case</code> to each line and end each
+line with a colon. We can do better. This time, start by clearing out register
+a:</p>
+<div class="highlight"><pre><span class="o">:</span><span class="n">let</span> <span class="err">@</span><span class="n">a</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+</pre></div>
+
+
+<p>Once again, move to the beginning of the word <code>YEAR</code></p>
+<div class="highlight"><pre><span class="p">/</span><span class="nb">YEAR</span><span class="o">&lt;</span><span class="nx">CR</span><span class="o">&gt;</span>
+</pre></div>
+
+
+<p>set register <code>b</code> to be the word <code>YEAR</code></p>
+<div class="highlight"><pre><span class="s">&quot;bye</span>
+</pre></div>
+
+
+<p>and now put it all together</p>
+<div class="highlight"><pre><span class="o">:</span><span class="n">let</span> <span class="err">@</span><span class="n">a</span> <span class="o">=</span> <span class="s">&quot;case &quot;</span> <span class="p">.</span> <span class="err">@</span><span class="n">b</span> <span class="p">.</span> <span class="s">&quot;:</span><span class="se">\n</span><span class="s">&quot;</span>
+</pre></div>
+
+
+<p>(Note that register <code>a</code> is not in linewise mode this time, so we have to append
+the newline ourselves.)</p>
+<p>If we do this for each line (once again - use a macro!), now register <code>a</code> will
+be</p>
+<div class="highlight"><pre><span class="k">case</span> <span class="n">YEAR</span>:
+<span class="k">case</span> <span class="n">QUARTER</span>:
+<span class="k">case</span> <span class="n">MONTH</span>:
+<span class="k">case</span> <span class="n">WEEK</span>:
+<span class="k">case</span> <span class="n">DAY</span>:
+<span class="k">case</span> <span class="n">HOUR</span>:
+<span class="k">case</span> <span class="n">SECOND</span>:
+</pre></div>
+
+
+<p>This is perfect. We eliminated the need to do any work after we pasted the
+results. Instead, we just built up register <code>a</code> to be exactly what we desired.</p>
+<p>We can make one further improvement. Using register <code>b</code> was an interesting way
+of showing how you can use different registers and concatenate them together
+to make the finished product. It's unnecessary, however, since we can use
+<C-R><C-W>
+(<a href="http://vimdoc.sourceforge.net/htmldoc/cmdline.html#c_CTRL-R_CTRL-W">:help <c_CTRL-R_CTRL-W></a>)
+to insert the word under the cursor when creating our <code>let</code> statement. Once
+again, move to the beginning of <code>YEAR</code> and clear register <code>a</code>. This time, we
+can modify register <code>a</code> with:</p>
+<div class="highlight"><pre><span class="o">:</span><span class="n">let</span> <span class="err">@</span><span class="n">a</span> <span class="o">=</span> <span class="s">&quot;case &lt;C-R&gt;&lt;C-W&gt;:</span><span class="se">\n</span><span class="s">&quot;</span>
+</pre></div>
+
+
+<p>The result after applying this to each line will be the same as before, but we
+saved a few keystrokes.</p>
+<h1>Linewise vs. characterwise registers</h1>
+<p>As I mentioned above, Vim will make a register <code>linewise</code> when your <code>:let @</code>
+expression ends in a newline. In this case, Vim will keep a newline at the end
+of the register whenever you append to the register by yanking, deleting, etc.,
+but not when you directly modify the register using <code>:let @</code>.</p>
+<p>If you want to get around this, you have a few options. The first is to not use
+<code>:let @</code> to append a newline to your register. Instead, go into insert mode and
+type <code>&lt;C-V&gt;&lt;C-M&gt;</code>. This will insert a newline character which you can yank into
+register a with <code>"ayl</code>. Register <code>a</code> will still be <code>characterwise</code> and Vim will
+not append newlines automatically.</p>
+<p>A second option, which is perhaps a bit hackier, is to not append just a
+newline to your register, but a newline plus some other character. For example,
+you could use</p>
+<div class="highlight"><pre><span class="o">:</span><span class="n">let</span> <span class="err">@</span><span class="n">a</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">|&quot;</span>
+</pre></div>
+
+
+<p>Here I have finished the register with the pipe character, but you could use a
+space or anything else. Since your expression does not end in a newline, Vim
+will keep it character-wise. In our example above, this technique could
+have been useful if we wanted each line to begin with a tab character.</p>
+    </div>
+  </section>
+    </div>
+
+
+  </body>
+</html>
