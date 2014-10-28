@@ -124,14 +124,52 @@ the newline ourselves.)
 If we do this for each line (once again - use a macro!), now register `a` will
 be
 
-    
+    case YEAR:
+    case QUARTER:
+    case MONTH:
+    case WEEK:
+    case DAY:
+    case HOUR:
+    case SECOND:
 
+This is perfect. We eliminated the need to do any work after we pasted the
+results. Instead, we just built up register `a` to be exactly what we desired.
 
+We can make one further improvement. Using register `b` was an interesting way
+of showing how you can use different registers and concatenate them together
+to make the finished product. It's unnecessary, however, since we can use
+<C-R><C-W>
+([:help <c_CTRL-R_CTRL-W>](http://vimdoc.sourceforge.net/htmldoc/cmdline.html#c_CTRL-R_CTRL-W))
+to insert the word under the cursor when creating our `let` statement. Once
+again, move to the beginning of `YEAR` and clear register `a`. This time, we
+can modify register `a` with:
 
+    :let @a = "case <C-R><C-W>:\n"
+
+The result after applying this to each line will be the same as before, but we
+saved a few keystrokes.
 
 Linewise vs. characterwise registers
 ====================================
 
+As I mentioned above, Vim will make a register `linewise` when your `:let @`
+expression ends in a newline. In this case, Vim will keep a newline at the end
+of the register whenever you append to the register by yanking, deleting, etc.,
+but not when you directly modify the register using `:let @`.
 
-:let @a .= "const :\n"
-j
+If you want to get around this, you have a few options. The first is to not use
+`:let @` to append a newline to your register. Instead, go into insert mode and
+type `<C-V><C-M>`. This will insert a newline character which you can yank into
+register a with `"ayl`. Register `a` will still be `characterwise` and Vim will
+not append newlines automatically.
+
+A second option, which is perhaps a bit hackier, is to not append just a
+newline to your register, but a newline plus some other character. For example,
+you could use
+
+    :let @a = "\n|"
+
+Here I have finished the register with the pipe character, but you could use a
+space or anything else. Since your expression does not end in a newline, Vim
+will keep it character-wise. In our example above, this technique could
+have been useful if we wanted each line to begin with a tab character.
