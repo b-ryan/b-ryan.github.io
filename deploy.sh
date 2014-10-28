@@ -9,8 +9,11 @@ echo "deploying $commit"
 
 output_dir=/tmp/output
 
-echo "Compiling to $output_dir"
-pelican -t theme -o $output_dir -s publishconf.py content
+echo "Compiling to $output_dir" >&2
+pelican -t theme -o $output_dir -s publishconf.py content || {
+    echo "Compilation failed" >&2
+    exit 1
+}
 
 echo "Committing to master branch"
 git checkout master
