@@ -16,7 +16,7 @@ Recently I came across PHP code that looked similar to this:
     const HOUR = 6;
     const SECOND = 7;
 
-I needed to write a switch statement handling all of these cases. The desired
+I needed to write a switch with cases for each of these constants. The desired
 outcome was:
 
     const YEAR:
@@ -40,6 +40,10 @@ cool stuff. Here are some examples to show the various ways to do that.
 Clear out the contents of register `a`:
 
     :let @a = ""
+
+Append the text `I'm a!` to register `a`:
+
+    :let @a .= "I'm a!"
 
 Set the contents of register `c` to be the text `b is: ` concatenated with the
 contents of register `b`:
@@ -65,6 +69,7 @@ making our switch statement.
 The first thing I'll do is show you how to get the contents of register `a`
 to be
 
+    
     YEAR
     QUARTER
     MONTH
@@ -73,48 +78,59 @@ to be
     HOUR
     SECOND
 
-Go to the beginning of the word `YEAR` and record a macro:
+We will start by initializing register `a` to be a newline:
 
-    "Aywj
+    :let @a = "\n"
 
-Run this for every line and the contents of register a will be:
+Note that this makes register `a` linewise
+([:help linewise](http://vimdoc.sourceforge.net/htmldoc/motion.html#linewise)).
+I'll explain what that means below. For now, suffice it to say that when you
+yank more text into `a`, Vim will keep a newline at the end of the register.
 
-    YEAR QUARTER MONTH WEEK DAY HOUR SECOND 
+Move your cursor to the beginning of the word `YEAR` in the first line and do
 
-This is a good start, but I'd still have to add newlines. Let's see if we
-can do better. This time, record this:
+    "Aye
 
-    "Ayw:let @a .= "\n"
-    j
+As we saw above, `"A` tells vim that the next thing we yank should be appended
+to register `a` and `ye` means to yank until the end of the word. Now if you
+example register a (`:reg a`) you will see it is set to `^JYEAR^J` (`^J` just
+stands for the newline character). You can now move down to the next line and
+do the same thing, so that register `a` is `^JYEAR^JQUARTER^J`. Do this for
+every line (or even better, record a macro to automate it) and now register
+`a` will have the text we were going for.
 
-The result is:
+That was a fun exercise, but if we now paste register `a` (`"ap`), we still
+have to do some text manipulation to add `case ` to each line and end each
+line with a colon. We can do better. This time, start by clearing out register
+a:
 
-    YEAR 
-    QUARTER 
+    :let @a = ""
 
-    MONTH 
+Once again, move to the beginning of the word `YEAR`
 
-    WEEK 
+    /YEAR<CR>
 
-    DAY 
+set register `b` to be the word `YEAR`
 
-    HOUR 
+    "bye
 
-    SECOND 
+and now put it all together
 
-Well that's not quite what I expected. There are extra newlines in there. Plus,
-each word has an extra space at the end. After fiddling around, I discovered
-that when a register ends in a newline, appending to it adds an extra newline!
-It turns out when you assign to a register, if your expression ends with a
-newline, Vim will treat the register linewise (see `:help linewise`). So it
-will try to keep a newline at the end. See `:help let-@` for more info.
+    :let @a = "case " . @b . ":\n"
 
-If you want to get around this, 
+(Note that register `a` is not in linewise mode this time, so we have to append
+the newline ourselves.)
 
+If we do this for each line (once again - use a macro!), now register `a` will
+be
 
+    
 
 
 
+
+Linewise vs. characterwise registers
+====================================
 
 
 :let @a .= "const :\n"
