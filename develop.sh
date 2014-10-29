@@ -1,5 +1,5 @@
+mkdir output
 (
-  mkdir output
   cd output
   python -m pelican.server 8080
 ) &
