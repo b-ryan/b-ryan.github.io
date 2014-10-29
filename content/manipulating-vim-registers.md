@@ -40,44 +40,21 @@ However, it's possible to be more succinct by directly manipulating registers
 This post will show a few ways to do that so that you can learn how to master
 registers. We can start off by showing some examples.
 
-Clear out the contents of register `a`:
-
-    #!vim
-    :let @a = ""
-
-Append the text `I am register a!` to register `a`:
-
-    #!vim
-    :let @a .= "I am register a!"
-
-Set the contents of register `c` to be the text `b is: ` concatenated with the
-contents of register `b`:
-
-    #!vim
-    :let @c = "b is: " . @b
-
-Now check what's in register `c`:
-
-    #!vim
-    :reg c
-
-To replace register `d` with the current line:
-
-    #!vim
-    "dyy
-
-If you'd rather not overwrite register `d`, but instead append to it:
-
-    #!vim
-    "Dyy
+Command                         | Explanation
+------------------------------- | -----------
+`:let @a = ""`                  | *Clear out the contents of register "a"*
+`:let @a .= "I am register a!"` | *Append the text "I am register a!" to register "a"*
+`:let @c = "b is: " . @b`       | *Set the contents of register "c" to be the text "b is: " concatenated with the contents of register "b"*
+`:reg c`                        | *Check what's in register "c"*
+`"dyy`                          | *Replace register "d" with the current line*
+`"Dyy`                          | *If you'd rather not overwrite register "d", but instead append to it*
 
 Knowing just the above will get us far, but for more details on the `:let @`
 command, check out [:help
 :let-@](http://vimdoc.sourceforge.net/htmldoc/eval.html#:let-@).
 
 Let's see how we can apply it toward making our switch statement. Our first
-exercise is pretty simple. We will get the contents of register `a` to be (Note
-that the first line is empty.)
+exercise is pretty simple. We will get the contents of register `a` to be:
 
     #!php
     YEAR
@@ -88,112 +65,102 @@ that the first line is empty.)
     HOUR
     SECOND
 
-Start by initializing register `a` to be a newline:
+*(note that there will actually be an empty first line)*
+
+Start by moving your cursor to the word "YEAR" and initializing register `a` to
+a newline:
 
     #!vim
-    :let @a = "\n"
+    /YEAR<CR>
+    :let @a = "\n"<CR>
 
 Doing so will make register `a` linewise ([:help
 linewise](http://vimdoc.sourceforge.net/htmldoc/motion.html#linewise)). I
 explain below why this happens and what effect is has, but for now, suffice it
 to say that when you yank more text into `a`, Vim will keep a newline at the
-end of the register.
+end of the register. Go ahead and yank the word "YEAR" onto the end of register
+a to see it happen:
 
-Now we will move to the beginning of the word `YEAR` and copy `YEAR` onto the
-end of register `a`:
-
-    :::vim
-    /YEAR<CR>
+    #!vim
     "Aye
 
 As we saw above, `"A` tells vim that the next thing we yank should be appended
-to register `a` and `ye` means to yank until the end of the word. Now if you
-examine register a (`:reg a`) you will see it is set to `^JYEAR^J` (`^J` just
-stands for the newline character). 
+to register `a` and `ye` means to yank until the end of the word. Examine
+register `a` with `:reg a` to see it is set to`^JYEAR^J` (`^J` stands for the
+newline character).
 
-You can now move down to the next line and do the same thing, so that register
-`a` is `^JYEAR^JQUARTER^J`. Do this for every line (or even better, record a
-macro to automate it) and now register `a` will have the text we were going
-for.
+Move your cursor down so it is on `QUARTER` and again use `"Aye` to yank it
+onto `a`. `a` is now `^JYEAR^JQUARTER^J`. Do this for every line (or even
+better, record a macro to automate it) and register `a` will have the text we
+were going for.
 
-That was a fun exercise, but if we now paste register `a` (`"ap`), we still
-have to do some text manipulation to add `case ` to each line and end each
-line with a colon. We can do better. This time, start by clearing out register
-a:
-
-    #!vim
-    :let @a = ""
-
-Once again, move to the beginning of the word `YEAR`
+That was a fun exercise, but to finish writing each case statement, we would
+need to edit each line in register `a`, which we wanted to avoid in the first
+place. We can do better. As before, move your cursor to `YEAR`, but this time
+clear out register `a` entirely:
 
     #!vim
     /YEAR<CR>
+    :let @a = ""<CR>
 
-set register `b` to be the word `YEAR`
+We will use another register to help us. Yank `YEAR` into register `b` and use
+it to append to register `a`:
 
     #!vim
     "bye
+    :let @a .= "case self::" . @b . ":\n"<CR>
 
-and now put it all together
-
-    #!vim
-    :let @a = "case " . @b . ":\n"
-
-(Note that register `a` is not in linewise mode this time, so we have to append
-the newline ourselves.)
-
-If we do this for each line (once again - use a macro!), now register `a` will
-be
+This concatenates the text `case self::` with the contents of register `b` and
+the string `:\n`. Register `a` is not linewise this time, so we have to append
+the newline ourselves. `a` will now be `case self::YEAR:^J`. If we repeat the
+above for each line (once again - use a macro!), register `a` will be:
 
     #!php
-    case YEAR:
-    case QUARTER:
-    case MONTH:
-    case WEEK:
-    case DAY:
-    case HOUR:
-    case SECOND:
+    case self::YEAR:
+    case self::QUARTER:
+    case self::MONTH:
+    case self::WEEK:
+    case self::DAY:
+    case self::HOUR:
+    case self::SECOND:
 
 This is perfect. We eliminated the need to do any work after we pasted the
-results. Instead, we just built up register `a` to be exactly what we desired.
+results. Instead, we just incrementally built the desired text within register
+`a`.
 
 We can make one further improvement. Using register `b` was an interesting way
-of showing how you can use different registers and concatenate them together
-to make the finished product. It's unnecessary, however, since we can use
-<C-R><C-W>
-([:help <c_CTRL-R_CTRL-W>](http://vimdoc.sourceforge.net/htmldoc/cmdline.html#c_CTRL-R_CTRL-W))
-to insert the word under the cursor when creating our `let` statement. Once
-again, move to the beginning of `YEAR` and clear register `a`. This time, we
-can modify register `a` with:
+of showing how you can use different registers and concatenate them together to
+make the finished product. It's unnecessary, however, since we can use
+`<C-R><C-W>` ([:help
+<c\_CTRL-R\_CTRL-W\>](http://vimdoc.sourceforge.net/htmldoc/cmdline.html#c_CTRL-R_CTRL-W))
+to insert the word under the cursor each time we append to `a`. To demonstrate
+this, again move to the beginning of `YEAR` and clear register `a`. This time,
+skip yanking to register `b` and on each line do:
 
     #!vim
-    :let @a = "case <C-R><C-W>:\n"
-
-The result after applying this to each line will be the same as before, but we
-saved a few keystrokes.
+    :let @a .= "case self::<C-R><C-W>:\n"<CR>
 
 Linewise vs. characterwise registers
 ====================================
 
-As I mentioned above, Vim will make a register `linewise` when your `:let @`
-expression ends in a newline. In this case, Vim will keep a newline at the end
-of the register whenever you append to the register by yanking, deleting, etc.,
-but not when you directly modify the register using `:let @`.
+As I mentioned above, Vim will make a register `linewise` when your `:let @...`
+expression ends in a newline. Vim will keep a newline at the end of the
+register whenever you append to it by yanking, deleting, etc., but not when you
+directly modify the register using `:let @...`.
 
-If you want to get around this, you have a few options. The first is to not use
-`:let @` to append a newline to your register. Instead, go into insert mode and
-type `<C-V><C-M>`. This will insert a newline character which you can yank into
-register a with `"ayl`. Register `a` will still be `characterwise` and Vim will
-not append newlines automatically.
+If you want to get around this, you have a few options. The first uses yanking
+to get a newline at the end of your register. In insert mode, type
+`<C-V><C-M>`. This inserts a newline character which you can yank into register
+`a` with `"ayl`. Register `a` will still be `characterwise`, but `a` will have
+a trailing newline character.
 
 A second option, which is perhaps a bit hackier, is to not append just a
-newline to your register, but a newline plus some other character. For example,
-you could use
+newline to your register, but a newline plus some other character. For example:
 
     #!vim
-    :let @a = "\n|"
+    :let @a = "\n|"<CR>
 
-Here I have finished the register with the pipe character, but you could use a
-space or anything else. Since your expression does not end in a newline, Vim
-will keep it character-wise. In our example above, this technique could
-have been useful if we wanted each line to begin with a tab character.
+Here the register ends with the pipe character. You could use a space or tab or
+any non-newline character. In our PHP example from the previous section, this
+technique might have been useful if we wanted each line to begin with a tab
+character, for example.
