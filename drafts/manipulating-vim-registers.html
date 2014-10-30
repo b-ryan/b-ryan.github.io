@@ -4,8 +4,6 @@
 
 
     <meta name="tags" contents="vim" />
-    <meta name="tags" contents="registers" />
-    <meta name="tags" contents="macros" />
     <meta name="tags" contents="programming" />
 
 
@@ -22,6 +20,8 @@
       href="http://b-ryan.github.io/theme/css/layout.css">
     <link rel="stylesheet" type="text/css"
       href="http://b-ryan.github.io/theme/css/theme.css">
+    <link rel="stylesheet" type="text/css"
+      href="http://b-ryan.github.io/theme/css/pygment.css">
   </head>
 
   <body>
@@ -82,177 +82,207 @@
 
     <div class="entry-content">
       <p>Recently I came across PHP code that looked similar to this:</p>
-<div class="highlight"><pre><span class="k">const</span> <span class="n">YEAR</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-<span class="k">const</span> <span class="n">QUARTER</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
-<span class="k">const</span> <span class="n">MONTH</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
-<span class="k">const</span> <span class="n">WEEK</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>
-<span class="k">const</span> <span class="n">DAY</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
-<span class="k">const</span> <span class="n">HOUR</span> <span class="o">=</span> <span class="mi">6</span><span class="p">;</span>
-<span class="k">const</span> <span class="n">SECOND</span> <span class="o">=</span> <span class="mi">7</span><span class="p">;</span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7</pre></div></td><td class="code"><div class="highlight"><pre><span class="x">const YEAR = 1;</span>
+<span class="x">const QUARTER = 2;</span>
+<span class="x">const MONTH = 3;</span>
+<span class="x">const WEEK = 4;</span>
+<span class="x">const DAY = 5;</span>
+<span class="x">const HOUR = 6;</span>
+<span class="x">const SECOND = 7;</span>
 </pre></div>
+</td></tr></table>
 
-
-<p>I needed to write a switch with cases for each of these constants. The desired
-outcome was:</p>
-<div class="highlight"><pre><span class="k">const</span> <span class="n">YEAR</span><span class="o">:</span>
-<span class="k">const</span> <span class="n">QUARTER</span><span class="o">:</span>
-<span class="k">const</span> <span class="n">MONTH</span><span class="o">:</span>
-<span class="k">const</span> <span class="n">WEEK</span><span class="o">:</span>
-<span class="k">const</span> <span class="n">DAY</span><span class="o">:</span>
-<span class="k">const</span> <span class="n">HOUR</span><span class="o">:</span>
-<span class="k">const</span> <span class="n">SECOND</span><span class="o">:</span>
+<p>I wanted to write a switch statement which handled each of those constants.
+This is what each case statement would look like:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7</pre></div></td><td class="code"><div class="highlight"><pre><span class="x">case self::YEAR:</span>
+<span class="x">case self::QUARTER:</span>
+<span class="x">case self::MONTH:</span>
+<span class="x">case self::WEEK:</span>
+<span class="x">case self::DAY:</span>
+<span class="x">case self::HOUR:</span>
+<span class="x">case self::SECOND:</span>
 </pre></div>
+</td></tr></table>
 
-
-<p>An obvious way to do this would be to yank the whole text, paste it where you
-want your switch statement to be, and then use a macro to modify each line
-of text. <a href="http://blog.sanctum.geek.nz/advanced-vim-macros/">This article</a> is
-a great writeup of more advanced macro techniques. Definitely read it.</p>
-<p>However, it's possible to be more succinct by directly manipulating registers
-(<a href="http://vimdoc.sourceforge.net/htmldoc/change.html#registers">:help registers</a>.
-Only basic knowledge of how to do this is necessary to enable you to do some
-cool stuff. Here are some examples to show the various ways to do that.</p>
-<p>Clear out the contents of register <code>a</code>:</p>
-<div class="highlight"><pre><span class="o">:</span><span class="n">let</span> <span class="err">@</span><span class="n">a</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+<p>One way to achieve this would be to yank the whole text, paste it where the
+switch will live, and with the help of a macro, change each line into a case
+statement. <a href="http://blog.sanctum.geek.nz/advanced-vim-macros/">This article</a> is
+a great reference for advanced macro techniques, any of which would be useful
+if we took this approach. However, it's possible to be more succinct by
+building up the case statements incrementally with the help of registers
+(<a href="http://vimdoc.sourceforge.net/htmldoc/change.html#registers">:help
+registers</a>). This
+post will show a few ways to do that so that you can learn how to master
+registers. Here are some examples to start us off:</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>:let @a = ""</code></td>
+<td><em>Clear out register "a"</em></td>
+</tr>
+<tr>
+<td><code>:let @a .= "I am register a!"</code></td>
+<td><em>Append the string "I am register a!" to register "a"</em></td>
+</tr>
+<tr>
+<td><code>:let @c = "b is: " . @b</code></td>
+<td><em>Set register "c" to be the string "b is: " concatenated with register "b"</em></td>
+</tr>
+<tr>
+<td><code>:reg c</code></td>
+<td><em>Check what's in register "c"</em></td>
+</tr>
+<tr>
+<td><code>"dyy</code></td>
+<td><em>Replace register "d" with the current line</em></td>
+</tr>
+<tr>
+<td><code>"Dyy</code></td>
+<td><em>If you'd rather not overwrite register "d", but instead append to it</em></td>
+</tr>
+</tbody>
+</table>
+<p><em>For more details on the <code>:let @</code> command, check out <a href="http://vimdoc.sourceforge.net/htmldoc/eval.html#:let-@">:help
+:let-@</a>.</em></p>
+<p>Knowing just the above will get us far. Let's see how we can apply them toward
+making our case statements. Our first exercise is pretty simple. We will get
+the contents of register <code>a</code> to be:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7</pre></div></td><td class="code"><div class="highlight"><pre><span class="x">YEAR</span>
+<span class="x">QUARTER</span>
+<span class="x">MONTH</span>
+<span class="x">WEEK</span>
+<span class="x">DAY</span>
+<span class="x">HOUR</span>
+<span class="x">SECOND</span>
 </pre></div>
+</td></tr></table>
 
-
-<p>Append the text <code>I'm a!</code> to register <code>a</code>:</p>
-<div class="highlight"><pre><span class="o">:</span><span class="n">let</span> <span class="err">@</span><span class="n">a</span> <span class="p">.</span><span class="o">=</span> <span class="s">&quot;I&#39;m a!&quot;</span>
+<p><em>(note that there will actually be an empty first line)</em></p>
+<p>Start by moving your cursor to the word "YEAR" and initializing register <code>a</code> to
+a newline:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2</pre></div></td><td class="code"><div class="highlight"><pre>/YEAR<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="p">:</span><span class="k">let</span> @<span class="k">a</span> <span class="p">=</span> <span class="s2">&quot;\n&quot;</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
 </pre></div>
+</td></tr></table>
 
-
-<p>Set the contents of register <code>c</code> to be the text <code>b is:</code> concatenated with the
-contents of register <code>b</code>:</p>
-<div class="highlight"><pre><span class="o">:</span><span class="n">let</span> <span class="err">@</span><span class="n">c</span> <span class="o">=</span> <span class="s">&quot;b is: &quot;</span> <span class="p">.</span> <span class="err">@</span><span class="n">b</span>
+<p>Doing so will make register <code>a</code> linewise (<a href="http://vimdoc.sourceforge.net/htmldoc/motion.html#linewise">:help
+linewise</a>). I
+explain below why this happens and what effect is has, but for now, suffice it
+to say that when you yank more text into <code>a</code>, Vim will keep a newline at the
+end of the register. Go ahead and yank the word "YEAR" onto the end of register
+a to see it happen:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span class="c">&quot;Aye</span>
 </pre></div>
-
-
-<p>Now to see what is in register <code>c</code> you use:</p>
-<div class="highlight"><pre><span class="o">:</span><span class="n">reg</span> <span class="n">c</span>
-</pre></div>
-
-
-<p>To replace register <code>d</code> with the current line:</p>
-<div class="highlight"><pre><span class="s">&quot;dyy</span>
-</pre></div>
-
-
-<p>If you'd rather not replace what's in register <code>d</code>, but instead append to it,
-you do:</p>
-<div class="highlight"><pre><span class="s">&quot;Dyy</span>
-</pre></div>
-
-
-<p>Knowing just the above will get us far. Let's see how we can apply it toward
-making our switch statement.</p>
-<p>The first thing I'll do is show you how to get the contents of register <code>a</code>
-to be</p>
-<div class="highlight"><pre><span class="n">YEAR</span>
-<span class="n">QUARTER</span>
-<span class="n">MONTH</span>
-<span class="n">WEEK</span>
-<span class="n">DAY</span>
-<span class="n">HOUR</span>
-<span class="n">SECOND</span>
-</pre></div>
-
-
-<p>We will start by initializing register <code>a</code> to be a newline:</p>
-<div class="highlight"><pre><span class="o">:</span><span class="n">let</span> <span class="err">@</span><span class="n">a</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
-</pre></div>
-
-
-<p>Note that this makes register <code>a</code> linewise
-(<a href="http://vimdoc.sourceforge.net/htmldoc/motion.html#linewise">:help linewise</a>).
-I'll explain what that means below. For now, suffice it to say that when you
-yank more text into <code>a</code>, Vim will keep a newline at the end of the register.</p>
-<p>Move your cursor to the beginning of the word <code>YEAR</code> in the first line and do</p>
-<div class="highlight"><pre><span class="s">&quot;Aye</span>
-</pre></div>
-
+</td></tr></table>
 
 <p>As we saw above, <code>"A</code> tells vim that the next thing we yank should be appended
-to register <code>a</code> and <code>ye</code> means to yank until the end of the word. Now if you
-example register a (<code>:reg a</code>) you will see it is set to <code>^JYEAR^J</code> (<code>^J</code> just
-stands for the newline character). You can now move down to the next line and
-do the same thing, so that register <code>a</code> is <code>^JYEAR^JQUARTER^J</code>. Do this for
-every line (or even better, record a macro to automate it) and now register
-<code>a</code> will have the text we were going for.</p>
-<p>That was a fun exercise, but if we now paste register <code>a</code> (<code>"ap</code>), we still
-have to do some text manipulation to add <code>case</code> to each line and end each
-line with a colon. We can do better. This time, start by clearing out register
-a:</p>
-<div class="highlight"><pre><span class="o">:</span><span class="n">let</span> <span class="err">@</span><span class="n">a</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+to register <code>a</code> and <code>ye</code> means to yank until the end of the word. Examine
+register <code>a</code> with <code>:reg a</code> to see it is set to<code>^JYEAR^J</code> (<code>^J</code> stands for the
+newline character). Move your cursor down so it is on <code>QUARTER</code> and again use
+<code>"Aye</code> to append onto <code>a</code>. <code>a</code> is now <code>^JYEAR^JQUARTER^J</code>. Do this for every
+line (or even better, record a macro to automate it) and register <code>a</code> will have
+the text we were going for.</p>
+<p>That was a fun exercise, but to finish writing each case statement, we would
+need to edit each line in register <code>a</code>, which we wanted to avoid in the first
+place. We can do better. As before, move your cursor to <code>YEAR</code>, but this time
+clear out register <code>a</code> entirely:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2</pre></div></td><td class="code"><div class="highlight"><pre>/YEAR<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="p">:</span><span class="k">let</span> @<span class="k">a</span> <span class="p">=</span> <span class="s2">&quot;&quot;</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
 </pre></div>
+</td></tr></table>
 
-
-<p>Once again, move to the beginning of the word <code>YEAR</code></p>
-<div class="highlight"><pre><span class="p">/</span><span class="nb">YEAR</span><span class="o">&lt;</span><span class="nx">CR</span><span class="o">&gt;</span>
+<p>We will use another register to help us. Yank <code>YEAR</code> into register <code>b</code> and use
+it to append to register <code>a</code>:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2</pre></div></td><td class="code"><div class="highlight"><pre><span class="c">&quot;bye</span>
+<span class="p">:</span><span class="k">let</span> @<span class="k">a</span> .<span class="p">=</span> <span class="s2">&quot;case self::&quot;</span> . @<span class="k">b</span> . <span class="s2">&quot;:\n&quot;</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
 </pre></div>
+</td></tr></table>
 
-
-<p>set register <code>b</code> to be the word <code>YEAR</code></p>
-<div class="highlight"><pre><span class="s">&quot;bye</span>
+<p>This concatenates the text <code>case self::</code> with the contents of register <code>b</code> and
+the string <code>:\n</code>. Register <code>a</code> is not linewise this time, so we have to append
+the newline ourselves. <code>a</code> will now be <code>case self::YEAR:^J</code>. If we repeat the
+above for each line (once again - use a macro!), register <code>a</code> will be:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7</pre></div></td><td class="code"><div class="highlight"><pre><span class="x">case self::YEAR:</span>
+<span class="x">case self::QUARTER:</span>
+<span class="x">case self::MONTH:</span>
+<span class="x">case self::WEEK:</span>
+<span class="x">case self::DAY:</span>
+<span class="x">case self::HOUR:</span>
+<span class="x">case self::SECOND:</span>
 </pre></div>
-
-
-<p>and now put it all together</p>
-<div class="highlight"><pre><span class="o">:</span><span class="n">let</span> <span class="err">@</span><span class="n">a</span> <span class="o">=</span> <span class="s">&quot;case &quot;</span> <span class="p">.</span> <span class="err">@</span><span class="n">b</span> <span class="p">.</span> <span class="s">&quot;:</span><span class="se">\n</span><span class="s">&quot;</span>
-</pre></div>
-
-
-<p>(Note that register <code>a</code> is not in linewise mode this time, so we have to append
-the newline ourselves.)</p>
-<p>If we do this for each line (once again - use a macro!), now register <code>a</code> will
-be</p>
-<div class="highlight"><pre><span class="k">case</span> <span class="n">YEAR</span>:
-<span class="k">case</span> <span class="n">QUARTER</span>:
-<span class="k">case</span> <span class="n">MONTH</span>:
-<span class="k">case</span> <span class="n">WEEK</span>:
-<span class="k">case</span> <span class="n">DAY</span>:
-<span class="k">case</span> <span class="n">HOUR</span>:
-<span class="k">case</span> <span class="n">SECOND</span>:
-</pre></div>
-
+</td></tr></table>
 
 <p>This is perfect. We eliminated the need to do any work after we pasted the
-results. Instead, we just built up register <code>a</code> to be exactly what we desired.</p>
+results. Instead, we just incrementally built the desired text within register
+<code>a</code>.</p>
 <p>We can make one further improvement. Using register <code>b</code> was an interesting way
-of showing how you can use different registers and concatenate them together
-to make the finished product. It's unnecessary, however, since we can use
-<C-R><C-W>
-(<a href="http://vimdoc.sourceforge.net/htmldoc/cmdline.html#c_CTRL-R_CTRL-W">:help <c_CTRL-R_CTRL-W></a>)
-to insert the word under the cursor when creating our <code>let</code> statement. Once
-again, move to the beginning of <code>YEAR</code> and clear register <code>a</code>. This time, we
-can modify register <code>a</code> with:</p>
-<div class="highlight"><pre><span class="o">:</span><span class="n">let</span> <span class="err">@</span><span class="n">a</span> <span class="o">=</span> <span class="s">&quot;case &lt;C-R&gt;&lt;C-W&gt;:</span><span class="se">\n</span><span class="s">&quot;</span>
+of showing how you can use different registers and concatenate them together to
+make the finished product. It's unnecessary, however, since we can use
+<code>&lt;C-R&gt;&lt;C-W&gt;</code> (<a href="http://vimdoc.sourceforge.net/htmldoc/cmdline.html#c_CTRL-R_CTRL-W">:help
+&lt;c_CTRL-R_CTRL-W></a>)
+to insert the word under the cursor each time we append to <code>a</code>. To demonstrate
+this, again move to the beginning of <code>YEAR</code> and clear register <code>a</code>. This time,
+skip yanking to register <code>b</code> and do:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span class="p">:</span><span class="k">let</span> @<span class="k">a</span> .<span class="p">=</span> <span class="s2">&quot;case self::&lt;C-R&gt;&lt;C-W&gt;:\n&quot;</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
 </pre></div>
+</td></tr></table>
 
-
-<p>The result after applying this to each line will be the same as before, but we
-saved a few keystrokes.</p>
+<p>After doing this for each line, register <code>a</code> will be the same as before.</p>
 <h1>Linewise vs. characterwise registers</h1>
-<p>As I mentioned above, Vim will make a register <code>linewise</code> when your <code>:let @</code>
-expression ends in a newline. In this case, Vim will keep a newline at the end
-of the register whenever you append to the register by yanking, deleting, etc.,
-but not when you directly modify the register using <code>:let @</code>.</p>
-<p>If you want to get around this, you have a few options. The first is to not use
-<code>:let @</code> to append a newline to your register. Instead, go into insert mode and
-type <code>&lt;C-V&gt;&lt;C-M&gt;</code>. This will insert a newline character which you can yank into
-register a with <code>"ayl</code>. Register <code>a</code> will still be <code>characterwise</code> and Vim will
-not append newlines automatically.</p>
+<p>As I mentioned above, Vim will make a register <code>linewise</code> when the expression
+you assign using <code>:let @...</code> ends in a newline. Vim will keep a newline at the
+end of the register whenever you append to it by yanking, deleting, etc., but
+not when you directly modify the register using <code>:let @...</code>. Even if you
+already have something in the register and append using <code>:let @a .= ...</code>, the
+register will change to linewise.</p>
+<p>If you want to get around this, you have a few options. The first uses yanking
+to get a newline at the end of your register. In insert mode, type
+<code>&lt;C-V&gt;&lt;C-M&gt;</code>. This inserts a newline character which you can yank into register
+<code>a</code> with <code>"ayl</code>. Register <code>a</code> will still be <code>characterwise</code>, but <code>a</code> will have
+a trailing newline character.</p>
 <p>A second option, which is perhaps a bit hackier, is to not append just a
-newline to your register, but a newline plus some other character. For example,
-you could use</p>
-<div class="highlight"><pre><span class="o">:</span><span class="n">let</span> <span class="err">@</span><span class="n">a</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">|&quot;</span>
+newline to your register, but a newline plus some other character. For example:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span class="p">:</span><span class="k">let</span> @<span class="k">a</span> <span class="p">=</span> <span class="s2">&quot;\n|&quot;</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
 </pre></div>
+</td></tr></table>
 
-
-<p>Here I have finished the register with the pipe character, but you could use a
-space or anything else. Since your expression does not end in a newline, Vim
-will keep it character-wise. In our example above, this technique could
-have been useful if we wanted each line to begin with a tab character.</p>
+<p>Here the register ends with the pipe character. You could use a space or tab or
+any non-newline character. In our PHP example from the previous section, this
+technique might have been useful if we wanted each line to begin with a tab
+character, for example.</p>
     </div>
   </section>
     </div>
