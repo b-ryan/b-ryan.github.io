@@ -15,7 +15,7 @@ pelican -t theme -o $output_dir -s publishconf.py content || {
     exit 1
 }
 
-echo 'buckryan.com' > $output_dir/CNAME
+echo 'blog.buckryan.com' > $output_dir/CNAME
 
 echo "Committing to master branch"
 git checkout master
