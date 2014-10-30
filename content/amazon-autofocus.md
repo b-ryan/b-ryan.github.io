@@ -24,6 +24,7 @@ contains, and so forth.
 
 The manifest for this app was really simple:
 
+    #!json
     {
         "manifest_version": 2,
         "name": "Amazon Search AutoFocus",
