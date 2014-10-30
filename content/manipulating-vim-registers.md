@@ -1,9 +1,9 @@
 Title: Manipulating Vim Registers
 Date: 2014-10-23
 Category: Vim
-Tags: vim, registers, macros, programming
+Tags: vim, programming
 Author: Buck Ryan
-Summary: Directly change contents of Vim registers for advanced macros.
+Summary: Ways to directly modify the contents of Vim registers.
 Status: draft
 
 Recently I came across PHP code that looked similar to this:
@@ -17,44 +17,44 @@ Recently I came across PHP code that looked similar to this:
     const HOUR = 6;
     const SECOND = 7;
 
-I wanted to write a switch statement which handled each of those constants. I
-thought a good way to get started would be to write
+I wanted to write a switch statement which handled each of those constants.
+This is what each case statement would look like:
 
     #!php
-    const self::YEAR:
-    const self::QUARTER:
-    const self::MONTH:
-    const self::WEEK:
-    const self::DAY:
-    const self::HOUR:
-    const self::SECOND:
+    case self::YEAR:
+    case self::QUARTER:
+    case self::MONTH:
+    case self::WEEK:
+    case self::DAY:
+    case self::HOUR:
+    case self::SECOND:
 
-An obvious way to do this would be to yank the whole text, paste it where the
-code will live, and then use a macro to modify each line of text. [This
-article](http://blog.sanctum.geek.nz/advanced-vim-macros/) is a great writeup
-of more advanced macro techniques. Everything in there would work great for
-accomplishing this.
-
-However, it's possible to be more succinct by directly manipulating registers
-([:help registers](http://vimdoc.sourceforge.net/htmldoc/change.html#registers).
-This post will show a few ways to do that so that you can learn how to master
-registers. We can start off by showing some examples.
+One way to achieve this would be to yank the whole text, paste it where the
+switch will live, and with the help of a macro, change each line into a case
+statement. [This article](http://blog.sanctum.geek.nz/advanced-vim-macros/) is
+a great reference for advanced macro techniques, any of which would be useful
+if we took this approach. However, it's possible to be more succinct by
+building up the case statements incrementally with the help of registers
+([:help
+registers](http://vimdoc.sourceforge.net/htmldoc/change.html#registers)). This
+post will show a few ways to do that so that you can learn how to master
+registers. Here are some examples to start us off:
 
 Command                         | Explanation
 ------------------------------- | -----------
-`:let @a = ""`                  | *Clear out the contents of register "a"*
-`:let @a .= "I am register a!"` | *Append the text "I am register a!" to register "a"*
-`:let @c = "b is: " . @b`       | *Set the contents of register "c" to be the text "b is: " concatenated with the contents of register "b"*
+`:let @a = ""`                  | *Clear out register "a"*
+`:let @a .= "I am register a!"` | *Append the string "I am register a!" to register "a"*
+`:let @c = "b is: " . @b`       | *Set register "c" to be the string "b is: " concatenated with register "b"*
 `:reg c`                        | *Check what's in register "c"*
 `"dyy`                          | *Replace register "d" with the current line*
 `"Dyy`                          | *If you'd rather not overwrite register "d", but instead append to it*
 
-Knowing just the above will get us far, but for more details on the `:let @`
-command, check out [:help
-:let-@](http://vimdoc.sourceforge.net/htmldoc/eval.html#:let-@).
+*For more details on the `:let @` command, check out [:help
+:let-@](http://vimdoc.sourceforge.net/htmldoc/eval.html#:let-@).*
 
-Let's see how we can apply it toward making our switch statement. Our first
-exercise is pretty simple. We will get the contents of register `a` to be:
+Knowing just the above will get us far. Let's see how we can apply them toward
+making our case statements. Our first exercise is pretty simple. We will get
+the contents of register `a` to be:
 
     #!php
     YEAR
@@ -87,12 +87,10 @@ a to see it happen:
 As we saw above, `"A` tells vim that the next thing we yank should be appended
 to register `a` and `ye` means to yank until the end of the word. Examine
 register `a` with `:reg a` to see it is set to`^JYEAR^J` (`^J` stands for the
-newline character).
-
-Move your cursor down so it is on `QUARTER` and again use `"Aye` to yank it
-onto `a`. `a` is now `^JYEAR^JQUARTER^J`. Do this for every line (or even
-better, record a macro to automate it) and register `a` will have the text we
-were going for.
+newline character). Move your cursor down so it is on `QUARTER` and again use
+`"Aye` to append onto `a`. `a` is now `^JYEAR^JQUARTER^J`. Do this for every
+line (or even better, record a macro to automate it) and register `a` will have
+the text we were going for.
 
 That was a fun exercise, but to finish writing each case statement, we would
 need to edit each line in register `a`, which we wanted to avoid in the first
@@ -135,18 +133,22 @@ make the finished product. It's unnecessary, however, since we can use
 <c\_CTRL-R\_CTRL-W\>](http://vimdoc.sourceforge.net/htmldoc/cmdline.html#c_CTRL-R_CTRL-W))
 to insert the word under the cursor each time we append to `a`. To demonstrate
 this, again move to the beginning of `YEAR` and clear register `a`. This time,
-skip yanking to register `b` and on each line do:
+skip yanking to register `b` and do:
 
     #!vim
     :let @a .= "case self::<C-R><C-W>:\n"<CR>
 
+After doing this for each line, register `a` will be the same as before.
+
 Linewise vs. characterwise registers
 ====================================
 
-As I mentioned above, Vim will make a register `linewise` when your `:let @...`
-expression ends in a newline. Vim will keep a newline at the end of the
-register whenever you append to it by yanking, deleting, etc., but not when you
-directly modify the register using `:let @...`.
+As I mentioned above, Vim will make a register `linewise` when the expression
+you assign using `:let @...` ends in a newline. Vim will keep a newline at the
+end of the register whenever you append to it by yanking, deleting, etc., but
+not when you directly modify the register using `:let @...`. Even if you
+already have something in the register and append using `:let @a .= ...`, the
+register will change to linewise.
 
 If you want to get around this, you have a few options. The first uses yanking
 to get a newline at the end of your register. In insert mode, type
