@@ -1,5 +1,5 @@
 Title: Manipulating Vim Registers
-Date: 2014-10-23
+Date: 2014-11-02
 Category: Vim
 Tags: vim, programming
 Author: Buck Ryan
