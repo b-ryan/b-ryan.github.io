@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>buckryan.com</title><link>http://buckryan.com/</link><description></description><atom:link href="http://buckryan.com/feeds/buck-ryan.rss.xml" rel="self"></atom:link><lastBuildDate>Thu, 23 Oct 2014 00:00:00 -0400</lastBuildDate><item><title>Manipulating Vim Registers</title><link>http://buckryan.com/manipulating-vim-registers.html</link><description>&lt;p&gt;Recently I came across PHP code that looked similar to this:&lt;/p&gt;
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>buckryan.com</title><link>http://buckryan.com/</link><description></description><atom:link href="http://buckryan.com/feeds/buck-ryan.rss.xml" rel="self"></atom:link><lastBuildDate>Sun, 02 Nov 2014 00:00:00 -0400</lastBuildDate><item><title>Manipulating Vim Registers</title><link>http://buckryan.com/manipulating-vim-registers.html</link><description>&lt;p&gt;Recently I came across PHP code that looked similar to this:&lt;/p&gt;
 &lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
 2
 3
@@ -200,7 +200,7 @@ newline to your register, but a newline plus some other character. For example:&
 &lt;p&gt;Here the register ends with the pipe character. You could use a space or tab or
 any non-newline character. In our PHP example from the previous section, this
 technique might have been useful if we wanted each line to begin with a tab
-character, for example.&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Buck Ryan</dc:creator><pubDate>Thu, 23 Oct 2014 00:00:00 -0400</pubDate><guid>tag:buckryan.com,2014-10-23:manipulating-vim-registers.html</guid><category>vim</category><category>programming</category></item><item><title>Automatically Focus on Amazon's Search Bar</title><link>http://buckryan.com/automatically-focus-on-amazons-search-bar.html</link><description>&lt;p&gt;Whenever I visit Amazon's homepage, I do so hoping to search for things. I'm
+character, for example.&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Buck Ryan</dc:creator><pubDate>Sun, 02 Nov 2014 00:00:00 -0400</pubDate><guid>tag:buckryan.com,2014-11-02:manipulating-vim-registers.html</guid><category>vim</category><category>programming</category></item><item><title>Automatically Focus on Amazon's Search Bar</title><link>http://buckryan.com/automatically-focus-on-amazons-search-bar.html</link><description>&lt;p&gt;Whenever I visit Amazon's homepage, I do so hoping to search for things. I'm
 not one to browse around and I'm sure many others are the same. However, I get
 annoyed each time this happens because the search bar does not have the focus
 when you visit the homepage. After coming across a
