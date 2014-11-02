@@ -4,7 +4,6 @@ Category: Vim
 Tags: vim, programming
 Author: Buck Ryan
 Summary: Ways to directly modify the contents of Vim registers.
-Status: draft
 
 Recently I came across PHP code that looked similar to this:
 
