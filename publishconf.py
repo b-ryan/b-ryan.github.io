@@ -18,9 +18,6 @@ CATEGORY_FEED_ATOM = 'feeds/%s.atom.xml'
 
 DELETE_OUTPUT_DIRECTORY = True
 
-ENABLE_CLICKY = True
-
-# Following items are often useful when publishing
-
-#DISQUS_SITENAME = ""
+CLICKY_ID = 100683631
+DISQUS_SITENAME = 'buckryan'
 #GOOGLE_ANALYTICS = ""

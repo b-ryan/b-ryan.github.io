@@ -48,5 +48,30 @@
     <div class="entry-content">
       {{ article.content }}
     </div>
+
+    <p>
+      <em>If you enjoyed this post, follow me on <a
+        href="https://twitter.com/_buckryan">Twitter</a>.</em>
+    </p>
   </section>
+
+  {% if DISQUS_SITENAME %}
+    <div class="comments">
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+
+        var disqus_identifier = "{{ article.url }}";
+        console.log(disqus_identifier);
+        (function() {
+          var dsq = document.createElement('script');
+          dsq.type = 'text/javascript';
+          dsq.async = true;
+          dsq.src = 'http://{{ DISQUS_SITENAME }}.disqus.com/embed.js';
+          (document.getElementsByTagName('head')[0] ||
+           document.getElementsByTagName('body')[0]).appendChild(dsq);
+         })();
+
+      </script>
+    </div>
+  {% endif %}
 {% endblock %}
