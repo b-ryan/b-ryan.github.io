@@ -1,10 +1,18 @@
-The content of buckryan.com
-
 # Developing
 
+```
 pip install -r requirements.txt
 ./develop.sh
+```
 
-# Deploy to S3
+# Make a new article
 
-aws s3 sync output BUCKET
+```
+./new-article 'Name of article'
+```
+
+# Deploying
+
+```
+./deploy.sh
+```
