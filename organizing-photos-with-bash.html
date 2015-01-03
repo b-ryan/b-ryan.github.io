@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>
-      buckryan.com
-    </title>
+
+
+    <meta name="tags" contents="bash" />
+
 
     <meta charset="utf-8" />
     <meta name="viewport" content="width-device-width, initial-scale=1.0">
@@ -57,34 +58,29 @@
     </nav>
 
     <div class="container">
-  <section id="content">
-<h2>Articles in the Programming category</h2>
+  <section id="content" class="body">
 
-    <ol id="post-list">
-      <li>
-        <article class="hentry">
+    <header>
+      <h2 class="entry-title">
+        <a
+          href="http://buckryan.com/organizing-photos-with-bash.html"
+          rel="bookmark"
+          title="Permalink to Organizing photos with bash"
+        >Organizing photos with bash</a>
+      </h2>
+      
+    </header>
 
-          <header>
-            <h2 class="entry-title">
-              <a
-                href="http://buckryan.com/organizing-photos-with-bash.html"
-                rel="bookmark"
-                title="Permalink to Organizing photos with bash"
-              >Organizing photos with bash</a>
+    <footer class="post-info">
+      <span>
+        2015-01-02
+      </span>
+        <address class="vcard author">
+        </address>
+    </footer>
 
-            </h2>
-          </header>
-
-          <footer class="post-info">
-            <span>
-              2015-01-02
-            </span>
-              <address class="vcard author">
-              </address>
-          </footer>
-
-          <div class="entry-content">
-            <p>I've been trying to organize my photos recently. I hadn't kept up with them
+    <div class="entry-content">
+      <p>I've been trying to organize my photos recently. I hadn't kept up with them
 and I recently discovered I have a pile of photos dumped into a single
 directory. I like to separate photos by the day they were taken so I end up
 with directories like:</p>
@@ -274,121 +270,31 @@ the section titled <strong>Substring Removal</strong>.</p>
 tools out there that could have done this for me, but I found this more fun.
 You can really do some neat stuff with everyday command-line tools. I highly
 recommend using them for tasks like this to become comfortable writing bash.</p>
-          </div>
+    </div>
 
-        </article>
-      </li>
-      <li>
-        <article class="hentry">
-
-          <header>
-            <h2 class="entry-title">
-              <a
-                href="http://buckryan.com/automatically-focus-on-amazons-search-bar.html"
-                rel="bookmark"
-                title="Permalink to Automatically Focus on Amazon's Search Bar"
-              >Automatically Focus on Amazon's Search Bar</a>
-
-            </h2>
-          </header>
-
-          <footer class="post-info">
-            <span>
-              2013-03-07
-            </span>
-              <address class="vcard author">
-              </address>
-          </footer>
-
-          <div class="entry-content">
-            <p>Whenever I visit Amazon's homepage, I do so hoping to search for things. I'm
-not one to browse around and I'm sure many others are the same. However, I get
-annoyed each time this happens because the search bar does not have the focus
-when you visit the homepage. After coming across a
-<a href="http://news.ycombinator.com/item?id=5333209">comment</a> on Hacker News
-describing the same problem, I realized I could fix this with a pretty simple
-Chrome extension. Check it out
-<a href="https://chrome.google.com/webstore/detail/amazon-search-auto-focus/mlblghbllacignpjknjbpbefjmgnbpca">here</a>
-and read on for a short description of how I put it together.</p>
-<p>About one or two years back, I was interested in making extensions for Chrome,
-but never went very far with it. However, the brief foray meant that yesterday,
-I knew the basics I would need to make the extension. The most important part
-of this is the <a href="http://developer.chrome.com/extensions/manifest.html">manifest</a>,
-which describes your extension, lists the permissions it needs, files it
-contains, and so forth.</p>
-<p>The manifest for this app was really simple:</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10
-11
-12
-13
-14
-15
-16</pre></div></td><td class="code"><div class="highlight"><pre><span class="p">{</span>
-    <span class="nt">&quot;manifest_version&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
-    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Amazon Search AutoFocus&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Automatically focus on search bar when visiting Amazon&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="s2">&quot;http://*.amazon.com/&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;https://*.amazon.com/&quot;</span>
-    <span class="p">],</span>
-    <span class="nt">&quot;content_scripts&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="p">{</span>
-            <span class="nt">&quot;matches&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;http://*.amazon.com/&quot;</span><span class="p">],</span>
-            <span class="nt">&quot;js&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;script.js&quot;</span><span class="p">]</span>
-        <span class="p">}</span>
-    <span class="p">]</span>
-<span class="p">}</span>
-</pre></div>
-</td></tr></table>
-
-<p>Most of this is pretty obvious. The documentation on the
-<a href="http://developer.chrome.com/extensions/manifest.html#manifest_version">manifest_version</a>
-indicates that version 1 is deprecate. The version indicated lets Google
-manage the extension among users. This number will be used to determine if a
-user is on an older version of the extension and it needs to be updated.</p>
-<p>Permissions are bit complicated, as they can include whether the extension
-can operate on tabs or windows, have access to sites, etc. For this really
-simple app, I only need to indicate that I want access to the amazon sites.</p>
-<p>Finally, the hardest part of it all was figuring out how to get some javascript
-to run when I visited Amazon's homepage. Using some Google-foo, I discovered
-that <a href="http://developer.chrome.com/extensions/content_scripts.html">Content Scripts</a>
-are the way to do this. As the documentation says, <code>content scripts run in the
-context of web pages</code>. This means the javascript file specified above
-(script.js) will be run when Amazon loads. This is exactly what I wanted!</p>
-<p>So finally I just needed to write the javascript. It turned out to be dead
-simple. Here's the only line needed:</p>
-<div class="highlight"><pre>document.getElementById(&quot;twotabsearchtextbox&quot;).focus();
-</pre></div>
-
-
-<p>I briefly examined Amazon's search box using the Chrome
-<a href="https://developers.google.com/chrome-developer-tools/docs/elements">developer tools</a>
-and I saw that the ID of the search box was <code>twotabsearchtextbox</code>. So I used
-some native javascript functions to set the focus and it was done!</p>
-<p>Hopefully this helps if you want to write your own Chrome extension! If I make
-any changes or improvements to this, the updated code will be
-<a href="https://bitbucket.org/b_ryan/amazon-autofocus">on Bitbucket</a> for your viewing
-pleasure.</p>
-          </div>
-
-        </article>
-      </li>
-    </ol>
-
-<p class="paginator">
-    Page 1 / 1
-</p>
+    <p>
+      <em>If you enjoyed this post, follow me on <a
+        href="https://twitter.com/_buckryan">Twitter</a>.</em>
+    </p>
   </section>
+
+    <div class="comments">
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+
+        var disqus_identifier = "organizing-photos-with-bash.html";
+        console.log(disqus_identifier);
+        (function() {
+          var dsq = document.createElement('script');
+          dsq.type = 'text/javascript';
+          dsq.async = true;
+          dsq.src = 'http://buckryan.disqus.com/embed.js';
+          (document.getElementsByTagName('head')[0] ||
+           document.getElementsByTagName('body')[0]).appendChild(dsq);
+         })();
+
+      </script>
+    </div>
     </div>
 
 

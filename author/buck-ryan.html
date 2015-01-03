@@ -66,6 +66,223 @@ buckryan.com - Articles by Buck Ryan    </title>
           <header>
             <h2 class="entry-title">
               <a
+                href="http://buckryan.com/organizing-photos-with-bash.html"
+                rel="bookmark"
+                title="Permalink to Organizing photos with bash"
+              >Organizing photos with bash</a>
+
+            </h2>
+          </header>
+
+          <footer class="post-info">
+            <span>
+              2015-01-02
+            </span>
+              <address class="vcard author">
+              </address>
+          </footer>
+
+          <div class="entry-content">
+            <p>I've been trying to organize my photos recently. I hadn't kept up with them
+and I recently discovered I have a pile of photos dumped into a single
+directory. I like to separate photos by the day they were taken so I end up
+with directories like:</p>
+<div class="highlight"><pre>2015-01-01_new-years-day
+2014-12-31_new-years-eve
+2014-12-25_christmas
+...
+</pre></div>
+
+
+<p>Wanting to organize these as painlessly as I could think, I sought to run a few
+bash commands to split my pile of photos into directories like these. The first
+issue I ran into was the file formats - these were raw photos. I had found a
+nice tool called <code>exif</code> (<code>sudo apt-get install exif</code>) which I could use to
+extract the date the pictures were taken, but it only works on JPG images.</p>
+<p>So step one was to convert the files. The
+<a href="http://imagemagick.org/">ImageMagick</a> tool (<code>sudo apt-get install
+imagemagick</code>) has a command called <code>convert</code> that will do just that. To convert
+them all without risking overwriting anything, a simple for loop works nicely:</p>
+<div class="highlight"><pre><span class="k">for</span> f in *.NEF<span class="p">;</span> <span class="k">do</span>
+    convert <span class="nv">$f</span> <span class="nv">$f</span>.jpg
+<span class="k">done</span>
+</pre></div>
+
+
+<p>This will convert files like <code>DSC_0001.NEF</code> to <code>DSC_0001.NEF.jpg</code>. Running this
+command was taking awhile and I wanted to see how much work was left to do.
+<code>watch</code> is the perfect tool for the job. It lets you repeatedly run a command
+and see its output. So all I needed to do was write a command that would list
+all of the <code>.NEF</code> files that did not have corresponding <code>.NEF.jpg</code> files.  To
+do that, I used:</p>
+<div class="highlight"><pre><span class="k">for</span> f in *.NEF<span class="p">;</span> <span class="k">do</span>
+    ls <span class="nv">$f</span>.jpg <span class="p">&amp;</span>&gt;/dev/null <span class="o">||</span> <span class="nb">echo</span> <span class="nv">$f</span>
+<span class="k">done</span>
+</pre></div>
+
+
+<p>I ignored all output of <code>ls</code> (<code>&amp;&gt;/dev/null</code>) because the return code would be
+enough to determine whether the file existed. More importantly, I didn't want
+to have to parse through whatever output the command threw at me. The <code>|| echo
+$f</code> will only be executed if the <code>ls</code> failed, indicating the file doesn't
+exist.</p>
+<p>I had issues running this directly with <code>watch</code>, but I didn't want to spend
+time debugging. Instead I saved the command to a file and ran:</p>
+<div class="highlight"><pre>chmod +x script.sh
+watch ./script.sh
+</pre></div>
+
+
+<p>Every 2 seconds the screen updated letting me know how many files were left
+to convert.</p>
+<p>While the conversion was running, I prepared to get exif data out of the jpg
+files. I mentioned above that <code>exif</code> will do just that. Here's what a sample
+run looked like:</p>
+<div class="highlight"><pre>  $ exif DSC_0093.JPG 
+EXIF tags in &#39;DSC_0093.JPG&#39; (&#39;Motorola&#39; byte order):
+--------------------+----------------------------------------------------------
+Tag                 |Value
+--------------------+----------------------------------------------------------
+Manufacturer        |
+Model               |
+X-Resolution        |500.0000000
+Y-Resolution        |500.0000000
+Resolution Unit     |Inch
+Software            |Picasa 3.0
+Date and Time       |2007:04:09 16:15:47
+YCbCr Positioning   |Centered
+Padding             |2060 bytes undefined data
+Compression         |JPEG compression
+X-Resolution        |72
+Y-Resolution        |72
+Resolution Unit     |Inch
+Exif Version        |Exif Version 2.2
+Date and Time (Origi|2007:12:25 11:07:52
+Date and Time (Digit|2007:12:25 11:07:52
+Components Configura|Y Cb Cr -
+User Comment        |
+Sub-second Time (Ori|00
+Sub-second Time (Dig|00
+FlashPixVersion     |FlashPix Version 1.0
+Color Space         |Internal error (unknown value 65535)
+Pixel X Dimension   |3008
+Pixel Y Dimension   |2000
+Custom Rendered     |Custom process
+Image Unique ID     |517d7ada5c38d78cd60a3032343e64f1
+Padding             |2060 bytes undefined data
+Interoperability Ver|0100
+--------------------+----------------------------------------------------------
+EXIF data contains a thumbnail (5597 bytes).
+</pre></div>
+
+
+<p>(This was a <em>really</em> old photo - most of them were much more recent.)</p>
+<p>I noticed there was the <code>Date and Time</code> tag in there. And in reading the man
+page for <code>exif</code>, saw that I could ask for values of specific tags using the
+<code>--tag</code> argument. Here is what happened for the same file above:</p>
+<div class="highlight"><pre>  $ exif --tag &#39;Date and Time&#39; DSC_0093.JPG 
+EXIF entry &#39;Date and Time&#39; (0x132, &#39;DateTime&#39;) exists in IFD &#39;0&#39;:
+Tag: 0x132 (&#39;DateTime&#39;)
+  Format: 2 (&#39;ASCII&#39;)
+  Components: 20
+  Size: 20
+  Value: 2007:04:09 16:15:47
+</pre></div>
+
+
+<p>We can work with that! A few <code>grep</code> and <code>awk</code> commands later and I had:</p>
+<div class="highlight"><pre>  $ exif --tag &#39;Date and Time&#39; DSC_0093.JPG \
+    | grep Value \
+    | awk &#39;{print $2}&#39; \
+    | awk -F&#39;:&#39; &#39;{print $1 &quot;-&quot; $2 &quot;-&quot; $3}&#39;
+2007-04-09
+</pre></div>
+
+
+<p>To break that down: <code>grep Value</code> is pretty obvious. It will leave only the
+line containing <code>Value</code> so now our result will look like</p>
+<div class="highlight"><pre>  Value: 2007:04:09 16:15:47
+</pre></div>
+
+
+<p>Then this gets piped to <code>awk '{print $2}'</code>. This is a very common type of awk
+command to run. Since awk splits on whitespace by default, this will get us
+the second column, which in this case contains the text</p>
+<div class="highlight"><pre><span class="mi">2007</span><span class="o">:</span><span class="mi">04</span><span class="o">:</span><span class="mi">09</span>
+</pre></div>
+
+
+<p>I didn't care about the time of the photo since I'm planning to lump all of
+the photos from the same day into a given directory. If I had wanted the date
+<em>and</em> time, I could have used <code>awk '{print $2 " " $3}'</code>.</p>
+<p>Now that I have the date, I want it in my preferred format of <code>yyyy-mm-dd</code> so
+I once again turned to awk. This time I used <code>-F':'</code> to specify that I wanted
+to split on <code>:</code> instead of whitespace. Then I rest of the command glues the
+date, month, and year parts together with <code>-</code> in between.</p>
+<p>So now I have to use all of this to make the directories and dump files into
+them. Before actually creating any directories or moving any files, however,
+I wanted to sanity check everything. I wrote a loop that spit out each of the
+<code>*NEF.jpg</code> files and the date I calculated for them:</p>
+<div class="highlight"><pre><span class="k">for</span> f in *NEF.jpg<span class="p">;</span> <span class="k">do</span>
+    <span class="nb">echo</span> -n <span class="s2">&quot;</span><span class="nv">$f</span><span class="s2"> &quot;</span>
+    <span class="nv">dt</span><span class="o">=</span><span class="k">$(</span>exif --tag <span class="s1">&#39;Date and Time&#39;</span> <span class="nv">$f</span> <span class="se">\</span>
+            <span class="p">|</span> grep Value <span class="se">\</span>
+            <span class="p">|</span> awk <span class="s1">&#39;{print $2}&#39;</span> <span class="se">\</span>
+            <span class="p">|</span> awk -F<span class="s1">&#39;:&#39;</span> <span class="s1">&#39;{print $1 &quot;-&quot; $2 &quot;-&quot; $3}&#39;</span><span class="k">)</span>
+    <span class="nb">echo</span> <span class="nv">$dt</span>
+<span class="k">done</span>
+</pre></div>
+
+
+<p>The <code>-n</code> flag to <code>echo</code> tells it to not print a newline. I then saved the
+result of the command to calculate the picture's date to a variable called
+<code>dt</code> so that I could reuse it in the code to follow. Here's a snippet of the
+results:</p>
+<div class="highlight"><pre>DSC_1455.NEF.jpg    2014-07-28
+DSC_1456.NEF.jpg    2014-07-28
+DSC_1457.NEF.jpg    2014-07-28
+DSC_1458.NEF.jpg    2014-07-28
+DSC_1460.NEF.jpg    2014-07-28
+DSC_1461.NEF.jpg    2014-07-28
+DSC_1463.NEF.jpg    2014-07-28
+DSC_1506.NEF.jpg    2014-09-03
+DSC_1507.NEF.jpg    2014-09-03
+DSC_1512.NEF.jpg    2014-09-03
+</pre></div>
+
+
+<p>After sanity checking the results, I felt confident enough to go forward. Here
+is the final product:</p>
+<div class="highlight"><pre><span class="k">for</span> f in *NEF.jpg<span class="p">;</span> <span class="k">do</span>
+    <span class="nv">dt</span><span class="o">=</span><span class="k">$(</span>exif --tag <span class="s1">&#39;Date and Time&#39;</span> <span class="nv">$f</span> <span class="se">\</span>
+            <span class="p">|</span> grep Value <span class="se">\</span>
+            <span class="p">|</span> awk <span class="s1">&#39;{print $2}&#39;</span> <span class="se">\</span>
+            <span class="p">|</span> awk -F<span class="s1">&#39;:&#39;</span> <span class="s1">&#39;{print $1 &quot;-&quot; $2 &quot;-&quot; $3}&#39;</span><span class="k">)</span>
+
+    mkdir <span class="nv">$dt</span> <span class="p">&amp;</span>&gt;/dev/null
+    mv <span class="si">${</span><span class="nv">f</span><span class="p">%.jpg</span><span class="si">}</span> <span class="nv">$dt</span>/
+<span class="k">done</span>
+</pre></div>
+
+
+<p>The most interesting part of this code is the <code>${f%.jpg}</code>. This chops <code>.jpg</code>
+off of the end of the string. To fully grasp what's going on, check out <a href="http://tldp.org/LDP/abs/html/string-manipulation.html">this
+article</a>, specifically
+the section titled <strong>Substring Removal</strong>.</p>
+<p>And that was it! Was a lot of faster than doing it by hand. Maybe there are
+tools out there that could have done this for me, but I found this more fun.
+You can really do some neat stuff with everyday command-line tools. I highly
+recommend using them for tasks like this to become comfortable writing bash.</p>
+          </div>
+
+        </article>
+      </li>
+      <li>
+        <article class="hentry">
+
+          <header>
+            <h2 class="entry-title">
+              <a
                 href="http://buckryan.com/manipulating-vim-registers.html"
                 rel="bookmark"
                 title="Permalink to Manipulating Vim Registers"
@@ -378,7 +595,7 @@ context of web pages</code>. This means the javascript file specified above
 (script.js) will be run when Amazon loads. This is exactly what I wanted!</p>
 <p>So finally I just needed to write the javascript. It turned out to be dead
 simple. Here's the only line needed:</p>
-<div class="highlight"><pre><span class="n">document</span><span class="p">.</span><span class="n">getElementById</span><span class="p">(</span><span class="s">&quot;twotabsearchtextbox&quot;</span><span class="p">).</span><span class="n">focus</span><span class="p">();</span>
+<div class="highlight"><pre>document.getElementById(&quot;twotabsearchtextbox&quot;).focus();
 </pre></div>
 
 

@@ -143,10 +143,10 @@ splits. Here is the trimmed down code for the models:</p>
 
 <p>Interacting with these models over HTTP is done via a pretty basic REST
 interface. Here are some endpoints:</p>
-<div class="highlight"><pre><span class="n">GET</span> <span class="o">/</span><span class="n">transactions</span> <span class="o">-</span> <span class="n">Fetch</span> <span class="n">all</span> <span class="n">transactions</span>
-<span class="n">GET</span> <span class="o">/</span><span class="n">transactions</span><span class="o">/</span><span class="mi">3</span> <span class="o">-</span> <span class="n">Fetch</span> <span class="n">the</span> <span class="n">transaction</span> <span class="n">with</span> <span class="n">id</span> <span class="mi">3</span>
-<span class="n">POST</span> <span class="o">/</span><span class="n">transactions</span> <span class="o">-</span> <span class="n">Save</span> <span class="n">a</span> <span class="n">new</span> <span class="n">transaction</span>
-<span class="n">PUT</span> <span class="o">/</span><span class="n">transactions</span> <span class="o">-</span> <span class="n">Update</span> <span class="n">a</span> <span class="n">transaction</span>
+<div class="highlight"><pre><span class="err">GET /transactions - Fetch all transactions</span>
+<span class="err">GET /transactions/3 - Fetch the transaction with id 3</span>
+<span class="err">POST /transactions - Save a new transaction</span>
+<span class="err">PUT /transactions - Update a transaction</span>
 </pre></div>
 
 
@@ -215,7 +215,7 @@ look something like:</p>
 <div class="highlight"><pre><span class="nv">transaction = </span><span class="k">new</span> <span class="nx">Transaction</span>
     <span class="nv">date: </span><span class="s">&#39;today&#39;</span>
 
-<span class="nx">transaction</span><span class="p">.</span><span class="nx">$save</span> <span class="p">()</span> <span class="nf">-&gt;</span>
+<span class="nx">transaction</span><span class="p">.</span><span class="nx">$save</span> <span class="nf">() -&gt;</span>
     <span class="c1"># this code will run once the POST request finishes</span>
     <span class="nv">transaction.splits = </span><span class="p">[</span>
         <span class="k">new</span> <span class="nx">Split</span>

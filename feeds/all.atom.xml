@@ -1,5 +1,194 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>buckryan.com</title><link href="http://buckryan.com/" rel="alternate"></link><link href="http://buckryan.com/feeds/all.atom.xml" rel="self"></link><id>http://buckryan.com/</id><updated>2014-11-02T00:00:00-04:00</updated><entry><title>Manipulating Vim Registers</title><link href="http://buckryan.com/manipulating-vim-registers.html" rel="alternate"></link><updated>2014-11-02T00:00:00-04:00</updated><author><name>Buck Ryan</name></author><id>tag:buckryan.com,2014-11-02:manipulating-vim-registers.html</id><summary type="html">&lt;p&gt;Recently I came across PHP code that looked similar to this:&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>buckryan.com</title><link href="http://buckryan.com/" rel="alternate"></link><link href="http://buckryan.com/feeds/all.atom.xml" rel="self"></link><id>http://buckryan.com/</id><updated>2015-01-02T00:00:00-05:00</updated><entry><title>Organizing photos with bash</title><link href="http://buckryan.com/organizing-photos-with-bash.html" rel="alternate"></link><updated>2015-01-02T00:00:00-05:00</updated><author><name>Buck Ryan</name></author><id>tag:buckryan.com,2015-01-02:organizing-photos-with-bash.html</id><summary type="html">&lt;p&gt;I've been trying to organize my photos recently. I hadn't kept up with them
+and I recently discovered I have a pile of photos dumped into a single
+directory. I like to separate photos by the day they were taken so I end up
+with directories like:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;2015-01-01_new-years-day
+2014-12-31_new-years-eve
+2014-12-25_christmas
+...
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Wanting to organize these as painlessly as I could think, I sought to run a few
+bash commands to split my pile of photos into directories like these. The first
+issue I ran into was the file formats - these were raw photos. I had found a
+nice tool called &lt;code&gt;exif&lt;/code&gt; (&lt;code&gt;sudo apt-get install exif&lt;/code&gt;) which I could use to
+extract the date the pictures were taken, but it only works on JPG images.&lt;/p&gt;
+&lt;p&gt;So step one was to convert the files. The
+&lt;a href="http://imagemagick.org/"&gt;ImageMagick&lt;/a&gt; tool (&lt;code&gt;sudo apt-get install
+imagemagick&lt;/code&gt;) has a command called &lt;code&gt;convert&lt;/code&gt; that will do just that. To convert
+them all without risking overwriting anything, a simple for loop works nicely:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;for&lt;/span&gt; f in *.NEF&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt;
+    convert &lt;span class="nv"&gt;$f&lt;/span&gt; &lt;span class="nv"&gt;$f&lt;/span&gt;.jpg
+&lt;span class="k"&gt;done&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This will convert files like &lt;code&gt;DSC_0001.NEF&lt;/code&gt; to &lt;code&gt;DSC_0001.NEF.jpg&lt;/code&gt;. Running this
+command was taking awhile and I wanted to see how much work was left to do.
+&lt;code&gt;watch&lt;/code&gt; is the perfect tool for the job. It lets you repeatedly run a command
+and see its output. So all I needed to do was write a command that would list
+all of the &lt;code&gt;.NEF&lt;/code&gt; files that did not have corresponding &lt;code&gt;.NEF.jpg&lt;/code&gt; files.  To
+do that, I used:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;for&lt;/span&gt; f in *.NEF&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt;
+    ls &lt;span class="nv"&gt;$f&lt;/span&gt;.jpg &lt;span class="p"&gt;&amp;amp;&lt;/span&gt;&amp;gt;/dev/null &lt;span class="o"&gt;||&lt;/span&gt; &lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="nv"&gt;$f&lt;/span&gt;
+&lt;span class="k"&gt;done&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I ignored all output of &lt;code&gt;ls&lt;/code&gt; (&lt;code&gt;&amp;amp;&amp;gt;/dev/null&lt;/code&gt;) because the return code would be
+enough to determine whether the file existed. More importantly, I didn't want
+to have to parse through whatever output the command threw at me. The &lt;code&gt;|| echo
+$f&lt;/code&gt; will only be executed if the &lt;code&gt;ls&lt;/code&gt; failed, indicating the file doesn't
+exist.&lt;/p&gt;
+&lt;p&gt;I had issues running this directly with &lt;code&gt;watch&lt;/code&gt;, but I didn't want to spend
+time debugging. Instead I saved the command to a file and ran:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;chmod +x script.sh
+watch ./script.sh
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Every 2 seconds the screen updated letting me know how many files were left
+to convert.&lt;/p&gt;
+&lt;p&gt;While the conversion was running, I prepared to get exif data out of the jpg
+files. I mentioned above that &lt;code&gt;exif&lt;/code&gt; will do just that. Here's what a sample
+run looked like:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;  $ exif DSC_0093.JPG 
+EXIF tags in &amp;#39;DSC_0093.JPG&amp;#39; (&amp;#39;Motorola&amp;#39; byte order):
+--------------------+----------------------------------------------------------
+Tag                 |Value
+--------------------+----------------------------------------------------------
+Manufacturer        |
+Model               |
+X-Resolution        |500.0000000
+Y-Resolution        |500.0000000
+Resolution Unit     |Inch
+Software            |Picasa 3.0
+Date and Time       |2007:04:09 16:15:47
+YCbCr Positioning   |Centered
+Padding             |2060 bytes undefined data
+Compression         |JPEG compression
+X-Resolution        |72
+Y-Resolution        |72
+Resolution Unit     |Inch
+Exif Version        |Exif Version 2.2
+Date and Time (Origi|2007:12:25 11:07:52
+Date and Time (Digit|2007:12:25 11:07:52
+Components Configura|Y Cb Cr -
+User Comment        |
+Sub-second Time (Ori|00
+Sub-second Time (Dig|00
+FlashPixVersion     |FlashPix Version 1.0
+Color Space         |Internal error (unknown value 65535)
+Pixel X Dimension   |3008
+Pixel Y Dimension   |2000
+Custom Rendered     |Custom process
+Image Unique ID     |517d7ada5c38d78cd60a3032343e64f1
+Padding             |2060 bytes undefined data
+Interoperability Ver|0100
+--------------------+----------------------------------------------------------
+EXIF data contains a thumbnail (5597 bytes).
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;(This was a &lt;em&gt;really&lt;/em&gt; old photo - most of them were much more recent.)&lt;/p&gt;
+&lt;p&gt;I noticed there was the &lt;code&gt;Date and Time&lt;/code&gt; tag in there. And in reading the man
+page for &lt;code&gt;exif&lt;/code&gt;, saw that I could ask for values of specific tags using the
+&lt;code&gt;--tag&lt;/code&gt; argument. Here is what happened for the same file above:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;  $ exif --tag &amp;#39;Date and Time&amp;#39; DSC_0093.JPG 
+EXIF entry &amp;#39;Date and Time&amp;#39; (0x132, &amp;#39;DateTime&amp;#39;) exists in IFD &amp;#39;0&amp;#39;:
+Tag: 0x132 (&amp;#39;DateTime&amp;#39;)
+  Format: 2 (&amp;#39;ASCII&amp;#39;)
+  Components: 20
+  Size: 20
+  Value: 2007:04:09 16:15:47
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;We can work with that! A few &lt;code&gt;grep&lt;/code&gt; and &lt;code&gt;awk&lt;/code&gt; commands later and I had:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;  $ exif --tag &amp;#39;Date and Time&amp;#39; DSC_0093.JPG \
+    | grep Value \
+    | awk &amp;#39;{print $2}&amp;#39; \
+    | awk -F&amp;#39;:&amp;#39; &amp;#39;{print $1 &amp;quot;-&amp;quot; $2 &amp;quot;-&amp;quot; $3}&amp;#39;
+2007-04-09
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;To break that down: &lt;code&gt;grep Value&lt;/code&gt; is pretty obvious. It will leave only the
+line containing &lt;code&gt;Value&lt;/code&gt; so now our result will look like&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;  Value: 2007:04:09 16:15:47
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Then this gets piped to &lt;code&gt;awk '{print $2}'&lt;/code&gt;. This is a very common type of awk
+command to run. Since awk splits on whitespace by default, this will get us
+the second column, which in this case contains the text&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="mi"&gt;2007&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;04&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;09&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I didn't care about the time of the photo since I'm planning to lump all of
+the photos from the same day into a given directory. If I had wanted the date
+&lt;em&gt;and&lt;/em&gt; time, I could have used &lt;code&gt;awk '{print $2 " " $3}'&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Now that I have the date, I want it in my preferred format of &lt;code&gt;yyyy-mm-dd&lt;/code&gt; so
+I once again turned to awk. This time I used &lt;code&gt;-F':'&lt;/code&gt; to specify that I wanted
+to split on &lt;code&gt;:&lt;/code&gt; instead of whitespace. Then I rest of the command glues the
+date, month, and year parts together with &lt;code&gt;-&lt;/code&gt; in between.&lt;/p&gt;
+&lt;p&gt;So now I have to use all of this to make the directories and dump files into
+them. Before actually creating any directories or moving any files, however,
+I wanted to sanity check everything. I wrote a loop that spit out each of the
+&lt;code&gt;*NEF.jpg&lt;/code&gt; files and the date I calculated for them:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;for&lt;/span&gt; f in *NEF.jpg&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt;
+    &lt;span class="nb"&gt;echo&lt;/span&gt; -n &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$f&lt;/span&gt;&lt;span class="s2"&gt; &amp;quot;&lt;/span&gt;
+    &lt;span class="nv"&gt;dt&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;exif --tag &lt;span class="s1"&gt;&amp;#39;Date and Time&amp;#39;&lt;/span&gt; &lt;span class="nv"&gt;$f&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
+            &lt;span class="p"&gt;|&lt;/span&gt; grep Value &lt;span class="se"&gt;\&lt;/span&gt;
+            &lt;span class="p"&gt;|&lt;/span&gt; awk &lt;span class="s1"&gt;&amp;#39;{print $2}&amp;#39;&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
+            &lt;span class="p"&gt;|&lt;/span&gt; awk -F&lt;span class="s1"&gt;&amp;#39;:&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;{print $1 &amp;quot;-&amp;quot; $2 &amp;quot;-&amp;quot; $3}&amp;#39;&lt;/span&gt;&lt;span class="k"&gt;)&lt;/span&gt;
+    &lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="nv"&gt;$dt&lt;/span&gt;
+&lt;span class="k"&gt;done&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The &lt;code&gt;-n&lt;/code&gt; flag to &lt;code&gt;echo&lt;/code&gt; tells it to not print a newline. I then saved the
+result of the command to calculate the picture's date to a variable called
+&lt;code&gt;dt&lt;/code&gt; so that I could reuse it in the code to follow. Here's a snippet of the
+results:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;DSC_1455.NEF.jpg    2014-07-28
+DSC_1456.NEF.jpg    2014-07-28
+DSC_1457.NEF.jpg    2014-07-28
+DSC_1458.NEF.jpg    2014-07-28
+DSC_1460.NEF.jpg    2014-07-28
+DSC_1461.NEF.jpg    2014-07-28
+DSC_1463.NEF.jpg    2014-07-28
+DSC_1506.NEF.jpg    2014-09-03
+DSC_1507.NEF.jpg    2014-09-03
+DSC_1512.NEF.jpg    2014-09-03
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;After sanity checking the results, I felt confident enough to go forward. Here
+is the final product:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;for&lt;/span&gt; f in *NEF.jpg&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt;
+    &lt;span class="nv"&gt;dt&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;exif --tag &lt;span class="s1"&gt;&amp;#39;Date and Time&amp;#39;&lt;/span&gt; &lt;span class="nv"&gt;$f&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
+            &lt;span class="p"&gt;|&lt;/span&gt; grep Value &lt;span class="se"&gt;\&lt;/span&gt;
+            &lt;span class="p"&gt;|&lt;/span&gt; awk &lt;span class="s1"&gt;&amp;#39;{print $2}&amp;#39;&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
+            &lt;span class="p"&gt;|&lt;/span&gt; awk -F&lt;span class="s1"&gt;&amp;#39;:&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;{print $1 &amp;quot;-&amp;quot; $2 &amp;quot;-&amp;quot; $3}&amp;#39;&lt;/span&gt;&lt;span class="k"&gt;)&lt;/span&gt;
+
+    mkdir &lt;span class="nv"&gt;$dt&lt;/span&gt; &lt;span class="p"&gt;&amp;amp;&lt;/span&gt;&amp;gt;/dev/null
+    mv &lt;span class="si"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;f&lt;/span&gt;&lt;span class="p"&gt;%.jpg&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt; &lt;span class="nv"&gt;$dt&lt;/span&gt;/
+&lt;span class="k"&gt;done&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The most interesting part of this code is the &lt;code&gt;${f%.jpg}&lt;/code&gt;. This chops &lt;code&gt;.jpg&lt;/code&gt;
+off of the end of the string. To fully grasp what's going on, check out &lt;a href="http://tldp.org/LDP/abs/html/string-manipulation.html"&gt;this
+article&lt;/a&gt;, specifically
+the section titled &lt;strong&gt;Substring Removal&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;And that was it! Was a lot of faster than doing it by hand. Maybe there are
+tools out there that could have done this for me, but I found this more fun.
+You can really do some neat stuff with everyday command-line tools. I highly
+recommend using them for tasks like this to become comfortable writing bash.&lt;/p&gt;</summary><category term="bash"></category></entry><entry><title>Manipulating Vim Registers</title><link href="http://buckryan.com/manipulating-vim-registers.html" rel="alternate"></link><updated>2014-11-02T00:00:00-04:00</updated><author><name>Buck Ryan</name></author><id>tag:buckryan.com,2014-11-02:manipulating-vim-registers.html</id><summary type="html">&lt;p&gt;Recently I came across PHP code that looked similar to this:&lt;/p&gt;
 &lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
 2
 3
@@ -266,7 +455,7 @@ context of web pages&lt;/code&gt;. This means the javascript file specified abov
 (script.js) will be run when Amazon loads. This is exactly what I wanted!&lt;/p&gt;
 &lt;p&gt;So finally I just needed to write the javascript. It turned out to be dead
 simple. Here's the only line needed:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;document&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;getElementById&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;twotabsearchtextbox&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="n"&gt;focus&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;document.getElementById(&amp;quot;twotabsearchtextbox&amp;quot;).focus();
 &lt;/pre&gt;&lt;/div&gt;
 
 
