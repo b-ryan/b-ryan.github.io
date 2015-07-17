@@ -66,6 +66,151 @@ buckryan.com - Articles by Buck Ryan    </title>
           <header>
             <h2 class="entry-title">
               <a
+                href="http://buckryan.com/om-clojurescript-and-testing.html"
+                rel="bookmark"
+                title="Permalink to Om, Clojurescript, and Testing"
+              >Om, Clojurescript, and Testing</a>
+
+            </h2>
+          </header>
+
+          <footer class="post-info">
+            <span>
+              2015-07-16
+            </span>
+              <address class="vcard author">
+              </address>
+          </footer>
+
+          <div class="entry-content">
+            <p>This past week I started learning React, Om, and Clojurescript all at once.
+When beginning to use <a href="https://github.com/cemerick/clojurescript.test">cemerick's
+.clojurescript.test</a>, I kept
+running into this error:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7</pre></div></td><td class="code"><div class="highlight"><pre>Error: cemerick is undefined
+
+ERROR: cemerick.cljs.test was not required.
+
+You can resolve this issue by ensuring [cemerick.cljs.test] appears
+in the :require clause of your test suite namespaces.
+Also make sure that your build has actually included any test files.
+</pre></div>
+</td></tr></table>
+
+<p>But I clearly had included it in my test! I googled and grumbled, but could not
+figure out what was wrong. Finally I discovered that
+<a href="https://slimerjs.org/">slimerjs</a> has the <code>-jsconsole</code> flag, which, as the docs
+say, will</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre>Open a window to view all javascript errors during the execution
+</pre></div>
+</td></tr></table>
+
+<p>Great, using that I finally found the actual problem:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4</pre></div></td><td class="code"><div class="highlight"><pre>Script Error: Error: Assert failed: No target specified to om.core/root
+(not (nil? target))
+       Stack:
+         -&gt; file:///tmp/runner6386761518784950059.js.html: 55456
+</pre></div>
+</td></tr></table>
+
+<p>This makes much more sense. The issue is that my <code>core.cljs</code> namespace was
+running <code>om/root</code> when the page loads. The code looked like:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3</pre></div></td><td class="code"><div class="highlight"><pre><span class="p">(</span><span class="nf">om/root</span> <span class="nv">main-view</span>
+         <span class="nv">app-state</span>
+         <span class="p">{</span><span class="ss">:target</span> <span class="p">(</span><span class="k">. </span><span class="nv">js/document</span> <span class="p">(</span><span class="nf">getElementById</span> <span class="s">&quot;app&quot;</span><span class="p">))}))</span>
+</pre></div>
+</td></tr></table>
+
+<p>But since the tests are not loading the index.html page (as they shouldn't),
+there is no element with ID app. Ultimately the problem is with running code
+at the namespace level. What would be preferred would be if there were some
+way to specify a main function to initialize the app. This would be run for
+the actual application, but not the tests.</p>
+<h1>Solution</h1>
+<p>It took awhile of searching, but I finally found some inspiration from
+<a href="https://github.com/jalehman/react-tutorial-om">this project</a> and specifically
+<a href="https://github.com/jalehman/react-tutorial-om/blob/60867fb0efcb48a3f20bc94361c2f981e6c96f44/resources/public/index.html#L15">this line of code</a>:</p>
+<div class="highlight"><pre><span class="nt">&lt;script</span> <span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span><span class="nt">&gt;</span>goog.require(&quot;react_tutorial_om.app&quot;);<span class="nt">&lt;/script&gt;</span>
+</pre></div>
+
+
+<p>I realized I could just wrap by <code>om/root</code> call in a main function and then call
+this from the index.html page. Here is what the code in <code>core.cljs</code> looks like
+now:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4</pre></div></td><td class="code"><div class="highlight"><pre><span class="p">(</span><span class="kd">defn </span><span class="nv">app</span> <span class="p">[]</span>
+  <span class="p">(</span><span class="nf">om/root</span> <span class="nv">main-view</span>
+           <span class="nv">app-state</span>
+           <span class="p">{</span><span class="ss">:target</span> <span class="p">(</span><span class="k">. </span><span class="nv">js/document</span> <span class="p">(</span><span class="nf">getElementById</span> <span class="s">&quot;app&quot;</span><span class="p">))}))</span>
+</pre></div>
+</td></tr></table>
+
+<p>and the corresponding code in <code>index.html</code>:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4</pre></div></td><td class="code"><div class="highlight"><pre><span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span><span class="nt">&gt;</span>
+<span class="nx">goog</span><span class="p">.</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;my.namespace.core&quot;</span><span class="p">);</span>
+<span class="nx">my</span><span class="p">.</span><span class="nx">namespace</span><span class="p">.</span><span class="nx">core</span><span class="p">.</span><span class="nx">app</span><span class="p">();</span>
+<span class="nt">&lt;/script&gt;</span>
+</pre></div>
+</td></tr></table>
+
+<p>Now running the tests no longer had any problem. However, I realized that
+lein figwheel was not reloading the page properly when I made changes to the
+code. This is because the javascript would be reloaded, which previously was
+running <code>om/root</code> every time. To solve this I added to the <code>on-js-reload</code>
+function so that the app was reinitialized:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2</pre></div></td><td class="code"><div class="highlight"><pre><span class="p">(</span><span class="kd">defn </span><span class="nv">on-js-reload</span> <span class="p">[]</span>
+  <span class="p">(</span><span class="nf">app</span><span class="p">))</span>
+</pre></div>
+</td></tr></table>
+
+<h1>Alternative Approach</h1>
+<p>An entirely different approach to all of this (and perhaps a lot simpler)
+would be to simply check if your target element exists. Your code could then
+look like</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4</pre></div></td><td class="code"><div class="highlight"><pre><span class="p">(</span><span class="nb">if-let </span><span class="p">[</span><span class="nv">target</span> <span class="p">(</span><span class="k">. </span><span class="nv">js/document</span> <span class="p">(</span><span class="nf">getElementById</span> <span class="s">&quot;app&quot;</span><span class="p">))]</span>
+  <span class="p">(</span><span class="nf">om/root</span> <span class="nv">main-view</span>
+           <span class="nv">app-state</span>
+           <span class="p">{</span><span class="ss">:target</span> <span class="nv">target</span><span class="p">}))</span>
+</pre></div>
+</td></tr></table>
+
+<p>You might prefer this approach. The reason I tend to not like this is that you
+still have functionality that executes when you require the namespace. It also
+introduces a silent failure. If you change the main element to have a different
+id, your app would just show up blank with no errors printed.</p>
+<p>I was pretty surprised to not be able to find anything about this. Maybe I'm
+missing something obvious. I am new to Clojurescript and Om, so it could just
+be a newbie mistake. If so let me know!</p>
+          </div>
+
+        </article>
+      </li>
+      <li>
+        <article class="hentry">
+
+          <header>
+            <h2 class="entry-title">
+              <a
                 href="http://buckryan.com/organizing-photos-with-bash.html"
                 rel="bookmark"
                 title="Permalink to Organizing photos with bash"

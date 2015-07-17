@@ -1,5 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>buckryan.com</title><link href="http://buckryan.com/" rel="alternate"></link><link href="http://buckryan.com/feeds/all.atom.xml" rel="self"></link><id>http://buckryan.com/</id><updated>2015-01-02T00:00:00-05:00</updated><entry><title>Organizing photos with bash</title><link href="http://buckryan.com/organizing-photos-with-bash.html" rel="alternate"></link><updated>2015-01-02T00:00:00-05:00</updated><author><name>Buck Ryan</name></author><id>tag:buckryan.com,2015-01-02:organizing-photos-with-bash.html</id><summary type="html">&lt;p&gt;I've been trying to organize my photos recently. I hadn't kept up with them
+<feed xmlns="http://www.w3.org/2005/Atom"><title>buckryan.com</title><link href="http://buckryan.com/" rel="alternate"></link><link href="http://buckryan.com/feeds/all.atom.xml" rel="self"></link><id>http://buckryan.com/</id><updated>2015-07-16T00:00:00-04:00</updated><entry><title>Om, Clojurescript, and Testing</title><link href="http://buckryan.com/om-clojurescript-and-testing.html" rel="alternate"></link><updated>2015-07-16T00:00:00-04:00</updated><author><name>Buck Ryan</name></author><id>tag:buckryan.com,2015-07-16:om-clojurescript-and-testing.html</id><summary type="html">&lt;p&gt;This past week I started learning React, Om, and Clojurescript all at once.
+When beginning to use &lt;a href="https://github.com/cemerick/clojurescript.test"&gt;cemerick's
+.clojurescript.test&lt;/a&gt;, I kept
+running into this error:&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+2
+3
+4
+5
+6
+7&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;Error: cemerick is undefined
+
+ERROR: cemerick.cljs.test was not required.
+
+You can resolve this issue by ensuring [cemerick.cljs.test] appears
+in the :require clause of your test suite namespaces.
+Also make sure that your build has actually included any test files.
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;But I clearly had included it in my test! I googled and grumbled, but could not
+figure out what was wrong. Finally I discovered that
+&lt;a href="https://slimerjs.org/"&gt;slimerjs&lt;/a&gt; has the &lt;code&gt;-jsconsole&lt;/code&gt; flag, which, as the docs
+say, will&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;Open a window to view all javascript errors during the execution
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;Great, using that I finally found the actual problem:&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+2
+3
+4&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;Script Error: Error: Assert failed: No target specified to om.core/root
+(not (nil? target))
+       Stack:
+         -&amp;gt; file:///tmp/runner6386761518784950059.js.html: 55456
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;This makes much more sense. The issue is that my &lt;code&gt;core.cljs&lt;/code&gt; namespace was
+running &lt;code&gt;om/root&lt;/code&gt; when the page loads. The code looked like:&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+2
+3&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;om/root&lt;/span&gt; &lt;span class="nv"&gt;main-view&lt;/span&gt;
+         &lt;span class="nv"&gt;app-state&lt;/span&gt;
+         &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="ss"&gt;:target&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;. &lt;/span&gt;&lt;span class="nv"&gt;js/document&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;getElementById&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;app&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;))}))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;But since the tests are not loading the index.html page (as they shouldn't),
+there is no element with ID app. Ultimately the problem is with running code
+at the namespace level. What would be preferred would be if there were some
+way to specify a main function to initialize the app. This would be run for
+the actual application, but not the tests.&lt;/p&gt;
+&lt;h1&gt;Solution&lt;/h1&gt;
+&lt;p&gt;It took awhile of searching, but I finally found some inspiration from
+&lt;a href="https://github.com/jalehman/react-tutorial-om"&gt;this project&lt;/a&gt; and specifically
+&lt;a href="https://github.com/jalehman/react-tutorial-om/blob/60867fb0efcb48a3f20bc94361c2f981e6c96f44/resources/public/index.html#L15"&gt;this line of code&lt;/a&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nt"&gt;&amp;lt;script&lt;/span&gt; &lt;span class="na"&gt;type=&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;text/javascript&amp;quot;&lt;/span&gt;&lt;span class="nt"&gt;&amp;gt;&lt;/span&gt;goog.require(&amp;quot;react_tutorial_om.app&amp;quot;);&lt;span class="nt"&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I realized I could just wrap by &lt;code&gt;om/root&lt;/code&gt; call in a main function and then call
+this from the index.html page. Here is what the code in &lt;code&gt;core.cljs&lt;/code&gt; looks like
+now:&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+2
+3
+4&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kd"&gt;defn &lt;/span&gt;&lt;span class="nv"&gt;app&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
+  &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;om/root&lt;/span&gt; &lt;span class="nv"&gt;main-view&lt;/span&gt;
+           &lt;span class="nv"&gt;app-state&lt;/span&gt;
+           &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="ss"&gt;:target&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;. &lt;/span&gt;&lt;span class="nv"&gt;js/document&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;getElementById&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;app&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;))}))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;and the corresponding code in &lt;code&gt;index.html&lt;/code&gt;:&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+2
+3
+4&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nt"&gt;&amp;lt;script &lt;/span&gt;&lt;span class="na"&gt;type=&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;text/javascript&amp;quot;&lt;/span&gt;&lt;span class="nt"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="nx"&gt;goog&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;require&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;my.namespace.core&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="nx"&gt;my&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;namespace&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;core&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;app&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;span class="nt"&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;Now running the tests no longer had any problem. However, I realized that
+lein figwheel was not reloading the page properly when I made changes to the
+code. This is because the javascript would be reloaded, which previously was
+running &lt;code&gt;om/root&lt;/code&gt; every time. To solve this I added to the &lt;code&gt;on-js-reload&lt;/code&gt;
+function so that the app was reinitialized:&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+2&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kd"&gt;defn &lt;/span&gt;&lt;span class="nv"&gt;on-js-reload&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
+  &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;app&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;h1&gt;Alternative Approach&lt;/h1&gt;
+&lt;p&gt;An entirely different approach to all of this (and perhaps a lot simpler)
+would be to simply check if your target element exists. Your code could then
+look like&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+2
+3
+4&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;if-let &lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nv"&gt;target&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;. &lt;/span&gt;&lt;span class="nv"&gt;js/document&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;getElementById&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;app&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;))]&lt;/span&gt;
+  &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;om/root&lt;/span&gt; &lt;span class="nv"&gt;main-view&lt;/span&gt;
+           &lt;span class="nv"&gt;app-state&lt;/span&gt;
+           &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="ss"&gt;:target&lt;/span&gt; &lt;span class="nv"&gt;target&lt;/span&gt;&lt;span class="p"&gt;}))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;You might prefer this approach. The reason I tend to not like this is that you
+still have functionality that executes when you require the namespace. It also
+introduces a silent failure. If you change the main element to have a different
+id, your app would just show up blank with no errors printed.&lt;/p&gt;
+&lt;p&gt;I was pretty surprised to not be able to find anything about this. Maybe I'm
+missing something obvious. I am new to Clojurescript and Om, so it could just
+be a newbie mistake. If so let me know!&lt;/p&gt;</summary><category term=""></category></entry><entry><title>Organizing photos with bash</title><link href="http://buckryan.com/organizing-photos-with-bash.html" rel="alternate"></link><updated>2015-01-02T00:00:00-05:00</updated><author><name>Buck Ryan</name></author><id>tag:buckryan.com,2015-01-02:organizing-photos-with-bash.html</id><summary type="html">&lt;p&gt;I've been trying to organize my photos recently. I hadn't kept up with them
 and I recently discovered I have a pile of photos dumped into a single
 directory. I like to separate photos by the day they were taken so I end up
 with directories like:&lt;/p&gt;
