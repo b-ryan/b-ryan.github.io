@@ -153,10 +153,11 @@ how that would look:
                           ; blah blah blah
                           }]}
 
-Finally, make sure to remove the code that was added to `index.html`.
+Finally, make sure to remove the code that was added to `index.html` in our
+first take at a solution.
 
 And there you have it. The dev environment will end up compiling `dev.cljs`,
-and since this namespace includes a call to `core/main` at the namespace-level,
+and since this namespace includes a call to `core/app` at the namespace-level,
 it will run when the javascript is loaded. We do not include the file for the
 test build, meaning the tests do not try to run `om/root`.
 
