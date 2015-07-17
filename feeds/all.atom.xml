@@ -53,13 +53,13 @@ there is no element with ID app. Ultimately the problem is with running code
 at the namespace level. What would be preferred would be if there were some
 way to specify a main function to initialize the app. This would be run for
 the actual application, but not the tests.&lt;/p&gt;
-&lt;h1&gt;Solution&lt;/h1&gt;
+&lt;h1&gt;First take at a Solution&lt;/h1&gt;
 &lt;p&gt;It took awhile of searching, but I finally found some inspiration from
 &lt;a href="https://github.com/jalehman/react-tutorial-om"&gt;this project&lt;/a&gt; and specifically
 &lt;a href="https://github.com/jalehman/react-tutorial-om/blob/60867fb0efcb48a3f20bc94361c2f981e6c96f44/resources/public/index.html#L15"&gt;this line of code&lt;/a&gt;:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nt"&gt;&amp;lt;script&lt;/span&gt; &lt;span class="na"&gt;type=&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;text/javascript&amp;quot;&lt;/span&gt;&lt;span class="nt"&gt;&amp;gt;&lt;/span&gt;goog.require(&amp;quot;react_tutorial_om.app&amp;quot;);&lt;span class="nt"&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nt"&gt;&amp;lt;script &lt;/span&gt;&lt;span class="na"&gt;type=&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;text/javascript&amp;quot;&lt;/span&gt;&lt;span class="nt"&gt;&amp;gt;&lt;/span&gt;&lt;span class="nx"&gt;goog&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;require&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;react_tutorial_om.app&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;&lt;span class="nt"&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
-
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 
 &lt;p&gt;I realized I could just wrap by &lt;code&gt;om/root&lt;/code&gt; call in a main function and then call
 this from the index.html page. Here is what the code in &lt;code&gt;core.cljs&lt;/code&gt; looks like
@@ -96,6 +96,98 @@ function so that the app was reinitialized:&lt;/p&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 
+&lt;h1&gt;Improving the Solution&lt;/h1&gt;
+&lt;p&gt;As I continued learning about Om, I came across the
+&lt;a href="https://github.com/omcljs/om-cookbook"&gt;om-cookbook&lt;/a&gt; repository. The following
+is based on the structure of the project in the
+&lt;code&gt;recipes/routing-with-secretary&lt;/code&gt; directory (and possibly others in the repo).&lt;/p&gt;
+&lt;p&gt;Let's assume your project currently has this directory structure:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;resources/...
+src/my/namespace/core.cljs
+project.clj
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;We are going to add a directory called &lt;code&gt;env&lt;/code&gt; which will house code that is
+specific to different environments, namely development vs. production. Create
+directories such that your project now looks like this:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;env/dev/src/my/namespace/dev.cljs
+   /prod/src/my/namespace/prod.cljs
+resources/...
+src/my/namespace/core.cljs
+project.clj
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;You can see that in &lt;code&gt;env/dev&lt;/code&gt; and &lt;code&gt;env/prod&lt;/code&gt; we mimick the &lt;code&gt;src&lt;/code&gt; directory.
+Within &lt;code&gt;dev.cljs&lt;/code&gt; we will add code that is only to be run when developing.
+Here is what that namespace will basically look like for the dev environment:&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt; 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kd"&gt;ns &lt;/span&gt;&lt;span class="nv"&gt;my.namespace.dev&lt;/span&gt;
+  &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:require&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nv"&gt;my.namespace.core&lt;/span&gt; &lt;span class="ss"&gt;:as&lt;/span&gt; &lt;span class="nv"&gt;core&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+            &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nv"&gt;figwheel.client&lt;/span&gt; &lt;span class="ss"&gt;:as&lt;/span&gt; &lt;span class="nv"&gt;figwheel&lt;/span&gt; &lt;span class="ss"&gt;:include-macros&lt;/span&gt; &lt;span class="nv"&gt;true&lt;/span&gt;&lt;span class="p"&gt;]))&lt;/span&gt;
+
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;enable-console-print!&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kd"&gt;defn &lt;/span&gt;&lt;span class="nv"&gt;on-js-reload&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
+  &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;core/app&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;core/app&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;For production, this can be much simpler:&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+2
+3
+4&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kd"&gt;ns &lt;/span&gt;&lt;span class="nv"&gt;my.namespace.prod&lt;/span&gt;
+  &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:require&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nv"&gt;my.namespace.core&lt;/span&gt; &lt;span class="ss"&gt;:as&lt;/span&gt; &lt;span class="nv"&gt;core&lt;/span&gt;&lt;span class="p"&gt;]))&lt;/span&gt;
+
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;core/app&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;Now all we need to do is modify &lt;code&gt;project.clj&lt;/code&gt; to use these environments. This
+is accomplished using different build configurations. Here is a sample of
+how that would look:&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt; 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="ss"&gt;:cljsbuild&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="ss"&gt;:builds&lt;/span&gt; &lt;span class="p"&gt;[{&lt;/span&gt;&lt;span class="ss"&gt;:id&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;dev&amp;quot;&lt;/span&gt;
+                      &lt;span class="ss"&gt;:source-paths&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;src&amp;quot;&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;env/dev/src&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+                      &lt;span class="c1"&gt;; blah blah blah&lt;/span&gt;
+                      &lt;span class="p"&gt;}&lt;/span&gt;
+                     &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="ss"&gt;:id&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;prod&amp;quot;&lt;/span&gt;
+                      &lt;span class="ss"&gt;:source-paths&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;src&amp;quot;&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;env/prod/src&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+                      &lt;span class="c1"&gt;; blah blah blah&lt;/span&gt;
+                      &lt;span class="p"&gt;}&lt;/span&gt;
+                     &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="ss"&gt;:id&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;test&amp;quot;&lt;/span&gt;
+                      &lt;span class="ss"&gt;:source-paths&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;src&amp;quot;&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;test&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+                      &lt;span class="c1"&gt;; blah blah blah&lt;/span&gt;
+                      &lt;span class="p"&gt;}]}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;And there you have it. The dev environment will end up compiling &lt;code&gt;dev.cljs&lt;/code&gt;,
+and since this namespace includes a call to &lt;code&gt;core/main&lt;/code&gt; at the namespace-level,
+it will run when the javascript is loaded. We do not include the file for the
+test build, meaning the tests do not try to run &lt;code&gt;om/root&lt;/code&gt;.&lt;/p&gt;
 &lt;h1&gt;Alternative Approach&lt;/h1&gt;
 &lt;p&gt;An entirely different approach to all of this (and perhaps a lot simpler)
 would be to simply check if your target element exists. Your code could then

@@ -134,13 +134,13 @@ there is no element with ID app. Ultimately the problem is with running code
 at the namespace level. What would be preferred would be if there were some
 way to specify a main function to initialize the app. This would be run for
 the actual application, but not the tests.</p>
-<h1>Solution</h1>
+<h1>First take at a Solution</h1>
 <p>It took awhile of searching, but I finally found some inspiration from
 <a href="https://github.com/jalehman/react-tutorial-om">this project</a> and specifically
 <a href="https://github.com/jalehman/react-tutorial-om/blob/60867fb0efcb48a3f20bc94361c2f981e6c96f44/resources/public/index.html#L15">this line of code</a>:</p>
-<div class="highlight"><pre><span class="nt">&lt;script</span> <span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span><span class="nt">&gt;</span>goog.require(&quot;react_tutorial_om.app&quot;);<span class="nt">&lt;/script&gt;</span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span><span class="nt">&gt;</span><span class="nx">goog</span><span class="p">.</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;react_tutorial_om.app&quot;</span><span class="p">);</span><span class="nt">&lt;/script&gt;</span>
 </pre></div>
-
+</td></tr></table>
 
 <p>I realized I could just wrap by <code>om/root</code> call in a main function and then call
 this from the index.html page. Here is what the code in <code>core.cljs</code> looks like
@@ -177,6 +177,98 @@ function so that the app was reinitialized:</p>
 </pre></div>
 </td></tr></table>
 
+<h1>Improving the Solution</h1>
+<p>As I continued learning about Om, I came across the
+<a href="https://github.com/omcljs/om-cookbook">om-cookbook</a> repository. The following
+is based on the structure of the project in the
+<code>recipes/routing-with-secretary</code> directory (and possibly others in the repo).</p>
+<p>Let's assume your project currently has this directory structure:</p>
+<div class="highlight"><pre>resources/...
+src/my/namespace/core.cljs
+project.clj
+</pre></div>
+
+
+<p>We are going to add a directory called <code>env</code> which will house code that is
+specific to different environments, namely development vs. production. Create
+directories such that your project now looks like this:</p>
+<div class="highlight"><pre>env/dev/src/my/namespace/dev.cljs
+   /prod/src/my/namespace/prod.cljs
+resources/...
+src/my/namespace/core.cljs
+project.clj
+</pre></div>
+
+
+<p>You can see that in <code>env/dev</code> and <code>env/prod</code> we mimick the <code>src</code> directory.
+Within <code>dev.cljs</code> we will add code that is only to be run when developing.
+Here is what that namespace will basically look like for the dev environment:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10</pre></div></td><td class="code"><div class="highlight"><pre><span class="p">(</span><span class="kd">ns </span><span class="nv">my.namespace.dev</span>
+  <span class="p">(</span><span class="ss">:require</span> <span class="p">[</span><span class="nv">my.namespace.core</span> <span class="ss">:as</span> <span class="nv">core</span><span class="p">]</span>
+            <span class="p">[</span><span class="nv">figwheel.client</span> <span class="ss">:as</span> <span class="nv">figwheel</span> <span class="ss">:include-macros</span> <span class="nv">true</span><span class="p">]))</span>
+
+<span class="p">(</span><span class="nf">enable-console-print!</span><span class="p">)</span>
+
+<span class="p">(</span><span class="kd">defn </span><span class="nv">on-js-reload</span> <span class="p">[]</span>
+  <span class="p">(</span><span class="nf">core/app</span><span class="p">))</span>
+
+<span class="p">(</span><span class="nf">core/app</span><span class="p">)</span>
+</pre></div>
+</td></tr></table>
+
+<p>For production, this can be much simpler:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4</pre></div></td><td class="code"><div class="highlight"><pre><span class="p">(</span><span class="kd">ns </span><span class="nv">my.namespace.prod</span>
+  <span class="p">(</span><span class="ss">:require</span> <span class="p">[</span><span class="nv">my.namespace.core</span> <span class="ss">:as</span> <span class="nv">core</span><span class="p">]))</span>
+
+<span class="p">(</span><span class="nf">core/app</span><span class="p">)</span>
+</pre></div>
+</td></tr></table>
+
+<p>Now all we need to do is modify <code>project.clj</code> to use these environments. This
+is accomplished using different build configurations. Here is a sample of
+how that would look:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12</pre></div></td><td class="code"><div class="highlight"><pre><span class="ss">:cljsbuild</span> <span class="p">{</span><span class="ss">:builds</span> <span class="p">[{</span><span class="ss">:id</span> <span class="s">&quot;dev&quot;</span>
+                      <span class="ss">:source-paths</span> <span class="p">[</span><span class="s">&quot;src&quot;</span> <span class="s">&quot;env/dev/src&quot;</span><span class="p">]</span>
+                      <span class="c1">; blah blah blah</span>
+                      <span class="p">}</span>
+                     <span class="p">{</span><span class="ss">:id</span> <span class="s">&quot;prod&quot;</span>
+                      <span class="ss">:source-paths</span> <span class="p">[</span><span class="s">&quot;src&quot;</span> <span class="s">&quot;env/prod/src&quot;</span><span class="p">]</span>
+                      <span class="c1">; blah blah blah</span>
+                      <span class="p">}</span>
+                     <span class="p">{</span><span class="ss">:id</span> <span class="s">&quot;test&quot;</span>
+                      <span class="ss">:source-paths</span> <span class="p">[</span><span class="s">&quot;src&quot;</span> <span class="s">&quot;test&quot;</span><span class="p">]</span>
+                      <span class="c1">; blah blah blah</span>
+                      <span class="p">}]}</span>
+</pre></div>
+</td></tr></table>
+
+<p>And there you have it. The dev environment will end up compiling <code>dev.cljs</code>,
+and since this namespace includes a call to <code>core/main</code> at the namespace-level,
+it will run when the javascript is loaded. We do not include the file for the
+test build, meaning the tests do not try to run <code>om/root</code>.</p>
 <h1>Alternative Approach</h1>
 <p>An entirely different approach to all of this (and perhaps a lot simpler)
 would be to simply check if your target element exists. Your code could then
