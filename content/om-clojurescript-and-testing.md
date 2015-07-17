@@ -4,7 +4,6 @@ Category:
 Tags:
 Author: Buck Ryan
 Summary:
-Status: draft
 
 This past week I started learning React, Om, and Clojurescript all at once.
 When beginning to use [cemerick's
