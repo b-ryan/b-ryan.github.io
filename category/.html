@@ -269,9 +269,10 @@ how that would look:</p>
 </pre></div>
 </td></tr></table>
 
-<p>Finally, make sure to remove the code that was added to <code>index.html</code>.</p>
+<p>Finally, make sure to remove the code that was added to <code>index.html</code> in our
+first take at a solution.</p>
 <p>And there you have it. The dev environment will end up compiling <code>dev.cljs</code>,
-and since this namespace includes a call to <code>core/main</code> at the namespace-level,
+and since this namespace includes a call to <code>core/app</code> at the namespace-level,
 it will run when the javascript is loaded. We do not include the file for the
 test build, meaning the tests do not try to run <code>om/root</code>.</p>
 <h1>Alternative Approach</h1>

@@ -184,9 +184,10 @@ how that would look:&lt;/p&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 
-&lt;p&gt;Finally, make sure to remove the code that was added to &lt;code&gt;index.html&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Finally, make sure to remove the code that was added to &lt;code&gt;index.html&lt;/code&gt; in our
+first take at a solution.&lt;/p&gt;
 &lt;p&gt;And there you have it. The dev environment will end up compiling &lt;code&gt;dev.cljs&lt;/code&gt;,
-and since this namespace includes a call to &lt;code&gt;core/main&lt;/code&gt; at the namespace-level,
+and since this namespace includes a call to &lt;code&gt;core/app&lt;/code&gt; at the namespace-level,
 it will run when the javascript is loaded. We do not include the file for the
 test build, meaning the tests do not try to run &lt;code&gt;om/root&lt;/code&gt;.&lt;/p&gt;
 &lt;h1&gt;Alternative Approach&lt;/h1&gt;
