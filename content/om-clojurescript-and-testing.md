@@ -59,7 +59,7 @@ It took awhile of searching, but I finally found some inspiration from
     #!html
     <script type="text/javascript">goog.require("react_tutorial_om.app");</script>
 
-I realized I could just wrap by `om/root` call in a main function and then call
+I realized I could just wrap my `om/root` call in a main function and then call
 this from the index.html page. Here is what the code in `core.cljs` looks like
 now:
 
@@ -152,6 +152,8 @@ how that would look:
                           :source-paths ["src" "test"]
                           ; blah blah blah
                           }]}
+
+Finally, make sure to remove the code that was added to `index.html`.
 
 And there you have it. The dev environment will end up compiling `dev.cljs`,
 and since this namespace includes a call to `core/main` at the namespace-level,
