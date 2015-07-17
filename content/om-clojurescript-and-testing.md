@@ -49,13 +49,14 @@ at the namespace level. What would be preferred would be if there were some
 way to specify a main function to initialize the app. This would be run for
 the actual application, but not the tests.
 
-Solution
-========
+First take at a Solution
+========================
 
 It took awhile of searching, but I finally found some inspiration from
 [this project](https://github.com/jalehman/react-tutorial-om) and specifically
 [this line of code](https://github.com/jalehman/react-tutorial-om/blob/60867fb0efcb48a3f20bc94361c2f981e6c96f44/resources/public/index.html#L15):
 
+    #!html
     <script type="text/javascript">goog.require("react_tutorial_om.app");</script>
 
 I realized I could just wrap by `om/root` call in a main function and then call
@@ -85,6 +86,77 @@ function so that the app was reinitialized:
     #!clojure
     (defn on-js-reload []
       (app))
+
+Improving the Solution
+======================
+
+As I continued learning about Om, I came across the
+[om-cookbook](https://github.com/omcljs/om-cookbook) repository. The following
+is based on the structure of the project in the
+`recipes/routing-with-secretary` directory (and possibly others in the repo).
+
+Let's assume your project currently has this directory structure:
+
+    resources/...
+    src/my/namespace/core.cljs
+    project.clj
+
+We are going to add a directory called `env` which will house code that is
+specific to different environments, namely development vs. production. Create
+directories such that your project now looks like this:
+
+    env/dev/src/my/namespace/dev.cljs
+       /prod/src/my/namespace/prod.cljs
+    resources/...
+    src/my/namespace/core.cljs
+    project.clj
+
+You can see that in `env/dev` and `env/prod` we mimick the `src` directory.
+Within `dev.cljs` we will add code that is only to be run when developing.
+Here is what that namespace will basically look like for the dev environment:
+
+    #!clojure
+    (ns my.namespace.dev
+      (:require [my.namespace.core :as core]
+                [figwheel.client :as figwheel :include-macros true]))
+
+    (enable-console-print!)
+
+    (defn on-js-reload []
+      (core/app))
+
+    (core/app)
+
+For production, this can be much simpler:
+
+    #!clojure
+    (ns my.namespace.prod
+      (:require [my.namespace.core :as core]))
+
+    (core/app)
+
+Now all we need to do is modify `project.clj` to use these environments. This
+is accomplished using different build configurations. Here is a sample of
+how that would look:
+
+    #!clojure
+    :cljsbuild {:builds [{:id "dev"
+                          :source-paths ["src" "env/dev/src"]
+                          ; blah blah blah
+                          }
+                         {:id "prod"
+                          :source-paths ["src" "env/prod/src"]
+                          ; blah blah blah
+                          }
+                         {:id "test"
+                          :source-paths ["src" "test"]
+                          ; blah blah blah
+                          }]}
+
+And there you have it. The dev environment will end up compiling `dev.cljs`,
+and since this namespace includes a call to `core/main` at the namespace-level,
+it will run when the javascript is loaded. We do not include the file for the
+test build, meaning the tests do not try to run `om/root`.
 
 Alternative Approach
 ====================
