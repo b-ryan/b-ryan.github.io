@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>buckryan.com</title><link href="http://buckryan.com/" rel="alternate"></link><link href="http://buckryan.com/feeds/Programming.atom.xml" rel="self"></link><id>http://buckryan.com/</id><updated>2015-01-02T00:00:00-05:00</updated><entry><title>Organizing photos with bash</title><link href="http://buckryan.com/organizing-photos-with-bash.html" rel="alternate"></link><updated>2015-01-02T00:00:00-05:00</updated><author><name>Buck Ryan</name></author><id>tag:buckryan.com,2015-01-02:organizing-photos-with-bash.html</id><summary type="html">&lt;p&gt;I've been trying to organize my photos recently. I hadn't kept up with them
+and I recently discovered I have a pile of photos dumped into a single
+directory. I like to separate photos by the day they were taken so I end up
+with directories like:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="mi"&gt;2015&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mo"&gt;01&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mo"&gt;01&lt;/span&gt;&lt;span class="n"&gt;_new&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;years&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;day&lt;/span&gt;
+&lt;span class="mi"&gt;2014&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;12&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;31&lt;/span&gt;&lt;span class="n"&gt;_new&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;years&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;eve&lt;/span&gt;
+&lt;span class="mi"&gt;2014&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;12&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;25&lt;/span&gt;&lt;span class="n"&gt;_christmas&lt;/span&gt;
+&lt;span class="p"&gt;...&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Wanting to organize these as painlessly as I could think, I sought to run a few
+bash commands to split my pile of photos into directories like these. The first
+issue I ran into was the file formats - these were raw photos. I had found a
+nice tool called &lt;code&gt;exif&lt;/code&gt; (&lt;code&gt;sudo apt-get install exif&lt;/code&gt;) which I could use to
+extract the date the pictures were taken, but it only works on JPG images.&lt;/p&gt;
+&lt;p&gt;So step one was to convert the files. The
+&lt;a href="http://imagemagick.org/"&gt;ImageMagick&lt;/a&gt; tool (&lt;code&gt;sudo apt-get install
+imagemagick&lt;/code&gt;) has a command called &lt;code&gt;convert&lt;/code&gt; that will do just that. To convert
+them all without risking overwriting anything, a simple for loop works nicely:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="k"&gt;for &lt;/span&gt;f in *.NEF; &lt;span class="k"&gt;do&lt;/span&gt;
+&lt;span class="k"&gt;    &lt;/span&gt;convert &lt;span class="nv"&gt;$f&lt;/span&gt; &lt;span class="nv"&gt;$f&lt;/span&gt;.jpg
+&lt;span class="k"&gt;done&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This will convert files like &lt;code&gt;DSC_0001.NEF&lt;/code&gt; to &lt;code&gt;DSC_0001.NEF.jpg&lt;/code&gt;. Running this
+command was taking awhile and I wanted to see how much work was left to do.
+&lt;code&gt;watch&lt;/code&gt; is the perfect tool for the job. It lets you repeatedly run a command
+and see its output. So all I needed to do was write a command that would list
+all of the &lt;code&gt;.NEF&lt;/code&gt; files that did not have corresponding &lt;code&gt;.NEF.jpg&lt;/code&gt; files.  To
+do that, I used:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="k"&gt;for &lt;/span&gt;f in *.NEF; &lt;span class="k"&gt;do&lt;/span&gt;
+&lt;span class="k"&gt;    &lt;/span&gt;ls &lt;span class="nv"&gt;$f&lt;/span&gt;.jpg &amp;amp;&amp;gt;/dev/null &lt;span class="o"&gt;||&lt;/span&gt; &lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="nv"&gt;$f&lt;/span&gt;
+&lt;span class="k"&gt;done&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I ignored all output of &lt;code&gt;ls&lt;/code&gt; (&lt;code&gt;&amp;amp;&amp;gt;/dev/null&lt;/code&gt;) because the return code would be
+enough to determine whether the file existed. More importantly, I didn't want
+to have to parse through whatever output the command threw at me. The &lt;code&gt;|| echo
+$f&lt;/code&gt; will only be executed if the &lt;code&gt;ls&lt;/code&gt; failed, indicating the file doesn't
+exist.&lt;/p&gt;
+&lt;p&gt;I had issues running this directly with &lt;code&gt;watch&lt;/code&gt;, but I didn't want to spend
+time debugging. Instead I saved the command to a file and ran:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;chmod +x script.sh
+watch ./script.sh
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Every 2 seconds the screen updated letting me know how many files were left
+to convert.&lt;/p&gt;
+&lt;p&gt;While the conversion was running, I prepared to get exif data out of the jpg
+files. I mentioned above that &lt;code&gt;exif&lt;/code&gt; will do just that. Here's what a sample
+run looked like:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;  &lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="n"&gt;exif&lt;/span&gt; &lt;span class="n"&gt;DSC_0093&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;JPG&lt;/span&gt; 
+&lt;span class="n"&gt;EXIF&lt;/span&gt; &lt;span class="n"&gt;tags&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;DSC_0093&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;JPG&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;Motorola&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt; &lt;span class="n"&gt;byte&lt;/span&gt; &lt;span class="n"&gt;order&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+&lt;span class="o"&gt;--------------------+----------------------------------------------------------&lt;/span&gt;
+&lt;span class="n"&gt;Tag&lt;/span&gt;                 &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;Value&lt;/span&gt;
+&lt;span class="o"&gt;--------------------+----------------------------------------------------------&lt;/span&gt;
+&lt;span class="n"&gt;Manufacturer&lt;/span&gt;        &lt;span class="o"&gt;|&lt;/span&gt;
+&lt;span class="n"&gt;Model&lt;/span&gt;               &lt;span class="o"&gt;|&lt;/span&gt;
+&lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;Resolution&lt;/span&gt;        &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="mf"&gt;500.0000000&lt;/span&gt;
+&lt;span class="n"&gt;Y&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;Resolution&lt;/span&gt;        &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="mf"&gt;500.0000000&lt;/span&gt;
+&lt;span class="n"&gt;Resolution&lt;/span&gt; &lt;span class="n"&gt;Unit&lt;/span&gt;     &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;Inch&lt;/span&gt;
+&lt;span class="n"&gt;Software&lt;/span&gt;            &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;Picasa&lt;/span&gt; &lt;span class="mf"&gt;3.0&lt;/span&gt;
+&lt;span class="n"&gt;Date&lt;/span&gt; &lt;span class="n"&gt;and&lt;/span&gt; &lt;span class="n"&gt;Time&lt;/span&gt;       &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="mi"&gt;2007&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mo"&gt;04&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;09&lt;/span&gt; &lt;span class="mi"&gt;16&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;15&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;47&lt;/span&gt;
+&lt;span class="n"&gt;YCbCr&lt;/span&gt; &lt;span class="n"&gt;Positioning&lt;/span&gt;   &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;Centered&lt;/span&gt;
+&lt;span class="n"&gt;Padding&lt;/span&gt;             &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="mi"&gt;2060&lt;/span&gt; &lt;span class="n"&gt;bytes&lt;/span&gt; &lt;span class="n"&gt;undefined&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;
+&lt;span class="n"&gt;Compression&lt;/span&gt;         &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;JPEG&lt;/span&gt; &lt;span class="n"&gt;compression&lt;/span&gt;
+&lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;Resolution&lt;/span&gt;        &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="mi"&gt;72&lt;/span&gt;
+&lt;span class="n"&gt;Y&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;Resolution&lt;/span&gt;        &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="mi"&gt;72&lt;/span&gt;
+&lt;span class="n"&gt;Resolution&lt;/span&gt; &lt;span class="n"&gt;Unit&lt;/span&gt;     &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;Inch&lt;/span&gt;
+&lt;span class="n"&gt;Exif&lt;/span&gt; &lt;span class="n"&gt;Version&lt;/span&gt;        &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;Exif&lt;/span&gt; &lt;span class="n"&gt;Version&lt;/span&gt; &lt;span class="mf"&gt;2.2&lt;/span&gt;
+&lt;span class="n"&gt;Date&lt;/span&gt; &lt;span class="n"&gt;and&lt;/span&gt; &lt;span class="n"&gt;Time&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Origi&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="mi"&gt;2007&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;12&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;25&lt;/span&gt; &lt;span class="mi"&gt;11&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mo"&gt;07&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;52&lt;/span&gt;
+&lt;span class="n"&gt;Date&lt;/span&gt; &lt;span class="n"&gt;and&lt;/span&gt; &lt;span class="n"&gt;Time&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Digit&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="mi"&gt;2007&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;12&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;25&lt;/span&gt; &lt;span class="mi"&gt;11&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mo"&gt;07&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;52&lt;/span&gt;
+&lt;span class="n"&gt;Components&lt;/span&gt; &lt;span class="n"&gt;Configura&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;Y&lt;/span&gt; &lt;span class="n"&gt;Cb&lt;/span&gt; &lt;span class="n"&gt;Cr&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;
+&lt;span class="n"&gt;User&lt;/span&gt; &lt;span class="n"&gt;Comment&lt;/span&gt;        &lt;span class="o"&gt;|&lt;/span&gt;
+&lt;span class="n"&gt;Sub&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;second&lt;/span&gt; &lt;span class="n"&gt;Time&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Ori&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="mo"&gt;00&lt;/span&gt;
+&lt;span class="n"&gt;Sub&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;second&lt;/span&gt; &lt;span class="n"&gt;Time&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Dig&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="mo"&gt;00&lt;/span&gt;
+&lt;span class="n"&gt;FlashPixVersion&lt;/span&gt;     &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;FlashPix&lt;/span&gt; &lt;span class="n"&gt;Version&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;
+&lt;span class="n"&gt;Color&lt;/span&gt; &lt;span class="n"&gt;Space&lt;/span&gt;         &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;Internal&lt;/span&gt; &lt;span class="n"&gt;error&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;unknown&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt; &lt;span class="mi"&gt;65535&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;Pixel&lt;/span&gt; &lt;span class="n"&gt;X&lt;/span&gt; &lt;span class="n"&gt;Dimension&lt;/span&gt;   &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="mi"&gt;3008&lt;/span&gt;
+&lt;span class="n"&gt;Pixel&lt;/span&gt; &lt;span class="n"&gt;Y&lt;/span&gt; &lt;span class="n"&gt;Dimension&lt;/span&gt;   &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="mi"&gt;2000&lt;/span&gt;
+&lt;span class="n"&gt;Custom&lt;/span&gt; &lt;span class="n"&gt;Rendered&lt;/span&gt;     &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;Custom&lt;/span&gt; &lt;span class="n"&gt;process&lt;/span&gt;
+&lt;span class="n"&gt;Image&lt;/span&gt; &lt;span class="n"&gt;Unique&lt;/span&gt; &lt;span class="n"&gt;ID&lt;/span&gt;     &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="mi"&gt;517&lt;/span&gt;&lt;span class="n"&gt;d7ada5c38d78cd60a3032343e64f1&lt;/span&gt;
+&lt;span class="n"&gt;Padding&lt;/span&gt;             &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="mi"&gt;2060&lt;/span&gt; &lt;span class="n"&gt;bytes&lt;/span&gt; &lt;span class="n"&gt;undefined&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;
+&lt;span class="n"&gt;Interoperability&lt;/span&gt; &lt;span class="n"&gt;Ver&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="mo"&gt;0100&lt;/span&gt;
+&lt;span class="o"&gt;--------------------+----------------------------------------------------------&lt;/span&gt;
+&lt;span class="n"&gt;EXIF&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt; &lt;span class="n"&gt;contains&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="n"&gt;thumbnail&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;5597&lt;/span&gt; &lt;span class="n"&gt;bytes&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;(This was a &lt;em&gt;really&lt;/em&gt; old photo - most of them were much more recent.)&lt;/p&gt;
+&lt;p&gt;I noticed there was the &lt;code&gt;Date and Time&lt;/code&gt; tag in there. And in reading the man
+page for &lt;code&gt;exif&lt;/code&gt;, saw that I could ask for values of specific tags using the
+&lt;code&gt;--tag&lt;/code&gt; argument. Here is what happened for the same file above:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;  &lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="n"&gt;exif&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;tag&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;Date&lt;/span&gt; &lt;span class="n"&gt;and&lt;/span&gt; &lt;span class="n"&gt;Time&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt; &lt;span class="n"&gt;DSC_0093&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;JPG&lt;/span&gt; 
+&lt;span class="n"&gt;EXIF&lt;/span&gt; &lt;span class="n"&gt;entry&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;Date&lt;/span&gt; &lt;span class="n"&gt;and&lt;/span&gt; &lt;span class="n"&gt;Time&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mh"&gt;0x132&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;DateTime&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="n"&gt;exists&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="n"&gt;IFD&lt;/span&gt; &lt;span class="sc"&gt;&amp;#39;0&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+&lt;span class="nl"&gt;Tag:&lt;/span&gt; &lt;span class="mh"&gt;0x132&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;DateTime&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="nl"&gt;Format:&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;ASCII&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="nl"&gt;Components:&lt;/span&gt; &lt;span class="mi"&gt;20&lt;/span&gt;
+  &lt;span class="nl"&gt;Size:&lt;/span&gt; &lt;span class="mi"&gt;20&lt;/span&gt;
+  &lt;span class="nl"&gt;Value:&lt;/span&gt; &lt;span class="mi"&gt;2007&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mo"&gt;04&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;09&lt;/span&gt; &lt;span class="mi"&gt;16&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;15&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;47&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;We can work with that! A few &lt;code&gt;grep&lt;/code&gt; and &lt;code&gt;awk&lt;/code&gt; commands later and I had:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;  &lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="n"&gt;exif&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;tag&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;Date&lt;/span&gt; &lt;span class="n"&gt;and&lt;/span&gt; &lt;span class="n"&gt;Time&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt; &lt;span class="n"&gt;DSC_0093&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;JPG&lt;/span&gt; \
+    &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;grep&lt;/span&gt; &lt;span class="n"&gt;Value&lt;/span&gt; \
+    &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;awk&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;print&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt; \
+    &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;awk&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;F&lt;/span&gt;&lt;span class="sc"&gt;&amp;#39;:&amp;#39;&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;print&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;-&amp;quot;&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;-&amp;quot;&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;
+&lt;span class="mi"&gt;2007&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mo"&gt;04&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;09&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;To break that down: &lt;code&gt;grep Value&lt;/code&gt; is pretty obvious. It will leave only the
+line containing &lt;code&gt;Value&lt;/code&gt; so now our result will look like&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;  &lt;span class="nl"&gt;Value:&lt;/span&gt; &lt;span class="mi"&gt;2007&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mo"&gt;04&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;09&lt;/span&gt; &lt;span class="mi"&gt;16&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;15&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;47&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Then this gets piped to &lt;code&gt;awk '{print $2}'&lt;/code&gt;. This is a very common type of awk
+command to run. Since awk splits on whitespace by default, this will get us
+the second column, which in this case contains the text&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="mi"&gt;2007&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;04&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;09&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I didn't care about the time of the photo since I'm planning to lump all of
+the photos from the same day into a given directory. If I had wanted the date
+&lt;em&gt;and&lt;/em&gt; time, I could have used &lt;code&gt;awk '{print $2 " " $3}'&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Now that I have the date, I want it in my preferred format of &lt;code&gt;yyyy-mm-dd&lt;/code&gt; so
+I once again turned to awk. This time I used &lt;code&gt;-F':'&lt;/code&gt; to specify that I wanted
+to split on &lt;code&gt;:&lt;/code&gt; instead of whitespace. Then I rest of the command glues the
+date, month, and year parts together with &lt;code&gt;-&lt;/code&gt; in between.&lt;/p&gt;
+&lt;p&gt;So now I have to use all of this to make the directories and dump files into
+them. Before actually creating any directories or moving any files, however,
+I wanted to sanity check everything. I wrote a loop that spit out each of the
+&lt;code&gt;*NEF.jpg&lt;/code&gt; files and the date I calculated for them:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="k"&gt;for &lt;/span&gt;f in *NEF.jpg; &lt;span class="k"&gt;do&lt;/span&gt;
+&lt;span class="k"&gt;    &lt;/span&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; -n &lt;span class="s2"&gt;&amp;quot;$f &amp;quot;&lt;/span&gt;
+    &lt;span class="nv"&gt;dt&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;exif --tag &lt;span class="s1"&gt;&amp;#39;Date and Time&amp;#39;&lt;/span&gt; &lt;span class="nv"&gt;$f&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
+            | grep Value &lt;span class="se"&gt;\&lt;/span&gt;
+            | awk &lt;span class="s1"&gt;&amp;#39;{print $2}&amp;#39;&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
+            | awk -F&lt;span class="s1"&gt;&amp;#39;:&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;{print $1 &amp;quot;-&amp;quot; $2 &amp;quot;-&amp;quot; $3}&amp;#39;&lt;/span&gt;&lt;span class="k"&gt;)&lt;/span&gt;
+    &lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="nv"&gt;$dt&lt;/span&gt;
+&lt;span class="k"&gt;done&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The &lt;code&gt;-n&lt;/code&gt; flag to &lt;code&gt;echo&lt;/code&gt; tells it to not print a newline. I then saved the
+result of the command to calculate the picture's date to a variable called
+&lt;code&gt;dt&lt;/code&gt; so that I could reuse it in the code to follow. Here's a snippet of the
+results:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="n"&gt;DSC_1455&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;NEF&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;jpg&lt;/span&gt;    &lt;span class="mi"&gt;2014&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mo"&gt;07&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;28&lt;/span&gt;
+&lt;span class="n"&gt;DSC_1456&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;NEF&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;jpg&lt;/span&gt;    &lt;span class="mi"&gt;2014&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mo"&gt;07&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;28&lt;/span&gt;
+&lt;span class="n"&gt;DSC_1457&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;NEF&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;jpg&lt;/span&gt;    &lt;span class="mi"&gt;2014&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mo"&gt;07&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;28&lt;/span&gt;
+&lt;span class="n"&gt;DSC_1458&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;NEF&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;jpg&lt;/span&gt;    &lt;span class="mi"&gt;2014&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mo"&gt;07&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;28&lt;/span&gt;
+&lt;span class="n"&gt;DSC_1460&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;NEF&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;jpg&lt;/span&gt;    &lt;span class="mi"&gt;2014&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mo"&gt;07&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;28&lt;/span&gt;
+&lt;span class="n"&gt;DSC_1461&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;NEF&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;jpg&lt;/span&gt;    &lt;span class="mi"&gt;2014&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mo"&gt;07&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;28&lt;/span&gt;
+&lt;span class="n"&gt;DSC_1463&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;NEF&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;jpg&lt;/span&gt;    &lt;span class="mi"&gt;2014&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mo"&gt;07&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;28&lt;/span&gt;
+&lt;span class="n"&gt;DSC_1506&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;NEF&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;jpg&lt;/span&gt;    &lt;span class="mi"&gt;2014&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;09&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mo"&gt;03&lt;/span&gt;
+&lt;span class="n"&gt;DSC_1507&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;NEF&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;jpg&lt;/span&gt;    &lt;span class="mi"&gt;2014&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;09&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mo"&gt;03&lt;/span&gt;
+&lt;span class="n"&gt;DSC_1512&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;NEF&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;jpg&lt;/span&gt;    &lt;span class="mi"&gt;2014&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;09&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mo"&gt;03&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;After sanity checking the results, I felt confident enough to go forward. Here
+is the final product:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="k"&gt;for &lt;/span&gt;f in *NEF.jpg; &lt;span class="k"&gt;do&lt;/span&gt;
+&lt;span class="k"&gt;    &lt;/span&gt;&lt;span class="nv"&gt;dt&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;exif --tag &lt;span class="s1"&gt;&amp;#39;Date and Time&amp;#39;&lt;/span&gt; &lt;span class="nv"&gt;$f&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
+            | grep Value &lt;span class="se"&gt;\&lt;/span&gt;
+            | awk &lt;span class="s1"&gt;&amp;#39;{print $2}&amp;#39;&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
+            | awk -F&lt;span class="s1"&gt;&amp;#39;:&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;{print $1 &amp;quot;-&amp;quot; $2 &amp;quot;-&amp;quot; $3}&amp;#39;&lt;/span&gt;&lt;span class="k"&gt;)&lt;/span&gt;
+
+    mkdir &lt;span class="nv"&gt;$dt&lt;/span&gt; &amp;amp;&amp;gt;/dev/null
+    mv &lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;f&lt;/span&gt;&lt;span class="p"&gt;%.jpg&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt; &lt;span class="nv"&gt;$dt&lt;/span&gt;/
+&lt;span class="k"&gt;done&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The most interesting part of this code is the &lt;code&gt;${f%.jpg}&lt;/code&gt;. This chops &lt;code&gt;.jpg&lt;/code&gt;
+off of the end of the string. To fully grasp what's going on, check out &lt;a href="http://tldp.org/LDP/abs/html/string-manipulation.html"&gt;this
+article&lt;/a&gt;, specifically
+the section titled &lt;strong&gt;Substring Removal&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;And that was it! Was a lot of faster than doing it by hand. Maybe there are
+tools out there that could have done this for me, but I found this more fun.
+You can really do some neat stuff with everyday command-line tools. I highly
+recommend using them for tasks like this to become comfortable writing bash.&lt;/p&gt;</summary><category term="bash"></category></entry><entry><title>Automatically Focus on Amazon's Search Bar</title><link href="http://buckryan.com/automatically-focus-on-amazons-search-bar.html" rel="alternate"></link><updated>2013-03-07T00:00:00-05:00</updated><author><name>Buck Ryan</name></author><id>tag:buckryan.com,2013-03-07:automatically-focus-on-amazons-search-bar.html</id><summary type="html">&lt;p&gt;Whenever I visit Amazon's homepage, I do so hoping to search for things. I'm
+not one to browse around and I'm sure many others are the same. However, I get
+annoyed each time this happens because the search bar does not have the focus
+when you visit the homepage. After coming across a
+&lt;a href="http://news.ycombinator.com/item?id=5333209"&gt;comment&lt;/a&gt; on Hacker News
+describing the same problem, I realized I could fix this with a pretty simple
+Chrome extension. Check it out
+&lt;a href="https://chrome.google.com/webstore/detail/amazon-search-auto-focus/mlblghbllacignpjknjbpbefjmgnbpca"&gt;here&lt;/a&gt;
+and read on for a short description of how I put it together.&lt;/p&gt;
+&lt;p&gt;About one or two years back, I was interested in making extensions for Chrome,
+but never went very far with it. However, the brief foray meant that yesterday,
+I knew the basics I would need to make the extension. The most important part
+of this is the &lt;a href="http://developer.chrome.com/extensions/manifest.html"&gt;manifest&lt;/a&gt;,
+which describes your extension, lists the permissions it needs, files it
+contains, and so forth.&lt;/p&gt;
+&lt;p&gt;The manifest for this app was really simple:&lt;/p&gt;
+&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt; 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;manifest_version&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Amazon Search AutoFocus&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;description&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Automatically focus on search bar when visiting Amazon&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;version&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;1&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;permissions&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+        &lt;span class="s2"&gt;&amp;quot;http://*.amazon.com/&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="s2"&gt;&amp;quot;https://*.amazon.com/&amp;quot;&lt;/span&gt;
+    &lt;span class="p"&gt;],&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;content_scripts&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+        &lt;span class="p"&gt;{&lt;/span&gt;
+            &lt;span class="nt"&gt;&amp;quot;matches&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;http://*.amazon.com/&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+            &lt;span class="nt"&gt;&amp;quot;js&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;script.js&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+        &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;Most of this is pretty obvious. The documentation on the
+&lt;a href="http://developer.chrome.com/extensions/manifest.html#manifest_version"&gt;manifest_version&lt;/a&gt;
+indicates that version 1 is deprecate. The version indicated lets Google
+manage the extension among users. This number will be used to determine if a
+user is on an older version of the extension and it needs to be updated.&lt;/p&gt;
+&lt;p&gt;Permissions are bit complicated, as they can include whether the extension
+can operate on tabs or windows, have access to sites, etc. For this really
+simple app, I only need to indicate that I want access to the amazon sites.&lt;/p&gt;
+&lt;p&gt;Finally, the hardest part of it all was figuring out how to get some javascript
+to run when I visited Amazon's homepage. Using some Google-foo, I discovered
+that &lt;a href="http://developer.chrome.com/extensions/content_scripts.html"&gt;Content Scripts&lt;/a&gt;
+are the way to do this. As the documentation says, &lt;code&gt;content scripts run in the
+context of web pages&lt;/code&gt;. This means the javascript file specified above
+(script.js) will be run when Amazon loads. This is exactly what I wanted!&lt;/p&gt;
+&lt;p&gt;So finally I just needed to write the javascript. It turned out to be dead
+simple. Here's the only line needed:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="n"&gt;document&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;getElementById&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;twotabsearchtextbox&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="n"&gt;focus&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I briefly examined Amazon's search box using the Chrome
+&lt;a href="https://developers.google.com/chrome-developer-tools/docs/elements"&gt;developer tools&lt;/a&gt;
+and I saw that the ID of the search box was &lt;code&gt;twotabsearchtextbox&lt;/code&gt;. So I used
+some native javascript functions to set the focus and it was done!&lt;/p&gt;
+&lt;p&gt;Hopefully this helps if you want to write your own Chrome extension! If I make
+any changes or improvements to this, the updated code will be
+&lt;a href="https://bitbucket.org/b_ryan/amazon-autofocus"&gt;on Bitbucket&lt;/a&gt; for your viewing
+pleasure.&lt;/p&gt;</summary><category term="chrome"></category><category term="extension"></category><category term="amazon"></category><category term="autofocus"></category><category term="javascript"></category></entry></feed>

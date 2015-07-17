@@ -3,13 +3,13 @@
 When beginning to use &lt;a href="https://github.com/cemerick/clojurescript.test"&gt;cemerick's
 .clojurescript.test&lt;/a&gt;, I kept
 running into this error:&lt;/p&gt;
-&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
 2
 3
 4
 5
 6
-7&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;Error: cemerick is undefined
+7&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;Error: cemerick is undefined
 
 ERROR: cemerick.cljs.test was not required.
 
@@ -23,15 +23,15 @@ Also make sure that your build has actually included any test files.
 figure out what was wrong. Finally I discovered that
 &lt;a href="https://slimerjs.org/"&gt;slimerjs&lt;/a&gt; has the &lt;code&gt;-jsconsole&lt;/code&gt; flag, which, as the docs
 say, will&lt;/p&gt;
-&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;Open a window to view all javascript errors during the execution
+&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;Open a window to view all javascript errors during the execution
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 
 &lt;p&gt;Great, using that I finally found the actual problem:&lt;/p&gt;
-&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
 2
 3
-4&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;Script Error: Error: Assert failed: No target specified to om.core/root
+4&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;Script Error: Error: Assert failed: No target specified to om.core/root
 (not (nil? target))
        Stack:
          -&amp;gt; file:///tmp/runner6386761518784950059.js.html: 55456
@@ -40,9 +40,9 @@ say, will&lt;/p&gt;
 
 &lt;p&gt;This makes much more sense. The issue is that my &lt;code&gt;core.cljs&lt;/code&gt; namespace was
 running &lt;code&gt;om/root&lt;/code&gt; when the page loads. The code looked like:&lt;/p&gt;
-&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
 2
-3&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;om/root&lt;/span&gt; &lt;span class="nv"&gt;main-view&lt;/span&gt;
+3&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;om/root&lt;/span&gt; &lt;span class="nv"&gt;main-view&lt;/span&gt;
          &lt;span class="nv"&gt;app-state&lt;/span&gt;
          &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="ss"&gt;:target&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;. &lt;/span&gt;&lt;span class="nv"&gt;js/document&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;getElementById&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;app&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;))}))&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
@@ -57,17 +57,17 @@ the actual application, but not the tests.&lt;/p&gt;
 &lt;p&gt;It took awhile of searching, but I finally found some inspiration from
 &lt;a href="https://github.com/jalehman/react-tutorial-om"&gt;this project&lt;/a&gt; and specifically
 &lt;a href="https://github.com/jalehman/react-tutorial-om/blob/60867fb0efcb48a3f20bc94361c2f981e6c96f44/resources/public/index.html#L15"&gt;this line of code&lt;/a&gt;:&lt;/p&gt;
-&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nt"&gt;&amp;lt;script &lt;/span&gt;&lt;span class="na"&gt;type=&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;text/javascript&amp;quot;&lt;/span&gt;&lt;span class="nt"&gt;&amp;gt;&lt;/span&gt;&lt;span class="nx"&gt;goog&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;require&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;react_tutorial_om.app&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;&lt;span class="nt"&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
+&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="nt"&gt;&amp;lt;script &lt;/span&gt;&lt;span class="na"&gt;type=&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;text/javascript&amp;quot;&lt;/span&gt;&lt;span class="nt"&gt;&amp;gt;&lt;/span&gt;&lt;span class="nx"&gt;goog&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;require&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;react_tutorial_om.app&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;&lt;span class="nt"&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 
-&lt;p&gt;I realized I could just wrap by &lt;code&gt;om/root&lt;/code&gt; call in a main function and then call
+&lt;p&gt;I realized I could just wrap my &lt;code&gt;om/root&lt;/code&gt; call in a main function and then call
 this from the index.html page. Here is what the code in &lt;code&gt;core.cljs&lt;/code&gt; looks like
 now:&lt;/p&gt;
-&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
 2
 3
-4&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kd"&gt;defn &lt;/span&gt;&lt;span class="nv"&gt;app&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
+4&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kd"&gt;defn &lt;/span&gt;&lt;span class="nv"&gt;app&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
   &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;om/root&lt;/span&gt; &lt;span class="nv"&gt;main-view&lt;/span&gt;
            &lt;span class="nv"&gt;app-state&lt;/span&gt;
            &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="ss"&gt;:target&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;. &lt;/span&gt;&lt;span class="nv"&gt;js/document&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;getElementById&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;app&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;))}))&lt;/span&gt;
@@ -75,10 +75,10 @@ now:&lt;/p&gt;
 &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 
 &lt;p&gt;and the corresponding code in &lt;code&gt;index.html&lt;/code&gt;:&lt;/p&gt;
-&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
 2
 3
-4&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nt"&gt;&amp;lt;script &lt;/span&gt;&lt;span class="na"&gt;type=&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;text/javascript&amp;quot;&lt;/span&gt;&lt;span class="nt"&gt;&amp;gt;&lt;/span&gt;
+4&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="nt"&gt;&amp;lt;script &lt;/span&gt;&lt;span class="na"&gt;type=&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;text/javascript&amp;quot;&lt;/span&gt;&lt;span class="nt"&gt;&amp;gt;&lt;/span&gt;
 &lt;span class="nx"&gt;goog&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;require&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;my.namespace.core&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
 &lt;span class="nx"&gt;my&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;namespace&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;core&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;app&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
 &lt;span class="nt"&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
@@ -90,8 +90,8 @@ lein figwheel was not reloading the page properly when I made changes to the
 code. This is because the javascript would be reloaded, which previously was
 running &lt;code&gt;om/root&lt;/code&gt; every time. To solve this I added to the &lt;code&gt;on-js-reload&lt;/code&gt;
 function so that the app was reinitialized:&lt;/p&gt;
-&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
-2&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kd"&gt;defn &lt;/span&gt;&lt;span class="nv"&gt;on-js-reload&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
+&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+2&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kd"&gt;defn &lt;/span&gt;&lt;span class="nv"&gt;on-js-reload&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
   &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;app&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
@@ -102,27 +102,27 @@ function so that the app was reinitialized:&lt;/p&gt;
 is based on the structure of the project in the
 &lt;code&gt;recipes/routing-with-secretary&lt;/code&gt; directory (and possibly others in the repo).&lt;/p&gt;
 &lt;p&gt;Let's assume your project currently has this directory structure:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;resources/...
-src/my/namespace/core.cljs
-project.clj
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="n"&gt;resources&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="p"&gt;...&lt;/span&gt;
+&lt;span class="n"&gt;src&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;my&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;namespace&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;core&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;cljs&lt;/span&gt;
+&lt;span class="n"&gt;project&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;clj&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;We are going to add a directory called &lt;code&gt;env&lt;/code&gt; which will house code that is
 specific to different environments, namely development vs. production. Create
 directories such that your project now looks like this:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;env/dev/src/my/namespace/dev.cljs
-   /prod/src/my/namespace/prod.cljs
-resources/...
-src/my/namespace/core.cljs
-project.clj
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="n"&gt;env&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;dev&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;src&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;my&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;namespace&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;dev&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;cljs&lt;/span&gt;
+   &lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;prod&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;src&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;my&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;namespace&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;prod&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;cljs&lt;/span&gt;
+&lt;span class="n"&gt;resources&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="p"&gt;...&lt;/span&gt;
+&lt;span class="n"&gt;src&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;my&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;namespace&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;core&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;cljs&lt;/span&gt;
+&lt;span class="n"&gt;project&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;clj&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;You can see that in &lt;code&gt;env/dev&lt;/code&gt; and &lt;code&gt;env/prod&lt;/code&gt; we mimick the &lt;code&gt;src&lt;/code&gt; directory.
 Within &lt;code&gt;dev.cljs&lt;/code&gt; we will add code that is only to be run when developing.
 Here is what that namespace will basically look like for the dev environment:&lt;/p&gt;
-&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt; 1
+&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt; 1
  2
  3
  4
@@ -131,7 +131,7 @@ Here is what that namespace will basically look like for the dev environment:&lt
  7
  8
  9
-10&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kd"&gt;ns &lt;/span&gt;&lt;span class="nv"&gt;my.namespace.dev&lt;/span&gt;
+10&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kd"&gt;ns &lt;/span&gt;&lt;span class="nv"&gt;my.namespace.dev&lt;/span&gt;
   &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:require&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nv"&gt;my.namespace.core&lt;/span&gt; &lt;span class="ss"&gt;:as&lt;/span&gt; &lt;span class="nv"&gt;core&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
             &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nv"&gt;figwheel.client&lt;/span&gt; &lt;span class="ss"&gt;:as&lt;/span&gt; &lt;span class="nv"&gt;figwheel&lt;/span&gt; &lt;span class="ss"&gt;:include-macros&lt;/span&gt; &lt;span class="nv"&gt;true&lt;/span&gt;&lt;span class="p"&gt;]))&lt;/span&gt;
 
@@ -145,10 +145,10 @@ Here is what that namespace will basically look like for the dev environment:&lt
 &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 
 &lt;p&gt;For production, this can be much simpler:&lt;/p&gt;
-&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
 2
 3
-4&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kd"&gt;ns &lt;/span&gt;&lt;span class="nv"&gt;my.namespace.prod&lt;/span&gt;
+4&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kd"&gt;ns &lt;/span&gt;&lt;span class="nv"&gt;my.namespace.prod&lt;/span&gt;
   &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:require&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nv"&gt;my.namespace.core&lt;/span&gt; &lt;span class="ss"&gt;:as&lt;/span&gt; &lt;span class="nv"&gt;core&lt;/span&gt;&lt;span class="p"&gt;]))&lt;/span&gt;
 
 &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;core/app&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
@@ -158,7 +158,7 @@ Here is what that namespace will basically look like for the dev environment:&lt
 &lt;p&gt;Now all we need to do is modify &lt;code&gt;project.clj&lt;/code&gt; to use these environments. This
 is accomplished using different build configurations. Here is a sample of
 how that would look:&lt;/p&gt;
-&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt; 1
+&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt; 1
  2
  3
  4
@@ -169,7 +169,7 @@ how that would look:&lt;/p&gt;
  9
 10
 11
-12&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="ss"&gt;:cljsbuild&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="ss"&gt;:builds&lt;/span&gt; &lt;span class="p"&gt;[{&lt;/span&gt;&lt;span class="ss"&gt;:id&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;dev&amp;quot;&lt;/span&gt;
+12&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="ss"&gt;:cljsbuild&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="ss"&gt;:builds&lt;/span&gt; &lt;span class="p"&gt;[{&lt;/span&gt;&lt;span class="ss"&gt;:id&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;dev&amp;quot;&lt;/span&gt;
                       &lt;span class="ss"&gt;:source-paths&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;src&amp;quot;&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;env/dev/src&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
                       &lt;span class="c1"&gt;; blah blah blah&lt;/span&gt;
                       &lt;span class="p"&gt;}&lt;/span&gt;
@@ -184,6 +184,7 @@ how that would look:&lt;/p&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 
+&lt;p&gt;Finally, make sure to remove the code that was added to &lt;code&gt;index.html&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;And there you have it. The dev environment will end up compiling &lt;code&gt;dev.cljs&lt;/code&gt;,
 and since this namespace includes a call to &lt;code&gt;core/main&lt;/code&gt; at the namespace-level,
 it will run when the javascript is loaded. We do not include the file for the
@@ -192,10 +193,10 @@ test build, meaning the tests do not try to run &lt;code&gt;om/root&lt;/code&gt;
 &lt;p&gt;An entirely different approach to all of this (and perhaps a lot simpler)
 would be to simply check if your target element exists. Your code could then
 look like&lt;/p&gt;
-&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
 2
 3
-4&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;if-let &lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nv"&gt;target&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;. &lt;/span&gt;&lt;span class="nv"&gt;js/document&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;getElementById&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;app&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;))]&lt;/span&gt;
+4&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;if-let &lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nv"&gt;target&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;. &lt;/span&gt;&lt;span class="nv"&gt;js/document&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;getElementById&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;app&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;))]&lt;/span&gt;
   &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;om/root&lt;/span&gt; &lt;span class="nv"&gt;main-view&lt;/span&gt;
            &lt;span class="nv"&gt;app-state&lt;/span&gt;
            &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="ss"&gt;:target&lt;/span&gt; &lt;span class="nv"&gt;target&lt;/span&gt;&lt;span class="p"&gt;}))&lt;/span&gt;
@@ -212,10 +213,10 @@ be a newbie mistake. If so let me know!&lt;/p&gt;</summary><category term=""></c
 and I recently discovered I have a pile of photos dumped into a single
 directory. I like to separate photos by the day they were taken so I end up
 with directories like:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;2015-01-01_new-years-day
-2014-12-31_new-years-eve
-2014-12-25_christmas
-...
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="mi"&gt;2015&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mo"&gt;01&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mo"&gt;01&lt;/span&gt;&lt;span class="n"&gt;_new&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;years&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;day&lt;/span&gt;
+&lt;span class="mi"&gt;2014&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;12&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;31&lt;/span&gt;&lt;span class="n"&gt;_new&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;years&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;eve&lt;/span&gt;
+&lt;span class="mi"&gt;2014&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;12&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;25&lt;/span&gt;&lt;span class="n"&gt;_christmas&lt;/span&gt;
+&lt;span class="p"&gt;...&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -228,8 +229,8 @@ extract the date the pictures were taken, but it only works on JPG images.&lt;/p
 &lt;a href="http://imagemagick.org/"&gt;ImageMagick&lt;/a&gt; tool (&lt;code&gt;sudo apt-get install
 imagemagick&lt;/code&gt;) has a command called &lt;code&gt;convert&lt;/code&gt; that will do just that. To convert
 them all without risking overwriting anything, a simple for loop works nicely:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;for&lt;/span&gt; f in *.NEF&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt;
-    convert &lt;span class="nv"&gt;$f&lt;/span&gt; &lt;span class="nv"&gt;$f&lt;/span&gt;.jpg
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="k"&gt;for &lt;/span&gt;f in *.NEF; &lt;span class="k"&gt;do&lt;/span&gt;
+&lt;span class="k"&gt;    &lt;/span&gt;convert &lt;span class="nv"&gt;$f&lt;/span&gt; &lt;span class="nv"&gt;$f&lt;/span&gt;.jpg
 &lt;span class="k"&gt;done&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
@@ -240,8 +241,8 @@ command was taking awhile and I wanted to see how much work was left to do.
 and see its output. So all I needed to do was write a command that would list
 all of the &lt;code&gt;.NEF&lt;/code&gt; files that did not have corresponding &lt;code&gt;.NEF.jpg&lt;/code&gt; files.  To
 do that, I used:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;for&lt;/span&gt; f in *.NEF&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt;
-    ls &lt;span class="nv"&gt;$f&lt;/span&gt;.jpg &lt;span class="p"&gt;&amp;amp;&lt;/span&gt;&amp;gt;/dev/null &lt;span class="o"&gt;||&lt;/span&gt; &lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="nv"&gt;$f&lt;/span&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="k"&gt;for &lt;/span&gt;f in *.NEF; &lt;span class="k"&gt;do&lt;/span&gt;
+&lt;span class="k"&gt;    &lt;/span&gt;ls &lt;span class="nv"&gt;$f&lt;/span&gt;.jpg &amp;amp;&amp;gt;/dev/null &lt;span class="o"&gt;||&lt;/span&gt; &lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="nv"&gt;$f&lt;/span&gt;
 &lt;span class="k"&gt;done&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
@@ -253,7 +254,7 @@ $f&lt;/code&gt; will only be executed if the &lt;code&gt;ls&lt;/code&gt; failed,
 exist.&lt;/p&gt;
 &lt;p&gt;I had issues running this directly with &lt;code&gt;watch&lt;/code&gt;, but I didn't want to spend
 time debugging. Instead I saved the command to a file and ran:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;chmod +x script.sh
+&lt;div class="codehilite"&gt;&lt;pre&gt;chmod +x script.sh
 watch ./script.sh
 &lt;/pre&gt;&lt;/div&gt;
 
@@ -263,41 +264,41 @@ to convert.&lt;/p&gt;
 &lt;p&gt;While the conversion was running, I prepared to get exif data out of the jpg
 files. I mentioned above that &lt;code&gt;exif&lt;/code&gt; will do just that. Here's what a sample
 run looked like:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;  $ exif DSC_0093.JPG 
-EXIF tags in &amp;#39;DSC_0093.JPG&amp;#39; (&amp;#39;Motorola&amp;#39; byte order):
---------------------+----------------------------------------------------------
-Tag                 |Value
---------------------+----------------------------------------------------------
-Manufacturer        |
-Model               |
-X-Resolution        |500.0000000
-Y-Resolution        |500.0000000
-Resolution Unit     |Inch
-Software            |Picasa 3.0
-Date and Time       |2007:04:09 16:15:47
-YCbCr Positioning   |Centered
-Padding             |2060 bytes undefined data
-Compression         |JPEG compression
-X-Resolution        |72
-Y-Resolution        |72
-Resolution Unit     |Inch
-Exif Version        |Exif Version 2.2
-Date and Time (Origi|2007:12:25 11:07:52
-Date and Time (Digit|2007:12:25 11:07:52
-Components Configura|Y Cb Cr -
-User Comment        |
-Sub-second Time (Ori|00
-Sub-second Time (Dig|00
-FlashPixVersion     |FlashPix Version 1.0
-Color Space         |Internal error (unknown value 65535)
-Pixel X Dimension   |3008
-Pixel Y Dimension   |2000
-Custom Rendered     |Custom process
-Image Unique ID     |517d7ada5c38d78cd60a3032343e64f1
-Padding             |2060 bytes undefined data
-Interoperability Ver|0100
---------------------+----------------------------------------------------------
-EXIF data contains a thumbnail (5597 bytes).
+&lt;div class="codehilite"&gt;&lt;pre&gt;  &lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="n"&gt;exif&lt;/span&gt; &lt;span class="n"&gt;DSC_0093&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;JPG&lt;/span&gt; 
+&lt;span class="n"&gt;EXIF&lt;/span&gt; &lt;span class="n"&gt;tags&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;DSC_0093&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;JPG&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;Motorola&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt; &lt;span class="n"&gt;byte&lt;/span&gt; &lt;span class="n"&gt;order&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+&lt;span class="o"&gt;--------------------+----------------------------------------------------------&lt;/span&gt;
+&lt;span class="n"&gt;Tag&lt;/span&gt;                 &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;Value&lt;/span&gt;
+&lt;span class="o"&gt;--------------------+----------------------------------------------------------&lt;/span&gt;
+&lt;span class="n"&gt;Manufacturer&lt;/span&gt;        &lt;span class="o"&gt;|&lt;/span&gt;
+&lt;span class="n"&gt;Model&lt;/span&gt;               &lt;span class="o"&gt;|&lt;/span&gt;
+&lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;Resolution&lt;/span&gt;        &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="mf"&gt;500.0000000&lt;/span&gt;
+&lt;span class="n"&gt;Y&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;Resolution&lt;/span&gt;        &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="mf"&gt;500.0000000&lt;/span&gt;
+&lt;span class="n"&gt;Resolution&lt;/span&gt; &lt;span class="n"&gt;Unit&lt;/span&gt;     &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;Inch&lt;/span&gt;
+&lt;span class="n"&gt;Software&lt;/span&gt;            &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;Picasa&lt;/span&gt; &lt;span class="mf"&gt;3.0&lt;/span&gt;
+&lt;span class="n"&gt;Date&lt;/span&gt; &lt;span class="n"&gt;and&lt;/span&gt; &lt;span class="n"&gt;Time&lt;/span&gt;       &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="mi"&gt;2007&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mo"&gt;04&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;09&lt;/span&gt; &lt;span class="mi"&gt;16&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;15&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;47&lt;/span&gt;
+&lt;span class="n"&gt;YCbCr&lt;/span&gt; &lt;span class="n"&gt;Positioning&lt;/span&gt;   &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;Centered&lt;/span&gt;
+&lt;span class="n"&gt;Padding&lt;/span&gt;             &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="mi"&gt;2060&lt;/span&gt; &lt;span class="n"&gt;bytes&lt;/span&gt; &lt;span class="n"&gt;undefined&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;
+&lt;span class="n"&gt;Compression&lt;/span&gt;         &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;JPEG&lt;/span&gt; &lt;span class="n"&gt;compression&lt;/span&gt;
+&lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;Resolution&lt;/span&gt;        &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="mi"&gt;72&lt;/span&gt;
+&lt;span class="n"&gt;Y&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;Resolution&lt;/span&gt;        &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="mi"&gt;72&lt;/span&gt;
+&lt;span class="n"&gt;Resolution&lt;/span&gt; &lt;span class="n"&gt;Unit&lt;/span&gt;     &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;Inch&lt;/span&gt;
+&lt;span class="n"&gt;Exif&lt;/span&gt; &lt;span class="n"&gt;Version&lt;/span&gt;        &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;Exif&lt;/span&gt; &lt;span class="n"&gt;Version&lt;/span&gt; &lt;span class="mf"&gt;2.2&lt;/span&gt;
+&lt;span class="n"&gt;Date&lt;/span&gt; &lt;span class="n"&gt;and&lt;/span&gt; &lt;span class="n"&gt;Time&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Origi&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="mi"&gt;2007&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;12&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;25&lt;/span&gt; &lt;span class="mi"&gt;11&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mo"&gt;07&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;52&lt;/span&gt;
+&lt;span class="n"&gt;Date&lt;/span&gt; &lt;span class="n"&gt;and&lt;/span&gt; &lt;span class="n"&gt;Time&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Digit&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="mi"&gt;2007&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;12&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;25&lt;/span&gt; &lt;span class="mi"&gt;11&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mo"&gt;07&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;52&lt;/span&gt;
+&lt;span class="n"&gt;Components&lt;/span&gt; &lt;span class="n"&gt;Configura&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;Y&lt;/span&gt; &lt;span class="n"&gt;Cb&lt;/span&gt; &lt;span class="n"&gt;Cr&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;
+&lt;span class="n"&gt;User&lt;/span&gt; &lt;span class="n"&gt;Comment&lt;/span&gt;        &lt;span class="o"&gt;|&lt;/span&gt;
+&lt;span class="n"&gt;Sub&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;second&lt;/span&gt; &lt;span class="n"&gt;Time&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Ori&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="mo"&gt;00&lt;/span&gt;
+&lt;span class="n"&gt;Sub&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;second&lt;/span&gt; &lt;span class="n"&gt;Time&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Dig&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="mo"&gt;00&lt;/span&gt;
+&lt;span class="n"&gt;FlashPixVersion&lt;/span&gt;     &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;FlashPix&lt;/span&gt; &lt;span class="n"&gt;Version&lt;/span&gt; &lt;span class="mf"&gt;1.0&lt;/span&gt;
+&lt;span class="n"&gt;Color&lt;/span&gt; &lt;span class="n"&gt;Space&lt;/span&gt;         &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;Internal&lt;/span&gt; &lt;span class="n"&gt;error&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;unknown&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt; &lt;span class="mi"&gt;65535&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;Pixel&lt;/span&gt; &lt;span class="n"&gt;X&lt;/span&gt; &lt;span class="n"&gt;Dimension&lt;/span&gt;   &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="mi"&gt;3008&lt;/span&gt;
+&lt;span class="n"&gt;Pixel&lt;/span&gt; &lt;span class="n"&gt;Y&lt;/span&gt; &lt;span class="n"&gt;Dimension&lt;/span&gt;   &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="mi"&gt;2000&lt;/span&gt;
+&lt;span class="n"&gt;Custom&lt;/span&gt; &lt;span class="n"&gt;Rendered&lt;/span&gt;     &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;Custom&lt;/span&gt; &lt;span class="n"&gt;process&lt;/span&gt;
+&lt;span class="n"&gt;Image&lt;/span&gt; &lt;span class="n"&gt;Unique&lt;/span&gt; &lt;span class="n"&gt;ID&lt;/span&gt;     &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="mi"&gt;517&lt;/span&gt;&lt;span class="n"&gt;d7ada5c38d78cd60a3032343e64f1&lt;/span&gt;
+&lt;span class="n"&gt;Padding&lt;/span&gt;             &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="mi"&gt;2060&lt;/span&gt; &lt;span class="n"&gt;bytes&lt;/span&gt; &lt;span class="n"&gt;undefined&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;
+&lt;span class="n"&gt;Interoperability&lt;/span&gt; &lt;span class="n"&gt;Ver&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="mo"&gt;0100&lt;/span&gt;
+&lt;span class="o"&gt;--------------------+----------------------------------------------------------&lt;/span&gt;
+&lt;span class="n"&gt;EXIF&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt; &lt;span class="n"&gt;contains&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="n"&gt;thumbnail&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;5597&lt;/span&gt; &lt;span class="n"&gt;bytes&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -305,35 +306,35 @@ EXIF data contains a thumbnail (5597 bytes).
 &lt;p&gt;I noticed there was the &lt;code&gt;Date and Time&lt;/code&gt; tag in there. And in reading the man
 page for &lt;code&gt;exif&lt;/code&gt;, saw that I could ask for values of specific tags using the
 &lt;code&gt;--tag&lt;/code&gt; argument. Here is what happened for the same file above:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;  $ exif --tag &amp;#39;Date and Time&amp;#39; DSC_0093.JPG 
-EXIF entry &amp;#39;Date and Time&amp;#39; (0x132, &amp;#39;DateTime&amp;#39;) exists in IFD &amp;#39;0&amp;#39;:
-Tag: 0x132 (&amp;#39;DateTime&amp;#39;)
-  Format: 2 (&amp;#39;ASCII&amp;#39;)
-  Components: 20
-  Size: 20
-  Value: 2007:04:09 16:15:47
+&lt;div class="codehilite"&gt;&lt;pre&gt;  &lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="n"&gt;exif&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;tag&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;Date&lt;/span&gt; &lt;span class="n"&gt;and&lt;/span&gt; &lt;span class="n"&gt;Time&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt; &lt;span class="n"&gt;DSC_0093&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;JPG&lt;/span&gt; 
+&lt;span class="n"&gt;EXIF&lt;/span&gt; &lt;span class="n"&gt;entry&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;Date&lt;/span&gt; &lt;span class="n"&gt;and&lt;/span&gt; &lt;span class="n"&gt;Time&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mh"&gt;0x132&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;DateTime&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="n"&gt;exists&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="n"&gt;IFD&lt;/span&gt; &lt;span class="sc"&gt;&amp;#39;0&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+&lt;span class="nl"&gt;Tag:&lt;/span&gt; &lt;span class="mh"&gt;0x132&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;DateTime&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="nl"&gt;Format:&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;ASCII&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="nl"&gt;Components:&lt;/span&gt; &lt;span class="mi"&gt;20&lt;/span&gt;
+  &lt;span class="nl"&gt;Size:&lt;/span&gt; &lt;span class="mi"&gt;20&lt;/span&gt;
+  &lt;span class="nl"&gt;Value:&lt;/span&gt; &lt;span class="mi"&gt;2007&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mo"&gt;04&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;09&lt;/span&gt; &lt;span class="mi"&gt;16&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;15&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;47&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;We can work with that! A few &lt;code&gt;grep&lt;/code&gt; and &lt;code&gt;awk&lt;/code&gt; commands later and I had:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;  $ exif --tag &amp;#39;Date and Time&amp;#39; DSC_0093.JPG \
-    | grep Value \
-    | awk &amp;#39;{print $2}&amp;#39; \
-    | awk -F&amp;#39;:&amp;#39; &amp;#39;{print $1 &amp;quot;-&amp;quot; $2 &amp;quot;-&amp;quot; $3}&amp;#39;
-2007-04-09
+&lt;div class="codehilite"&gt;&lt;pre&gt;  &lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="n"&gt;exif&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;tag&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;Date&lt;/span&gt; &lt;span class="n"&gt;and&lt;/span&gt; &lt;span class="n"&gt;Time&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt; &lt;span class="n"&gt;DSC_0093&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;JPG&lt;/span&gt; \
+    &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;grep&lt;/span&gt; &lt;span class="n"&gt;Value&lt;/span&gt; \
+    &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;awk&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;print&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt; \
+    &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;awk&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;F&lt;/span&gt;&lt;span class="sc"&gt;&amp;#39;:&amp;#39;&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;print&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;-&amp;quot;&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;-&amp;quot;&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;
+&lt;span class="mi"&gt;2007&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mo"&gt;04&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;09&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;To break that down: &lt;code&gt;grep Value&lt;/code&gt; is pretty obvious. It will leave only the
 line containing &lt;code&gt;Value&lt;/code&gt; so now our result will look like&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;  Value: 2007:04:09 16:15:47
+&lt;div class="codehilite"&gt;&lt;pre&gt;  &lt;span class="nl"&gt;Value:&lt;/span&gt; &lt;span class="mi"&gt;2007&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mo"&gt;04&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;09&lt;/span&gt; &lt;span class="mi"&gt;16&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;15&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;47&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;Then this gets piped to &lt;code&gt;awk '{print $2}'&lt;/code&gt;. This is a very common type of awk
 command to run. Since awk splits on whitespace by default, this will get us
 the second column, which in this case contains the text&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="mi"&gt;2007&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;04&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;09&lt;/span&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="mi"&gt;2007&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;04&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;09&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -348,12 +349,12 @@ date, month, and year parts together with &lt;code&gt;-&lt;/code&gt; in between.
 them. Before actually creating any directories or moving any files, however,
 I wanted to sanity check everything. I wrote a loop that spit out each of the
 &lt;code&gt;*NEF.jpg&lt;/code&gt; files and the date I calculated for them:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;for&lt;/span&gt; f in *NEF.jpg&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt;
-    &lt;span class="nb"&gt;echo&lt;/span&gt; -n &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$f&lt;/span&gt;&lt;span class="s2"&gt; &amp;quot;&lt;/span&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="k"&gt;for &lt;/span&gt;f in *NEF.jpg; &lt;span class="k"&gt;do&lt;/span&gt;
+&lt;span class="k"&gt;    &lt;/span&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; -n &lt;span class="s2"&gt;&amp;quot;$f &amp;quot;&lt;/span&gt;
     &lt;span class="nv"&gt;dt&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;exif --tag &lt;span class="s1"&gt;&amp;#39;Date and Time&amp;#39;&lt;/span&gt; &lt;span class="nv"&gt;$f&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
-            &lt;span class="p"&gt;|&lt;/span&gt; grep Value &lt;span class="se"&gt;\&lt;/span&gt;
-            &lt;span class="p"&gt;|&lt;/span&gt; awk &lt;span class="s1"&gt;&amp;#39;{print $2}&amp;#39;&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
-            &lt;span class="p"&gt;|&lt;/span&gt; awk -F&lt;span class="s1"&gt;&amp;#39;:&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;{print $1 &amp;quot;-&amp;quot; $2 &amp;quot;-&amp;quot; $3}&amp;#39;&lt;/span&gt;&lt;span class="k"&gt;)&lt;/span&gt;
+            | grep Value &lt;span class="se"&gt;\&lt;/span&gt;
+            | awk &lt;span class="s1"&gt;&amp;#39;{print $2}&amp;#39;&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
+            | awk -F&lt;span class="s1"&gt;&amp;#39;:&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;{print $1 &amp;quot;-&amp;quot; $2 &amp;quot;-&amp;quot; $3}&amp;#39;&lt;/span&gt;&lt;span class="k"&gt;)&lt;/span&gt;
     &lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="nv"&gt;$dt&lt;/span&gt;
 &lt;span class="k"&gt;done&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
@@ -363,29 +364,29 @@ I wanted to sanity check everything. I wrote a loop that spit out each of the
 result of the command to calculate the picture's date to a variable called
 &lt;code&gt;dt&lt;/code&gt; so that I could reuse it in the code to follow. Here's a snippet of the
 results:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;DSC_1455.NEF.jpg    2014-07-28
-DSC_1456.NEF.jpg    2014-07-28
-DSC_1457.NEF.jpg    2014-07-28
-DSC_1458.NEF.jpg    2014-07-28
-DSC_1460.NEF.jpg    2014-07-28
-DSC_1461.NEF.jpg    2014-07-28
-DSC_1463.NEF.jpg    2014-07-28
-DSC_1506.NEF.jpg    2014-09-03
-DSC_1507.NEF.jpg    2014-09-03
-DSC_1512.NEF.jpg    2014-09-03
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="n"&gt;DSC_1455&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;NEF&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;jpg&lt;/span&gt;    &lt;span class="mi"&gt;2014&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mo"&gt;07&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;28&lt;/span&gt;
+&lt;span class="n"&gt;DSC_1456&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;NEF&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;jpg&lt;/span&gt;    &lt;span class="mi"&gt;2014&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mo"&gt;07&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;28&lt;/span&gt;
+&lt;span class="n"&gt;DSC_1457&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;NEF&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;jpg&lt;/span&gt;    &lt;span class="mi"&gt;2014&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mo"&gt;07&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;28&lt;/span&gt;
+&lt;span class="n"&gt;DSC_1458&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;NEF&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;jpg&lt;/span&gt;    &lt;span class="mi"&gt;2014&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mo"&gt;07&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;28&lt;/span&gt;
+&lt;span class="n"&gt;DSC_1460&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;NEF&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;jpg&lt;/span&gt;    &lt;span class="mi"&gt;2014&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mo"&gt;07&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;28&lt;/span&gt;
+&lt;span class="n"&gt;DSC_1461&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;NEF&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;jpg&lt;/span&gt;    &lt;span class="mi"&gt;2014&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mo"&gt;07&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;28&lt;/span&gt;
+&lt;span class="n"&gt;DSC_1463&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;NEF&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;jpg&lt;/span&gt;    &lt;span class="mi"&gt;2014&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mo"&gt;07&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;28&lt;/span&gt;
+&lt;span class="n"&gt;DSC_1506&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;NEF&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;jpg&lt;/span&gt;    &lt;span class="mi"&gt;2014&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;09&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mo"&gt;03&lt;/span&gt;
+&lt;span class="n"&gt;DSC_1507&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;NEF&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;jpg&lt;/span&gt;    &lt;span class="mi"&gt;2014&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;09&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mo"&gt;03&lt;/span&gt;
+&lt;span class="n"&gt;DSC_1512&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;NEF&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;jpg&lt;/span&gt;    &lt;span class="mi"&gt;2014&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;09&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mo"&gt;03&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;After sanity checking the results, I felt confident enough to go forward. Here
 is the final product:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;for&lt;/span&gt; f in *NEF.jpg&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt;
-    &lt;span class="nv"&gt;dt&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;exif --tag &lt;span class="s1"&gt;&amp;#39;Date and Time&amp;#39;&lt;/span&gt; &lt;span class="nv"&gt;$f&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
-            &lt;span class="p"&gt;|&lt;/span&gt; grep Value &lt;span class="se"&gt;\&lt;/span&gt;
-            &lt;span class="p"&gt;|&lt;/span&gt; awk &lt;span class="s1"&gt;&amp;#39;{print $2}&amp;#39;&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
-            &lt;span class="p"&gt;|&lt;/span&gt; awk -F&lt;span class="s1"&gt;&amp;#39;:&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;{print $1 &amp;quot;-&amp;quot; $2 &amp;quot;-&amp;quot; $3}&amp;#39;&lt;/span&gt;&lt;span class="k"&gt;)&lt;/span&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="k"&gt;for &lt;/span&gt;f in *NEF.jpg; &lt;span class="k"&gt;do&lt;/span&gt;
+&lt;span class="k"&gt;    &lt;/span&gt;&lt;span class="nv"&gt;dt&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;exif --tag &lt;span class="s1"&gt;&amp;#39;Date and Time&amp;#39;&lt;/span&gt; &lt;span class="nv"&gt;$f&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
+            | grep Value &lt;span class="se"&gt;\&lt;/span&gt;
+            | awk &lt;span class="s1"&gt;&amp;#39;{print $2}&amp;#39;&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
+            | awk -F&lt;span class="s1"&gt;&amp;#39;:&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;{print $1 &amp;quot;-&amp;quot; $2 &amp;quot;-&amp;quot; $3}&amp;#39;&lt;/span&gt;&lt;span class="k"&gt;)&lt;/span&gt;
 
-    mkdir &lt;span class="nv"&gt;$dt&lt;/span&gt; &lt;span class="p"&gt;&amp;amp;&lt;/span&gt;&amp;gt;/dev/null
-    mv &lt;span class="si"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;f&lt;/span&gt;&lt;span class="p"&gt;%.jpg&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt; &lt;span class="nv"&gt;$dt&lt;/span&gt;/
+    mkdir &lt;span class="nv"&gt;$dt&lt;/span&gt; &amp;amp;&amp;gt;/dev/null
+    mv &lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;f&lt;/span&gt;&lt;span class="p"&gt;%.jpg&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt; &lt;span class="nv"&gt;$dt&lt;/span&gt;/
 &lt;span class="k"&gt;done&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
@@ -398,13 +399,13 @@ the section titled &lt;strong&gt;Substring Removal&lt;/strong&gt;.&lt;/p&gt;
 tools out there that could have done this for me, but I found this more fun.
 You can really do some neat stuff with everyday command-line tools. I highly
 recommend using them for tasks like this to become comfortable writing bash.&lt;/p&gt;</summary><category term="bash"></category></entry><entry><title>Manipulating Vim Registers</title><link href="http://buckryan.com/manipulating-vim-registers.html" rel="alternate"></link><updated>2014-11-02T00:00:00-04:00</updated><author><name>Buck Ryan</name></author><id>tag:buckryan.com,2014-11-02:manipulating-vim-registers.html</id><summary type="html">&lt;p&gt;Recently I came across PHP code that looked similar to this:&lt;/p&gt;
-&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
 2
 3
 4
 5
 6
-7&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="x"&gt;const YEAR = 1;&lt;/span&gt;
+7&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="x"&gt;const YEAR = 1;&lt;/span&gt;
 &lt;span class="x"&gt;const QUARTER = 2;&lt;/span&gt;
 &lt;span class="x"&gt;const MONTH = 3;&lt;/span&gt;
 &lt;span class="x"&gt;const WEEK = 4;&lt;/span&gt;
@@ -416,13 +417,13 @@ recommend using them for tasks like this to become comfortable writing bash.&lt;
 
 &lt;p&gt;I wanted to write a switch statement which handled each of those constants.
 This is what each case statement would look like:&lt;/p&gt;
-&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
 2
 3
 4
 5
 6
-7&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="x"&gt;case self::YEAR:&lt;/span&gt;
+7&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="x"&gt;case self::YEAR:&lt;/span&gt;
 &lt;span class="x"&gt;case self::QUARTER:&lt;/span&gt;
 &lt;span class="x"&gt;case self::MONTH:&lt;/span&gt;
 &lt;span class="x"&gt;case self::WEEK:&lt;/span&gt;
@@ -481,13 +482,13 @@ registers. Here are some examples to start us off:&lt;/p&gt;
 &lt;p&gt;Knowing just the above will get us far. Let's see how we can apply them toward
 making our case statements. Our first exercise is pretty simple. We will get
 the contents of register &lt;code&gt;a&lt;/code&gt; to be:&lt;/p&gt;
-&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
 2
 3
 4
 5
 6
-7&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="x"&gt;YEAR&lt;/span&gt;
+7&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="x"&gt;YEAR&lt;/span&gt;
 &lt;span class="x"&gt;QUARTER&lt;/span&gt;
 &lt;span class="x"&gt;MONTH&lt;/span&gt;
 &lt;span class="x"&gt;WEEK&lt;/span&gt;
@@ -500,8 +501,8 @@ the contents of register &lt;code&gt;a&lt;/code&gt; to be:&lt;/p&gt;
 &lt;p&gt;&lt;em&gt;(note that there will actually be an empty first line)&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;Start by moving your cursor to the word "YEAR" and initializing register &lt;code&gt;a&lt;/code&gt; to
 a newline:&lt;/p&gt;
-&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
-2&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;/YEAR&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;CR&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+2&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;/YEAR&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;CR&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
 &lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="k"&gt;let&lt;/span&gt; @&lt;span class="k"&gt;a&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;\n&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;CR&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
@@ -512,7 +513,7 @@ explain below why this happens and what effect is has, but for now, suffice it
 to say that when you yank more text into &lt;code&gt;a&lt;/code&gt;, Vim will keep a newline at the
 end of the register. Go ahead and yank the word "YEAR" onto the end of register
 a to see it happen:&lt;/p&gt;
-&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;&amp;quot;Aye&lt;/span&gt;
+&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="c"&gt;&amp;quot;Aye&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 
@@ -527,16 +528,16 @@ the text we were going for.&lt;/p&gt;
 need to edit each line in register &lt;code&gt;a&lt;/code&gt;, which we wanted to avoid in the first
 place. We can do better. As before, move your cursor to &lt;code&gt;YEAR&lt;/code&gt;, but this time
 clear out register &lt;code&gt;a&lt;/code&gt; entirely:&lt;/p&gt;
-&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
-2&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;/YEAR&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;CR&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+2&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;/YEAR&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;CR&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
 &lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="k"&gt;let&lt;/span&gt; @&lt;span class="k"&gt;a&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;CR&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 
 &lt;p&gt;We will use another register to help us. Yank &lt;code&gt;YEAR&lt;/code&gt; into register &lt;code&gt;b&lt;/code&gt; and use
 it to append to register &lt;code&gt;a&lt;/code&gt;:&lt;/p&gt;
-&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
-2&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;&amp;quot;bye&lt;/span&gt;
+&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+2&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="c"&gt;&amp;quot;bye&lt;/span&gt;
 &lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="k"&gt;let&lt;/span&gt; @&lt;span class="k"&gt;a&lt;/span&gt; .&lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;case self::&amp;quot;&lt;/span&gt; . @&lt;span class="k"&gt;b&lt;/span&gt; . &lt;span class="s2"&gt;&amp;quot;:\n&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;CR&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
@@ -545,13 +546,13 @@ it to append to register &lt;code&gt;a&lt;/code&gt;:&lt;/p&gt;
 the string &lt;code&gt;:\n&lt;/code&gt;. Register &lt;code&gt;a&lt;/code&gt; is not linewise this time, so we have to append
 the newline ourselves. &lt;code&gt;a&lt;/code&gt; will now be &lt;code&gt;case self::YEAR:^J&lt;/code&gt;. If we repeat the
 above for each line (once again - use a macro!), register &lt;code&gt;a&lt;/code&gt; will be:&lt;/p&gt;
-&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
 2
 3
 4
 5
 6
-7&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="x"&gt;case self::YEAR:&lt;/span&gt;
+7&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="x"&gt;case self::YEAR:&lt;/span&gt;
 &lt;span class="x"&gt;case self::QUARTER:&lt;/span&gt;
 &lt;span class="x"&gt;case self::MONTH:&lt;/span&gt;
 &lt;span class="x"&gt;case self::WEEK:&lt;/span&gt;
@@ -572,7 +573,7 @@ make the finished product. It's unnecessary, however, since we can use
 to insert the word under the cursor each time we append to &lt;code&gt;a&lt;/code&gt;. To demonstrate
 this, again move to the beginning of &lt;code&gt;YEAR&lt;/code&gt; and clear register &lt;code&gt;a&lt;/code&gt;. This time,
 skip yanking to register &lt;code&gt;b&lt;/code&gt; and do:&lt;/p&gt;
-&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="k"&gt;let&lt;/span&gt; @&lt;span class="k"&gt;a&lt;/span&gt; .&lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;case self::&amp;lt;C-R&amp;gt;&amp;lt;C-W&amp;gt;:\n&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;CR&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="k"&gt;let&lt;/span&gt; @&lt;span class="k"&gt;a&lt;/span&gt; .&lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;case self::&amp;lt;C-R&amp;gt;&amp;lt;C-W&amp;gt;:\n&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;CR&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 
@@ -591,7 +592,7 @@ to get a newline at the end of your register. In insert mode, type
 a trailing newline character.&lt;/p&gt;
 &lt;p&gt;A second option, which is perhaps a bit hackier, is to not append just a
 newline to your register, but a newline plus some other character. For example:&lt;/p&gt;
-&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="k"&gt;let&lt;/span&gt; @&lt;span class="k"&gt;a&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;\n|&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;CR&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="k"&gt;let&lt;/span&gt; @&lt;span class="k"&gt;a&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;\n|&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;CR&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 
@@ -614,7 +615,7 @@ of this is the &lt;a href="http://developer.chrome.com/extensions/manifest.html"
 which describes your extension, lists the permissions it needs, files it
 contains, and so forth.&lt;/p&gt;
 &lt;p&gt;The manifest for this app was really simple:&lt;/p&gt;
-&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt; 1
+&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt; 1
  2
  3
  4
@@ -629,7 +630,7 @@ contains, and so forth.&lt;/p&gt;
 13
 14
 15
-16&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+16&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="p"&gt;{&lt;/span&gt;
     &lt;span class="nt"&gt;&amp;quot;manifest_version&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
     &lt;span class="nt"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Amazon Search AutoFocus&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
     &lt;span class="nt"&gt;&amp;quot;description&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Automatically focus on search bar when visiting Amazon&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
@@ -664,7 +665,7 @@ context of web pages&lt;/code&gt;. This means the javascript file specified abov
 (script.js) will be run when Amazon loads. This is exactly what I wanted!&lt;/p&gt;
 &lt;p&gt;So finally I just needed to write the javascript. It turned out to be dead
 simple. Here's the only line needed:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;document.getElementById(&amp;quot;twotabsearchtextbox&amp;quot;).focus();
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="n"&gt;document&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;getElementById&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;twotabsearchtextbox&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="n"&gt;focus&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
