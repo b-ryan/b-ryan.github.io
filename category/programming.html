@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-      <title>
-          buckryan.com
-        </title>
-  
+    <title>
+      buckryan.com
+    </title>
+
     <meta charset="utf-8" />
     <meta name="viewport" content="width-device-width, initial-scale=1.0">
 
@@ -45,23 +45,23 @@
 
       <div class="collapse navbar-collapse" id="navbar-collapse">
         <ul class="nav navbar-nav">
-        
-                              <li >
-              <a href="http://buckryan.com/pages/about-me.html">about me</a>
+
+            <li >
+              <a href="http://buckryan.com/pages/about.html">about</a>
             </li>
-                  
-                </ul>
+
+        </ul>
       </div>
 
     </div>
     </nav>
 
     <div class="container">
-      <section id="content">
-    <h2>Articles in the Programming category</h2>
+  <section id="content">
+<h2>Articles in the Programming category</h2>
 
     <ol id="post-list">
-          <li>
+      <li>
         <article class="hentry">
 
           <header>
@@ -79,19 +79,19 @@
             <span>
               2015-01-02
             </span>
-                          <address class="vcard author">
-                              </address>
-                      </footer>
+              <address class="vcard author">
+              </address>
+          </footer>
 
           <div class="entry-content">
             <p>I've been trying to organize my photos recently. I hadn't kept up with them
 and I recently discovered I have a pile of photos dumped into a single
 directory. I like to separate photos by the day they were taken so I end up
 with directories like:</p>
-<div class="codehilite"><pre><span class="mi">2015</span><span class="o">-</span><span class="mo">01</span><span class="o">-</span><span class="mo">01</span><span class="n">_new</span><span class="o">-</span><span class="n">years</span><span class="o">-</span><span class="n">day</span>
-<span class="mi">2014</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">31</span><span class="n">_new</span><span class="o">-</span><span class="n">years</span><span class="o">-</span><span class="n">eve</span>
-<span class="mi">2014</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">25</span><span class="n">_christmas</span>
-<span class="p">...</span>
+<div class="highlight"><pre><span></span>2015-01-01_new-years-day
+2014-12-31_new-years-eve
+2014-12-25_christmas
+...
 </pre></div>
 
 
@@ -104,8 +104,8 @@ extract the date the pictures were taken, but it only works on JPG images.</p>
 <a href="http://imagemagick.org/">ImageMagick</a> tool (<code>sudo apt-get install
 imagemagick</code>) has a command called <code>convert</code> that will do just that. To convert
 them all without risking overwriting anything, a simple for loop works nicely:</p>
-<div class="codehilite"><pre><span class="k">for </span>f in *.NEF; <span class="k">do</span>
-<span class="k">    </span>convert <span class="nv">$f</span> <span class="nv">$f</span>.jpg
+<div class="highlight"><pre><span></span><span class="k">for</span> f in *.NEF<span class="p">;</span> <span class="k">do</span>
+    convert <span class="nv">$f</span> <span class="nv">$f</span>.jpg
 <span class="k">done</span>
 </pre></div>
 
@@ -116,8 +116,8 @@ command was taking awhile and I wanted to see how much work was left to do.
 and see its output. So all I needed to do was write a command that would list
 all of the <code>.NEF</code> files that did not have corresponding <code>.NEF.jpg</code> files.  To
 do that, I used:</p>
-<div class="codehilite"><pre><span class="k">for </span>f in *.NEF; <span class="k">do</span>
-<span class="k">    </span>ls <span class="nv">$f</span>.jpg &amp;&gt;/dev/null <span class="o">||</span> <span class="nb">echo</span> <span class="nv">$f</span>
+<div class="highlight"><pre><span></span><span class="k">for</span> f in *.NEF<span class="p">;</span> <span class="k">do</span>
+    ls <span class="nv">$f</span>.jpg <span class="p">&amp;</span>&gt;/dev/null <span class="o">||</span> <span class="nb">echo</span> <span class="nv">$f</span>
 <span class="k">done</span>
 </pre></div>
 
@@ -129,7 +129,7 @@ $f</code> will only be executed if the <code>ls</code> failed, indicating the fi
 exist.</p>
 <p>I had issues running this directly with <code>watch</code>, but I didn't want to spend
 time debugging. Instead I saved the command to a file and ran:</p>
-<div class="codehilite"><pre>chmod +x script.sh
+<div class="highlight"><pre><span></span>chmod +x script.sh
 watch ./script.sh
 </pre></div>
 
@@ -139,41 +139,41 @@ to convert.</p>
 <p>While the conversion was running, I prepared to get exif data out of the jpg
 files. I mentioned above that <code>exif</code> will do just that. Here's what a sample
 run looked like:</p>
-<div class="codehilite"><pre>  <span class="err">$</span> <span class="n">exif</span> <span class="n">DSC_0093</span><span class="p">.</span><span class="n">JPG</span> 
-<span class="n">EXIF</span> <span class="n">tags</span> <span class="n">in</span> <span class="err">&#39;</span><span class="n">DSC_0093</span><span class="p">.</span><span class="n">JPG</span><span class="err">&#39;</span> <span class="p">(</span><span class="err">&#39;</span><span class="n">Motorola</span><span class="err">&#39;</span> <span class="n">byte</span> <span class="n">order</span><span class="p">)</span><span class="o">:</span>
-<span class="o">--------------------+----------------------------------------------------------</span>
-<span class="n">Tag</span>                 <span class="o">|</span><span class="n">Value</span>
-<span class="o">--------------------+----------------------------------------------------------</span>
-<span class="n">Manufacturer</span>        <span class="o">|</span>
-<span class="n">Model</span>               <span class="o">|</span>
-<span class="n">X</span><span class="o">-</span><span class="n">Resolution</span>        <span class="o">|</span><span class="mf">500.0000000</span>
-<span class="n">Y</span><span class="o">-</span><span class="n">Resolution</span>        <span class="o">|</span><span class="mf">500.0000000</span>
-<span class="n">Resolution</span> <span class="n">Unit</span>     <span class="o">|</span><span class="n">Inch</span>
-<span class="n">Software</span>            <span class="o">|</span><span class="n">Picasa</span> <span class="mf">3.0</span>
-<span class="n">Date</span> <span class="n">and</span> <span class="n">Time</span>       <span class="o">|</span><span class="mi">2007</span><span class="o">:</span><span class="mo">04</span><span class="o">:</span><span class="mi">09</span> <span class="mi">16</span><span class="o">:</span><span class="mi">15</span><span class="o">:</span><span class="mi">47</span>
-<span class="n">YCbCr</span> <span class="n">Positioning</span>   <span class="o">|</span><span class="n">Centered</span>
-<span class="n">Padding</span>             <span class="o">|</span><span class="mi">2060</span> <span class="n">bytes</span> <span class="n">undefined</span> <span class="n">data</span>
-<span class="n">Compression</span>         <span class="o">|</span><span class="n">JPEG</span> <span class="n">compression</span>
-<span class="n">X</span><span class="o">-</span><span class="n">Resolution</span>        <span class="o">|</span><span class="mi">72</span>
-<span class="n">Y</span><span class="o">-</span><span class="n">Resolution</span>        <span class="o">|</span><span class="mi">72</span>
-<span class="n">Resolution</span> <span class="n">Unit</span>     <span class="o">|</span><span class="n">Inch</span>
-<span class="n">Exif</span> <span class="n">Version</span>        <span class="o">|</span><span class="n">Exif</span> <span class="n">Version</span> <span class="mf">2.2</span>
-<span class="n">Date</span> <span class="n">and</span> <span class="n">Time</span> <span class="p">(</span><span class="n">Origi</span><span class="o">|</span><span class="mi">2007</span><span class="o">:</span><span class="mi">12</span><span class="o">:</span><span class="mi">25</span> <span class="mi">11</span><span class="o">:</span><span class="mo">07</span><span class="o">:</span><span class="mi">52</span>
-<span class="n">Date</span> <span class="n">and</span> <span class="n">Time</span> <span class="p">(</span><span class="n">Digit</span><span class="o">|</span><span class="mi">2007</span><span class="o">:</span><span class="mi">12</span><span class="o">:</span><span class="mi">25</span> <span class="mi">11</span><span class="o">:</span><span class="mo">07</span><span class="o">:</span><span class="mi">52</span>
-<span class="n">Components</span> <span class="n">Configura</span><span class="o">|</span><span class="n">Y</span> <span class="n">Cb</span> <span class="n">Cr</span> <span class="o">-</span>
-<span class="n">User</span> <span class="n">Comment</span>        <span class="o">|</span>
-<span class="n">Sub</span><span class="o">-</span><span class="n">second</span> <span class="n">Time</span> <span class="p">(</span><span class="n">Ori</span><span class="o">|</span><span class="mo">00</span>
-<span class="n">Sub</span><span class="o">-</span><span class="n">second</span> <span class="n">Time</span> <span class="p">(</span><span class="n">Dig</span><span class="o">|</span><span class="mo">00</span>
-<span class="n">FlashPixVersion</span>     <span class="o">|</span><span class="n">FlashPix</span> <span class="n">Version</span> <span class="mf">1.0</span>
-<span class="n">Color</span> <span class="n">Space</span>         <span class="o">|</span><span class="n">Internal</span> <span class="n">error</span> <span class="p">(</span><span class="n">unknown</span> <span class="n">value</span> <span class="mi">65535</span><span class="p">)</span>
-<span class="n">Pixel</span> <span class="n">X</span> <span class="n">Dimension</span>   <span class="o">|</span><span class="mi">3008</span>
-<span class="n">Pixel</span> <span class="n">Y</span> <span class="n">Dimension</span>   <span class="o">|</span><span class="mi">2000</span>
-<span class="n">Custom</span> <span class="n">Rendered</span>     <span class="o">|</span><span class="n">Custom</span> <span class="n">process</span>
-<span class="n">Image</span> <span class="n">Unique</span> <span class="n">ID</span>     <span class="o">|</span><span class="mi">517</span><span class="n">d7ada5c38d78cd60a3032343e64f1</span>
-<span class="n">Padding</span>             <span class="o">|</span><span class="mi">2060</span> <span class="n">bytes</span> <span class="n">undefined</span> <span class="n">data</span>
-<span class="n">Interoperability</span> <span class="n">Ver</span><span class="o">|</span><span class="mo">0100</span>
-<span class="o">--------------------+----------------------------------------------------------</span>
-<span class="n">EXIF</span> <span class="n">data</span> <span class="n">contains</span> <span class="n">a</span> <span class="n">thumbnail</span> <span class="p">(</span><span class="mi">5597</span> <span class="n">bytes</span><span class="p">).</span>
+<div class="highlight"><pre><span></span>  $ exif DSC_0093.JPG 
+EXIF tags in &#39;DSC_0093.JPG&#39; (&#39;Motorola&#39; byte order):
+--------------------+----------------------------------------------------------
+Tag                 |Value
+--------------------+----------------------------------------------------------
+Manufacturer        |
+Model               |
+X-Resolution        |500.0000000
+Y-Resolution        |500.0000000
+Resolution Unit     |Inch
+Software            |Picasa 3.0
+Date and Time       |2007:04:09 16:15:47
+YCbCr Positioning   |Centered
+Padding             |2060 bytes undefined data
+Compression         |JPEG compression
+X-Resolution        |72
+Y-Resolution        |72
+Resolution Unit     |Inch
+Exif Version        |Exif Version 2.2
+Date and Time (Origi|2007:12:25 11:07:52
+Date and Time (Digit|2007:12:25 11:07:52
+Components Configura|Y Cb Cr -
+User Comment        |
+Sub-second Time (Ori|00
+Sub-second Time (Dig|00
+FlashPixVersion     |FlashPix Version 1.0
+Color Space         |Internal error (unknown value 65535)
+Pixel X Dimension   |3008
+Pixel Y Dimension   |2000
+Custom Rendered     |Custom process
+Image Unique ID     |517d7ada5c38d78cd60a3032343e64f1
+Padding             |2060 bytes undefined data
+Interoperability Ver|0100
+--------------------+----------------------------------------------------------
+EXIF data contains a thumbnail (5597 bytes).
 </pre></div>
 
 
@@ -181,35 +181,35 @@ run looked like:</p>
 <p>I noticed there was the <code>Date and Time</code> tag in there. And in reading the man
 page for <code>exif</code>, saw that I could ask for values of specific tags using the
 <code>--tag</code> argument. Here is what happened for the same file above:</p>
-<div class="codehilite"><pre>  <span class="err">$</span> <span class="n">exif</span> <span class="o">--</span><span class="n">tag</span> <span class="err">&#39;</span><span class="n">Date</span> <span class="n">and</span> <span class="n">Time</span><span class="err">&#39;</span> <span class="n">DSC_0093</span><span class="p">.</span><span class="n">JPG</span> 
-<span class="n">EXIF</span> <span class="n">entry</span> <span class="err">&#39;</span><span class="n">Date</span> <span class="n">and</span> <span class="n">Time</span><span class="err">&#39;</span> <span class="p">(</span><span class="mh">0x132</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">DateTime</span><span class="err">&#39;</span><span class="p">)</span> <span class="n">exists</span> <span class="n">in</span> <span class="n">IFD</span> <span class="sc">&#39;0&#39;</span><span class="o">:</span>
-<span class="nl">Tag:</span> <span class="mh">0x132</span> <span class="p">(</span><span class="err">&#39;</span><span class="n">DateTime</span><span class="err">&#39;</span><span class="p">)</span>
-  <span class="nl">Format:</span> <span class="mi">2</span> <span class="p">(</span><span class="err">&#39;</span><span class="n">ASCII</span><span class="err">&#39;</span><span class="p">)</span>
-  <span class="nl">Components:</span> <span class="mi">20</span>
-  <span class="nl">Size:</span> <span class="mi">20</span>
-  <span class="nl">Value:</span> <span class="mi">2007</span><span class="o">:</span><span class="mo">04</span><span class="o">:</span><span class="mi">09</span> <span class="mi">16</span><span class="o">:</span><span class="mi">15</span><span class="o">:</span><span class="mi">47</span>
+<div class="highlight"><pre><span></span>  $ exif --tag &#39;Date and Time&#39; DSC_0093.JPG 
+EXIF entry &#39;Date and Time&#39; (0x132, &#39;DateTime&#39;) exists in IFD &#39;0&#39;:
+Tag: 0x132 (&#39;DateTime&#39;)
+  Format: 2 (&#39;ASCII&#39;)
+  Components: 20
+  Size: 20
+  Value: 2007:04:09 16:15:47
 </pre></div>
 
 
 <p>We can work with that! A few <code>grep</code> and <code>awk</code> commands later and I had:</p>
-<div class="codehilite"><pre>  <span class="err">$</span> <span class="n">exif</span> <span class="o">--</span><span class="n">tag</span> <span class="err">&#39;</span><span class="n">Date</span> <span class="n">and</span> <span class="n">Time</span><span class="err">&#39;</span> <span class="n">DSC_0093</span><span class="p">.</span><span class="n">JPG</span> \
-    <span class="o">|</span> <span class="n">grep</span> <span class="n">Value</span> \
-    <span class="o">|</span> <span class="n">awk</span> <span class="err">&#39;</span><span class="p">{</span><span class="n">print</span> <span class="err">$</span><span class="mi">2</span><span class="p">}</span><span class="err">&#39;</span> \
-    <span class="o">|</span> <span class="n">awk</span> <span class="o">-</span><span class="n">F</span><span class="sc">&#39;:&#39;</span> <span class="err">&#39;</span><span class="p">{</span><span class="n">print</span> <span class="err">$</span><span class="mi">1</span> <span class="s">&quot;-&quot;</span> <span class="err">$</span><span class="mi">2</span> <span class="s">&quot;-&quot;</span> <span class="err">$</span><span class="mi">3</span><span class="p">}</span><span class="err">&#39;</span>
-<span class="mi">2007</span><span class="o">-</span><span class="mo">04</span><span class="o">-</span><span class="mi">09</span>
+<div class="highlight"><pre><span></span>  $ exif --tag &#39;Date and Time&#39; DSC_0093.JPG \
+    | grep Value \
+    | awk &#39;{print $2}&#39; \
+    | awk -F&#39;:&#39; &#39;{print $1 &quot;-&quot; $2 &quot;-&quot; $3}&#39;
+2007-04-09
 </pre></div>
 
 
 <p>To break that down: <code>grep Value</code> is pretty obvious. It will leave only the
 line containing <code>Value</code> so now our result will look like</p>
-<div class="codehilite"><pre>  <span class="nl">Value:</span> <span class="mi">2007</span><span class="o">:</span><span class="mo">04</span><span class="o">:</span><span class="mi">09</span> <span class="mi">16</span><span class="o">:</span><span class="mi">15</span><span class="o">:</span><span class="mi">47</span>
+<div class="highlight"><pre><span></span>  Value: 2007:04:09 16:15:47
 </pre></div>
 
 
 <p>Then this gets piped to <code>awk '{print $2}'</code>. This is a very common type of awk
 command to run. Since awk splits on whitespace by default, this will get us
 the second column, which in this case contains the text</p>
-<div class="codehilite"><pre><span class="mi">2007</span><span class="o">:</span><span class="mi">04</span><span class="o">:</span><span class="mi">09</span>
+<div class="highlight"><pre><span></span><span class="mi">2007</span><span class="o">:</span><span class="mi">04</span><span class="o">:</span><span class="mi">09</span>
 </pre></div>
 
 
@@ -224,12 +224,12 @@ date, month, and year parts together with <code>-</code> in between.</p>
 them. Before actually creating any directories or moving any files, however,
 I wanted to sanity check everything. I wrote a loop that spit out each of the
 <code>*NEF.jpg</code> files and the date I calculated for them:</p>
-<div class="codehilite"><pre><span class="k">for </span>f in *NEF.jpg; <span class="k">do</span>
-<span class="k">    </span><span class="nb">echo</span> -n <span class="s2">&quot;$f &quot;</span>
+<div class="highlight"><pre><span></span><span class="k">for</span> f in *NEF.jpg<span class="p">;</span> <span class="k">do</span>
+    <span class="nb">echo</span> -n <span class="s2">&quot;</span><span class="nv">$f</span><span class="s2"> &quot;</span>
     <span class="nv">dt</span><span class="o">=</span><span class="k">$(</span>exif --tag <span class="s1">&#39;Date and Time&#39;</span> <span class="nv">$f</span> <span class="se">\</span>
-            | grep Value <span class="se">\</span>
-            | awk <span class="s1">&#39;{print $2}&#39;</span> <span class="se">\</span>
-            | awk -F<span class="s1">&#39;:&#39;</span> <span class="s1">&#39;{print $1 &quot;-&quot; $2 &quot;-&quot; $3}&#39;</span><span class="k">)</span>
+            <span class="p">|</span> grep Value <span class="se">\</span>
+            <span class="p">|</span> awk <span class="s1">&#39;{print $2}&#39;</span> <span class="se">\</span>
+            <span class="p">|</span> awk -F<span class="s1">&#39;:&#39;</span> <span class="s1">&#39;{print $1 &quot;-&quot; $2 &quot;-&quot; $3}&#39;</span><span class="k">)</span>
     <span class="nb">echo</span> <span class="nv">$dt</span>
 <span class="k">done</span>
 </pre></div>
@@ -239,29 +239,29 @@ I wanted to sanity check everything. I wrote a loop that spit out each of the
 result of the command to calculate the picture's date to a variable called
 <code>dt</code> so that I could reuse it in the code to follow. Here's a snippet of the
 results:</p>
-<div class="codehilite"><pre><span class="n">DSC_1455</span><span class="p">.</span><span class="n">NEF</span><span class="p">.</span><span class="n">jpg</span>    <span class="mi">2014</span><span class="o">-</span><span class="mo">07</span><span class="o">-</span><span class="mi">28</span>
-<span class="n">DSC_1456</span><span class="p">.</span><span class="n">NEF</span><span class="p">.</span><span class="n">jpg</span>    <span class="mi">2014</span><span class="o">-</span><span class="mo">07</span><span class="o">-</span><span class="mi">28</span>
-<span class="n">DSC_1457</span><span class="p">.</span><span class="n">NEF</span><span class="p">.</span><span class="n">jpg</span>    <span class="mi">2014</span><span class="o">-</span><span class="mo">07</span><span class="o">-</span><span class="mi">28</span>
-<span class="n">DSC_1458</span><span class="p">.</span><span class="n">NEF</span><span class="p">.</span><span class="n">jpg</span>    <span class="mi">2014</span><span class="o">-</span><span class="mo">07</span><span class="o">-</span><span class="mi">28</span>
-<span class="n">DSC_1460</span><span class="p">.</span><span class="n">NEF</span><span class="p">.</span><span class="n">jpg</span>    <span class="mi">2014</span><span class="o">-</span><span class="mo">07</span><span class="o">-</span><span class="mi">28</span>
-<span class="n">DSC_1461</span><span class="p">.</span><span class="n">NEF</span><span class="p">.</span><span class="n">jpg</span>    <span class="mi">2014</span><span class="o">-</span><span class="mo">07</span><span class="o">-</span><span class="mi">28</span>
-<span class="n">DSC_1463</span><span class="p">.</span><span class="n">NEF</span><span class="p">.</span><span class="n">jpg</span>    <span class="mi">2014</span><span class="o">-</span><span class="mo">07</span><span class="o">-</span><span class="mi">28</span>
-<span class="n">DSC_1506</span><span class="p">.</span><span class="n">NEF</span><span class="p">.</span><span class="n">jpg</span>    <span class="mi">2014</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mo">03</span>
-<span class="n">DSC_1507</span><span class="p">.</span><span class="n">NEF</span><span class="p">.</span><span class="n">jpg</span>    <span class="mi">2014</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mo">03</span>
-<span class="n">DSC_1512</span><span class="p">.</span><span class="n">NEF</span><span class="p">.</span><span class="n">jpg</span>    <span class="mi">2014</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mo">03</span>
+<div class="highlight"><pre><span></span>DSC_1455.NEF.jpg    2014-07-28
+DSC_1456.NEF.jpg    2014-07-28
+DSC_1457.NEF.jpg    2014-07-28
+DSC_1458.NEF.jpg    2014-07-28
+DSC_1460.NEF.jpg    2014-07-28
+DSC_1461.NEF.jpg    2014-07-28
+DSC_1463.NEF.jpg    2014-07-28
+DSC_1506.NEF.jpg    2014-09-03
+DSC_1507.NEF.jpg    2014-09-03
+DSC_1512.NEF.jpg    2014-09-03
 </pre></div>
 
 
 <p>After sanity checking the results, I felt confident enough to go forward. Here
 is the final product:</p>
-<div class="codehilite"><pre><span class="k">for </span>f in *NEF.jpg; <span class="k">do</span>
-<span class="k">    </span><span class="nv">dt</span><span class="o">=</span><span class="k">$(</span>exif --tag <span class="s1">&#39;Date and Time&#39;</span> <span class="nv">$f</span> <span class="se">\</span>
-            | grep Value <span class="se">\</span>
-            | awk <span class="s1">&#39;{print $2}&#39;</span> <span class="se">\</span>
-            | awk -F<span class="s1">&#39;:&#39;</span> <span class="s1">&#39;{print $1 &quot;-&quot; $2 &quot;-&quot; $3}&#39;</span><span class="k">)</span>
+<div class="highlight"><pre><span></span><span class="k">for</span> f in *NEF.jpg<span class="p">;</span> <span class="k">do</span>
+    <span class="nv">dt</span><span class="o">=</span><span class="k">$(</span>exif --tag <span class="s1">&#39;Date and Time&#39;</span> <span class="nv">$f</span> <span class="se">\</span>
+            <span class="p">|</span> grep Value <span class="se">\</span>
+            <span class="p">|</span> awk <span class="s1">&#39;{print $2}&#39;</span> <span class="se">\</span>
+            <span class="p">|</span> awk -F<span class="s1">&#39;:&#39;</span> <span class="s1">&#39;{print $1 &quot;-&quot; $2 &quot;-&quot; $3}&#39;</span><span class="k">)</span>
 
-    mkdir <span class="nv">$dt</span> &amp;&gt;/dev/null
-    mv <span class="k">${</span><span class="nv">f</span><span class="p">%.jpg</span><span class="k">}</span> <span class="nv">$dt</span>/
+    mkdir <span class="nv">$dt</span> <span class="p">&amp;</span>&gt;/dev/null
+    mv <span class="si">${</span><span class="nv">f</span><span class="p">%.jpg</span><span class="si">}</span> <span class="nv">$dt</span>/
 <span class="k">done</span>
 </pre></div>
 
@@ -278,7 +278,7 @@ recommend using them for tasks like this to become comfortable writing bash.</p>
 
         </article>
       </li>
-          <li>
+      <li>
         <article class="hentry">
 
           <header>
@@ -296,9 +296,9 @@ recommend using them for tasks like this to become comfortable writing bash.</p>
             <span>
               2013-03-07
             </span>
-                          <address class="vcard author">
-                              </address>
-                      </footer>
+              <address class="vcard author">
+              </address>
+          </footer>
 
           <div class="entry-content">
             <p>Whenever I visit Amazon's homepage, I do so hoping to search for things. I'm
@@ -317,7 +317,7 @@ of this is the <a href="http://developer.chrome.com/extensions/manifest.html">ma
 which describes your extension, lists the permissions it needs, files it
 contains, and so forth.</p>
 <p>The manifest for this app was really simple:</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
  3
  4
@@ -332,7 +332,7 @@ contains, and so forth.</p>
 13
 14
 15
-16</pre></div></td><td class="code"><div class="codehilite"><pre><span class="p">{</span>
+16</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="p">{</span>
     <span class="nt">&quot;manifest_version&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
     <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Amazon Search AutoFocus&quot;</span><span class="p">,</span>
     <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Automatically focus on search bar when visiting Amazon&quot;</span><span class="p">,</span>
@@ -367,7 +367,7 @@ context of web pages</code>. This means the javascript file specified above
 (script.js) will be run when Amazon loads. This is exactly what I wanted!</p>
 <p>So finally I just needed to write the javascript. It turned out to be dead
 simple. Here's the only line needed:</p>
-<div class="codehilite"><pre><span class="n">document</span><span class="p">.</span><span class="n">getElementById</span><span class="p">(</span><span class="s">&quot;twotabsearchtextbox&quot;</span><span class="p">).</span><span class="n">focus</span><span class="p">();</span>
+<div class="highlight"><pre><span></span>document.getElementById(&quot;twotabsearchtextbox&quot;).focus();
 </pre></div>
 
 
@@ -383,16 +383,16 @@ pleasure.</p>
 
         </article>
       </li>
-        </ol>
+    </ol>
 
-    <p class="paginator">
-        Page 1 / 1
-    </p>
+<p class="paginator">
+    Page 1 / 1
+</p>
   </section>
     </div>
 
-    
-          <script src="//static.getclicky.com/js" type="text/javascript"></script>
+
+      <script src="//static.getclicky.com/js" type="text/javascript"></script>
       <script type="text/javascript">
         try {
           clicky.init(100683631);
@@ -404,6 +404,6 @@ pleasure.</p>
                 src="//in.getclicky.com/100683631ns.gif" />
         </p>
       </noscript>
-    
+
   </body>
 </html>

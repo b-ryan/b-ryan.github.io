@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    
-  
-      <meta name="tags" contents="python" />
-      <meta name="tags" contents="rest" />
-      <meta name="tags" contents="api" />
-  
+
+
+    <meta name="tags" contents="python" />
+    <meta name="tags" contents="rest" />
+    <meta name="tags" contents="api" />
+
 
     <meta charset="utf-8" />
     <meta name="viewport" content="width-device-width, initial-scale=1.0">
@@ -48,19 +48,19 @@
 
       <div class="collapse navbar-collapse" id="navbar-collapse">
         <ul class="nav navbar-nav">
-        
-                              <li >
-              <a href="http://buckryan.com/pages/about-me.html">about me</a>
+
+            <li >
+              <a href="http://buckryan.com/pages/about.html">about</a>
             </li>
-                  
-                </ul>
+
+        </ul>
       </div>
 
     </div>
     </nav>
 
     <div class="container">
-      <section id="content" class="body">
+  <section id="content" class="body">
 
     <header>
       <h2 class="entry-title">
@@ -70,16 +70,16 @@
           title="Permalink to Related models in a RESTful API"
         >Related models in a RESTful API</a>
       </h2>
-            
+      
     </header>
 
     <footer class="post-info">
       <span>
         2013-10-19
       </span>
-              <address class="vcard author">
-                </address>
-          </footer>
+        <address class="vcard author">
+        </address>
+    </footer>
 
     <div class="entry-content">
       <p>I've been working on a personal finance application for the last few months. At
@@ -103,7 +103,7 @@ example.</p>
 your debit card. This is one transaction where $20 came out of one account
 ("debit card") and went into another ("groceries"). The transaction would look
 like this:</p>
-<div class="codehilite"><pre><span class="p">{</span>
+<div class="highlight"><pre><span></span><span class="p">{</span>
     <span class="nt">&quot;date&quot;</span><span class="p">:</span> <span class="s2">&quot;today&quot;</span><span class="p">,</span>
     <span class="nt">&quot;splits&quot;</span><span class="p">:</span> <span class="p">[</span>
         <span class="p">{</span>
@@ -121,38 +121,38 @@ like this:</p>
 
 <p>To represent this, there are separate sqlalchemy models for transactions and
 splits. Here is the trimmed down code for the models:</p>
-<div class="codehilite"><pre><span class="k">class</span> <span class="nc">Transaction</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">Base</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Transaction</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">Base</span><span class="p">):</span>
 
-    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s">&#39;transactions&#39;</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s1">&#39;transactions&#39;</span>
 
     <span class="nb">id</span>         <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
     <span class="n">date</span>       <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Date</span><span class="p">)</span>
 
-    <span class="n">splits</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s">&#39;Split&#39;</span><span class="p">)</span>
+    <span class="n">splits</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s1">&#39;Split&#39;</span><span class="p">)</span>
 
 <span class="k">class</span> <span class="nc">Split</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">Base</span><span class="p">):</span>
 
-    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s">&#39;transaction_splits&#39;</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s1">&#39;transaction_splits&#39;</span>
 
     <span class="nb">id</span>                 <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-    <span class="n">transaction_id</span>     <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s">&#39;transactions.id&#39;</span><span class="p">))</span>
-    <span class="n">account_id</span>         <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s">&#39;accounts.id&#39;</span><span class="p">))</span>
+    <span class="n">transaction_id</span>     <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s1">&#39;transactions.id&#39;</span><span class="p">))</span>
+    <span class="n">account_id</span>         <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s1">&#39;accounts.id&#39;</span><span class="p">))</span>
     <span class="n">amount</span>             <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Float</span><span class="p">)</span>
 </pre></div>
 
 
 <p>Interacting with these models over HTTP is done via a pretty basic REST
 interface. Here are some endpoints:</p>
-<div class="codehilite"><pre><span class="n">GET</span> <span class="o">/</span><span class="n">transactions</span> <span class="o">-</span> <span class="n">Fetch</span> <span class="n">all</span> <span class="n">transactions</span>
-<span class="n">GET</span> <span class="o">/</span><span class="n">transactions</span><span class="o">/</span><span class="mi">3</span> <span class="o">-</span> <span class="n">Fetch</span> <span class="n">the</span> <span class="n">transaction</span> <span class="n">with</span> <span class="n">id</span> <span class="mi">3</span>
-<span class="n">POST</span> <span class="o">/</span><span class="n">transactions</span> <span class="o">-</span> <span class="n">Save</span> <span class="n">a</span> <span class="n">new</span> <span class="n">transaction</span>
-<span class="n">PUT</span> <span class="o">/</span><span class="n">transactions</span> <span class="o">-</span> <span class="n">Update</span> <span class="n">a</span> <span class="n">transaction</span>
+<div class="highlight"><pre><span></span><span class="err">GET /transactions - Fetch all transactions</span>
+<span class="err">GET /transactions/3 - Fetch the transaction with id 3</span>
+<span class="err">POST /transactions - Save a new transaction</span>
+<span class="err">PUT /transactions - Update a transaction</span>
 </pre></div>
 
 
 <p>But what exactly should, for example, the <code>GET /transactions/3</code> endpoint
 return? It could be just the transaction:</p>
-<div class="codehilite"><pre><span class="p">{</span>
+<div class="highlight"><pre><span></span><span class="p">{</span>
     <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
     <span class="nt">&quot;date&quot;</span><span class="p">:</span> <span class="s2">&quot;yesterday&quot;</span>
 <span class="p">}</span>
@@ -160,7 +160,7 @@ return? It could be just the transaction:</p>
 
 
 <p>Or it could include the splits:</p>
-<div class="codehilite"><pre><span class="p">{</span>
+<div class="highlight"><pre><span></span><span class="p">{</span>
     <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
     <span class="nt">&quot;date&quot;</span><span class="p">:</span> <span class="s2">&quot;yesterday&quot;</span><span class="p">,</span>
     <span class="nt">&quot;splits&quot;</span><span class="p">:</span> <span class="p">[</span>
@@ -184,7 +184,7 @@ account model be included too? Where does it end!?</p>
 <p>And what about the <code>POST</code> requests? When saving a transaction with three
 splits, should I create the whole transaction and save it in one POST request?
 Ie. save this:</p>
-<div class="codehilite"><pre><span class="p">{</span>
+<div class="highlight"><pre><span></span><span class="p">{</span>
     <span class="nt">&quot;date&quot;</span><span class="p">:</span> <span class="s2">&quot;last week&quot;</span><span class="p">,</span>
     <span class="nt">&quot;splits&quot;</span><span class="p">:</span> <span class="p">[</span>
         <span class="p">{</span>
@@ -212,10 +212,10 @@ resultant objects in a list of transactions. However, the angularjs <code>$http<
 service sends HTTP requests asynchronously. Waiting for the transaction and all
 of its splits to save before adding them to the list of transactions <em>could</em>
 look something like:</p>
-<div class="codehilite"><pre><span class="nv">transaction = </span><span class="k">new</span> <span class="nx">Transaction</span>
+<div class="highlight"><pre><span></span><span class="nv">transaction = </span><span class="k">new</span> <span class="nx">Transaction</span>
     <span class="nv">date: </span><span class="s">&#39;today&#39;</span>
 
-<span class="nx">transaction</span><span class="p">.</span><span class="nx">$save</span> <span class="p">()</span> <span class="nf">-&gt;</span>
+<span class="nx">transaction</span><span class="p">.</span><span class="nx">$save</span> <span class="nf">() -&gt;</span>
     <span class="c1"># this code will run once the POST request finishes</span>
     <span class="nv">transaction.splits = </span><span class="p">[</span>
         <span class="k">new</span> <span class="nx">Split</span>
@@ -250,7 +250,7 @@ the transaction in one big POST request.</p>
     </p>
   </section>
 
-      <div class="comments">
+    <div class="comments">
       <div id="disqus_thread"></div>
       <script type="text/javascript">
 
@@ -267,10 +267,10 @@ the transaction in one big POST request.</p>
 
       </script>
     </div>
-      </div>
+    </div>
 
-    
-          <script src="//static.getclicky.com/js" type="text/javascript"></script>
+
+      <script src="//static.getclicky.com/js" type="text/javascript"></script>
       <script type="text/javascript">
         try {
           clicky.init(100683631);
@@ -282,6 +282,6 @@ the transaction in one big POST request.</p>
                 src="//in.getclicky.com/100683631ns.gif" />
         </p>
       </noscript>
-    
+
   </body>
 </html>

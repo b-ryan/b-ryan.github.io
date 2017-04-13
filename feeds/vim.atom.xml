@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>buckryan.com</title><link href="http://buckryan.com/" rel="alternate"></link><link href="http://buckryan.com/feeds/Vim.atom.xml" rel="self"></link><id>http://buckryan.com/</id><updated>2014-11-02T00:00:00-04:00</updated><entry><title>Manipulating Vim Registers</title><link href="http://buckryan.com/manipulating-vim-registers.html" rel="alternate"></link><updated>2014-11-02T00:00:00-04:00</updated><author><name>Buck Ryan</name></author><id>tag:buckryan.com,2014-11-02:manipulating-vim-registers.html</id><summary type="html">&lt;p&gt;Recently I came across PHP code that looked similar to this:&lt;/p&gt;
-&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+<feed xmlns="http://www.w3.org/2005/Atom"><title>buckryan.com</title><link href="http://buckryan.com/" rel="alternate"></link><link href="http://buckryan.com/feeds/vim.atom.xml" rel="self"></link><id>http://buckryan.com/</id><updated>2014-11-02T00:00:00-04:00</updated><entry><title>Manipulating Vim Registers</title><link href="http://buckryan.com/manipulating-vim-registers.html" rel="alternate"></link><published>2014-11-02T00:00:00-04:00</published><updated>2014-11-02T00:00:00-04:00</updated><author><name>Buck Ryan</name></author><id>tag:buckryan.com,2014-11-02:manipulating-vim-registers.html</id><summary type="html">&lt;p&gt;Recently I came across PHP code that looked similar to this:&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
 2
 3
 4
 5
 6
-7&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="x"&gt;const YEAR = 1;&lt;/span&gt;
+7&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="x"&gt;const YEAR = 1;&lt;/span&gt;
 &lt;span class="x"&gt;const QUARTER = 2;&lt;/span&gt;
 &lt;span class="x"&gt;const MONTH = 3;&lt;/span&gt;
 &lt;span class="x"&gt;const WEEK = 4;&lt;/span&gt;
@@ -18,13 +18,13 @@
 
 &lt;p&gt;I wanted to write a switch statement which handled each of those constants.
 This is what each case statement would look like:&lt;/p&gt;
-&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
 2
 3
 4
 5
 6
-7&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="x"&gt;case self::YEAR:&lt;/span&gt;
+7&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="x"&gt;case self::YEAR:&lt;/span&gt;
 &lt;span class="x"&gt;case self::QUARTER:&lt;/span&gt;
 &lt;span class="x"&gt;case self::MONTH:&lt;/span&gt;
 &lt;span class="x"&gt;case self::WEEK:&lt;/span&gt;
@@ -83,13 +83,13 @@ registers. Here are some examples to start us off:&lt;/p&gt;
 &lt;p&gt;Knowing just the above will get us far. Let's see how we can apply them toward
 making our case statements. Our first exercise is pretty simple. We will get
 the contents of register &lt;code&gt;a&lt;/code&gt; to be:&lt;/p&gt;
-&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
 2
 3
 4
 5
 6
-7&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="x"&gt;YEAR&lt;/span&gt;
+7&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="x"&gt;YEAR&lt;/span&gt;
 &lt;span class="x"&gt;QUARTER&lt;/span&gt;
 &lt;span class="x"&gt;MONTH&lt;/span&gt;
 &lt;span class="x"&gt;WEEK&lt;/span&gt;
@@ -102,8 +102,8 @@ the contents of register &lt;code&gt;a&lt;/code&gt; to be:&lt;/p&gt;
 &lt;p&gt;&lt;em&gt;(note that there will actually be an empty first line)&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;Start by moving your cursor to the word "YEAR" and initializing register &lt;code&gt;a&lt;/code&gt; to
 a newline:&lt;/p&gt;
-&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
-2&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;/YEAR&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;CR&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+2&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;/YEAR&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;CR&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
 &lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="k"&gt;let&lt;/span&gt; @&lt;span class="k"&gt;a&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;\n&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;CR&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
@@ -114,7 +114,7 @@ explain below why this happens and what effect is has, but for now, suffice it
 to say that when you yank more text into &lt;code&gt;a&lt;/code&gt;, Vim will keep a newline at the
 end of the register. Go ahead and yank the word "YEAR" onto the end of register
 a to see it happen:&lt;/p&gt;
-&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="c"&gt;&amp;quot;Aye&lt;/span&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c"&gt;&amp;quot;Aye&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 
@@ -129,16 +129,16 @@ the text we were going for.&lt;/p&gt;
 need to edit each line in register &lt;code&gt;a&lt;/code&gt;, which we wanted to avoid in the first
 place. We can do better. As before, move your cursor to &lt;code&gt;YEAR&lt;/code&gt;, but this time
 clear out register &lt;code&gt;a&lt;/code&gt; entirely:&lt;/p&gt;
-&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
-2&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;/YEAR&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;CR&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+2&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;/YEAR&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;CR&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
 &lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="k"&gt;let&lt;/span&gt; @&lt;span class="k"&gt;a&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;CR&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 
 &lt;p&gt;We will use another register to help us. Yank &lt;code&gt;YEAR&lt;/code&gt; into register &lt;code&gt;b&lt;/code&gt; and use
 it to append to register &lt;code&gt;a&lt;/code&gt;:&lt;/p&gt;
-&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
-2&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="c"&gt;&amp;quot;bye&lt;/span&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+2&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c"&gt;&amp;quot;bye&lt;/span&gt;
 &lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="k"&gt;let&lt;/span&gt; @&lt;span class="k"&gt;a&lt;/span&gt; .&lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;case self::&amp;quot;&lt;/span&gt; . @&lt;span class="k"&gt;b&lt;/span&gt; . &lt;span class="s2"&gt;&amp;quot;:\n&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;CR&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
@@ -147,13 +147,13 @@ it to append to register &lt;code&gt;a&lt;/code&gt;:&lt;/p&gt;
 the string &lt;code&gt;:\n&lt;/code&gt;. Register &lt;code&gt;a&lt;/code&gt; is not linewise this time, so we have to append
 the newline ourselves. &lt;code&gt;a&lt;/code&gt; will now be &lt;code&gt;case self::YEAR:^J&lt;/code&gt;. If we repeat the
 above for each line (once again - use a macro!), register &lt;code&gt;a&lt;/code&gt; will be:&lt;/p&gt;
-&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1
 2
 3
 4
 5
 6
-7&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="x"&gt;case self::YEAR:&lt;/span&gt;
+7&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="x"&gt;case self::YEAR:&lt;/span&gt;
 &lt;span class="x"&gt;case self::QUARTER:&lt;/span&gt;
 &lt;span class="x"&gt;case self::MONTH:&lt;/span&gt;
 &lt;span class="x"&gt;case self::WEEK:&lt;/span&gt;
@@ -174,7 +174,7 @@ make the finished product. It's unnecessary, however, since we can use
 to insert the word under the cursor each time we append to &lt;code&gt;a&lt;/code&gt;. To demonstrate
 this, again move to the beginning of &lt;code&gt;YEAR&lt;/code&gt; and clear register &lt;code&gt;a&lt;/code&gt;. This time,
 skip yanking to register &lt;code&gt;b&lt;/code&gt; and do:&lt;/p&gt;
-&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="k"&gt;let&lt;/span&gt; @&lt;span class="k"&gt;a&lt;/span&gt; .&lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;case self::&amp;lt;C-R&amp;gt;&amp;lt;C-W&amp;gt;:\n&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;CR&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="k"&gt;let&lt;/span&gt; @&lt;span class="k"&gt;a&lt;/span&gt; .&lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;case self::&amp;lt;C-R&amp;gt;&amp;lt;C-W&amp;gt;:\n&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;CR&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 
@@ -193,7 +193,7 @@ to get a newline at the end of your register. In insert mode, type
 a trailing newline character.&lt;/p&gt;
 &lt;p&gt;A second option, which is perhaps a bit hackier, is to not append just a
 newline to your register, but a newline plus some other character. For example:&lt;/p&gt;
-&lt;table class="codehilitetable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="k"&gt;let&lt;/span&gt; @&lt;span class="k"&gt;a&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;\n|&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;CR&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt;1&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="k"&gt;let&lt;/span&gt; @&lt;span class="k"&gt;a&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;\n|&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;CR&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 

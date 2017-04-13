@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-      <title>
-    buckryan.com - Articles by Buck Ryan    </title>
-  
+    <title>
+buckryan.com - Articles by Buck Ryan    </title>
+
     <meta charset="utf-8" />
     <meta name="viewport" content="width-device-width, initial-scale=1.0">
 
@@ -44,62 +44,205 @@
 
       <div class="collapse navbar-collapse" id="navbar-collapse">
         <ul class="nav navbar-nav">
-        
-                              <li >
-              <a href="http://buckryan.com/pages/about-me.html">about me</a>
+
+            <li >
+              <a href="http://buckryan.com/pages/about.html">about</a>
             </li>
-                  
-                </ul>
+
+        </ul>
       </div>
 
     </div>
     </nav>
 
     <div class="container">
-      <section id="content">
-    <h2>Articles by Buck Ryan</h2>
+  <section id="content">
+<h2>Articles by Buck Ryan</h2>
 
     <ol id="post-list">
-          <li>
+      <li>
         <article class="hentry">
 
           <header>
             <h2 class="entry-title">
               <a
-                href="http://buckryan.com/automatically-focus-on-amazons-search-bar.html"
+                href="http://buckryan.com/om-clojurescript-and-testing.html"
                 rel="bookmark"
-                title="Permalink to Automatically Focus on Amazon's Search Bar"
-              >Automatically Focus on Amazon's Search Bar</a>
+                title="Permalink to Om, Clojurescript, and Testing"
+              >Om, Clojurescript, and Testing</a>
 
             </h2>
           </header>
 
           <footer class="post-info">
             <span>
-              2013-03-07
+              2015-07-16
             </span>
-                          <address class="vcard author">
-                              </address>
-                      </footer>
+              <address class="vcard author">
+              </address>
+          </footer>
 
           <div class="entry-content">
-            <p>Whenever I visit Amazon's homepage, I do so hoping to search for things. I'm
-not one to browse around and I'm sure many others are the same. However, I get
-annoyed each time this happens because the search bar does not have the focus
-when you visit the homepage. After coming across a
-<a href="http://news.ycombinator.com/item?id=5333209">comment</a> on Hacker News
-describing the same problem, I realized I could fix this with a pretty simple
-Chrome extension. Check it out
-<a href="https://chrome.google.com/webstore/detail/amazon-search-auto-focus/mlblghbllacignpjknjbpbefjmgnbpca">here</a>
-and read on for a short description of how I put it together.</p>
-<p>About one or two years back, I was interested in making extensions for Chrome,
-but never went very far with it. However, the brief foray meant that yesterday,
-I knew the basics I would need to make the extension. The most important part
-of this is the <a href="http://developer.chrome.com/extensions/manifest.html">manifest</a>,
-which describes your extension, lists the permissions it needs, files it
-contains, and so forth.</p>
-<p>The manifest for this app was really simple:</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+            <p>This past week I started learning React, Om, and Clojurescript all at once.
+When beginning to use <a href="https://github.com/cemerick/clojurescript.test">cemerick's
+.clojurescript.test</a>, I kept
+running into this error:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7</pre></div></td><td class="code"><div class="highlight"><pre><span></span>Error: cemerick is undefined
+
+ERROR: cemerick.cljs.test was not required.
+
+You can resolve this issue by ensuring [cemerick.cljs.test] appears
+in the :require clause of your test suite namespaces.
+Also make sure that your build has actually included any test files.
+</pre></div>
+</td></tr></table>
+
+<p>But I clearly had included it in my test! I googled and grumbled, but could not
+figure out what was wrong. Finally I discovered that
+<a href="https://slimerjs.org/">slimerjs</a> has the <code>-jsconsole</code> flag, which, as the docs
+say, will</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span>Open a window to view all javascript errors during the execution
+</pre></div>
+</td></tr></table>
+
+<p>Great, using that I finally found the actual problem:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4</pre></div></td><td class="code"><div class="highlight"><pre><span></span>Script Error: Error: Assert failed: No target specified to om.core/root
+(not (nil? target))
+       Stack:
+         -&gt; file:///tmp/runner6386761518784950059.js.html: 55456
+</pre></div>
+</td></tr></table>
+
+<p>This makes much more sense. The issue is that my <code>core.cljs</code> namespace was
+running <code>om/root</code> when the page loads. The code looked like:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">om/root</span> <span class="nv">main-view</span>
+         <span class="nv">app-state</span>
+         <span class="p">{</span><span class="ss">:target</span> <span class="p">(</span><span class="k">. </span><span class="nv">js/document</span> <span class="p">(</span><span class="nf">getElementById</span> <span class="s">&quot;app&quot;</span><span class="p">))}))</span>
+</pre></div>
+</td></tr></table>
+
+<p>But since the tests are not loading the index.html page (as they shouldn't),
+there is no element with ID app. Ultimately the problem is with running code
+at the namespace level. What would be preferred would be if there were some
+way to specify a main function to initialize the app. This would be run for
+the actual application, but not the tests.</p>
+<h1>First take at a Solution</h1>
+<p>It took awhile of searching, but I finally found some inspiration from
+<a href="https://github.com/jalehman/react-tutorial-om">this project</a> and specifically
+<a href="https://github.com/jalehman/react-tutorial-om/blob/60867fb0efcb48a3f20bc94361c2f981e6c96f44/resources/public/index.html#L15">this line of code</a>:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">script</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;text/javascript&quot;</span><span class="p">&gt;</span><span class="nx">goog</span><span class="p">.</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;react_tutorial_om.app&quot;</span><span class="p">);&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</pre></div>
+</td></tr></table>
+
+<p>I realized I could just wrap my <code>om/root</code> call in a main function and then call
+this from the index.html page. Here is what the code in <code>core.cljs</code> looks like
+now:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="p">(</span><span class="kd">defn </span><span class="nv">app</span> <span class="p">[]</span>
+  <span class="p">(</span><span class="nf">om/root</span> <span class="nv">main-view</span>
+           <span class="nv">app-state</span>
+           <span class="p">{</span><span class="ss">:target</span> <span class="p">(</span><span class="k">. </span><span class="nv">js/document</span> <span class="p">(</span><span class="nf">getElementById</span> <span class="s">&quot;app&quot;</span><span class="p">))}))</span>
+</pre></div>
+</td></tr></table>
+
+<p>and the corresponding code in <code>index.html</code>:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">script</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;text/javascript&quot;</span><span class="p">&gt;</span>
+<span class="nx">goog</span><span class="p">.</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;my.namespace.core&quot;</span><span class="p">);</span>
+<span class="nx">my</span><span class="p">.</span><span class="nx">namespace</span><span class="p">.</span><span class="nx">core</span><span class="p">.</span><span class="nx">app</span><span class="p">();</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</pre></div>
+</td></tr></table>
+
+<p>Now running the tests no longer had any problem. However, I realized that
+lein figwheel was not reloading the page properly when I made changes to the
+code. This is because the javascript would be reloaded, which previously was
+running <code>om/root</code> every time. To solve this I added to the <code>on-js-reload</code>
+function so that the app was reinitialized:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="p">(</span><span class="kd">defn </span><span class="nv">on-js-reload</span> <span class="p">[]</span>
+  <span class="p">(</span><span class="nf">app</span><span class="p">))</span>
+</pre></div>
+</td></tr></table>
+
+<h1>Improving the Solution</h1>
+<p>As I continued learning about Om, I came across the
+<a href="https://github.com/omcljs/om-cookbook">om-cookbook</a> repository. The following
+is based on the structure of the project in the
+<code>recipes/routing-with-secretary</code> directory (and possibly others in the repo).</p>
+<p>Let's assume your project currently has this directory structure:</p>
+<div class="highlight"><pre><span></span>resources/...
+src/my/namespace/core.cljs
+project.clj
+</pre></div>
+
+
+<p>We are going to add a directory called <code>env</code> which will house code that is
+specific to different environments, namely development vs. production. Create
+directories such that your project now looks like this:</p>
+<div class="highlight"><pre><span></span>env/dev/src/my/namespace/dev.cljs
+   /prod/src/my/namespace/prod.cljs
+resources/...
+src/my/namespace/core.cljs
+project.clj
+</pre></div>
+
+
+<p>You can see that in <code>env/dev</code> and <code>env/prod</code> we mimick the <code>src</code> directory.
+Within <code>dev.cljs</code> we will add code that is only to be run when developing.
+Here is what that namespace will basically look like for the dev environment:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="p">(</span><span class="kd">ns </span><span class="nv">my.namespace.dev</span>
+  <span class="p">(</span><span class="ss">:require</span> <span class="p">[</span><span class="nv">my.namespace.core</span> <span class="ss">:as</span> <span class="nv">core</span><span class="p">]</span>
+            <span class="p">[</span><span class="nv">figwheel.client</span> <span class="ss">:as</span> <span class="nv">figwheel</span> <span class="ss">:include-macros</span> <span class="nv">true</span><span class="p">]))</span>
+
+<span class="p">(</span><span class="nf">enable-console-print!</span><span class="p">)</span>
+
+<span class="p">(</span><span class="kd">defn </span><span class="nv">on-js-reload</span> <span class="p">[]</span>
+  <span class="p">(</span><span class="nf">core/app</span><span class="p">))</span>
+
+<span class="p">(</span><span class="nf">core/app</span><span class="p">)</span>
+</pre></div>
+</td></tr></table>
+
+<p>For production, this can be much simpler:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="p">(</span><span class="kd">ns </span><span class="nv">my.namespace.prod</span>
+  <span class="p">(</span><span class="ss">:require</span> <span class="p">[</span><span class="nv">my.namespace.core</span> <span class="ss">:as</span> <span class="nv">core</span><span class="p">]))</span>
+
+<span class="p">(</span><span class="nf">core/app</span><span class="p">)</span>
+</pre></div>
+</td></tr></table>
+
+<p>Now all we need to do is modify <code>project.clj</code> to use these environments. This
+is accomplished using different build configurations. Here is a sample of
+how that would look:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
  3
  4
@@ -110,62 +253,270 @@ contains, and so forth.</p>
  9
 10
 11
-12
-13
-14
-15
-16</pre></div></td><td class="code"><div class="codehilite"><pre><span class="p">{</span>
-    <span class="nt">&quot;manifest_version&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
-    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Amazon Search AutoFocus&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Automatically focus on search bar when visiting Amazon&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="s2">&quot;http://*.amazon.com/&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;https://*.amazon.com/&quot;</span>
-    <span class="p">],</span>
-    <span class="nt">&quot;content_scripts&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="p">{</span>
-            <span class="nt">&quot;matches&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;http://*.amazon.com/&quot;</span><span class="p">],</span>
-            <span class="nt">&quot;js&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;script.js&quot;</span><span class="p">]</span>
-        <span class="p">}</span>
-    <span class="p">]</span>
-<span class="p">}</span>
+12</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="ss">:cljsbuild</span> <span class="p">{</span><span class="ss">:builds</span> <span class="p">[{</span><span class="ss">:id</span> <span class="s">&quot;dev&quot;</span>
+                      <span class="ss">:source-paths</span> <span class="p">[</span><span class="s">&quot;src&quot;</span> <span class="s">&quot;env/dev/src&quot;</span><span class="p">]</span>
+                      <span class="c1">; blah blah blah</span>
+                      <span class="p">}</span>
+                     <span class="p">{</span><span class="ss">:id</span> <span class="s">&quot;prod&quot;</span>
+                      <span class="ss">:source-paths</span> <span class="p">[</span><span class="s">&quot;src&quot;</span> <span class="s">&quot;env/prod/src&quot;</span><span class="p">]</span>
+                      <span class="c1">; blah blah blah</span>
+                      <span class="p">}</span>
+                     <span class="p">{</span><span class="ss">:id</span> <span class="s">&quot;test&quot;</span>
+                      <span class="ss">:source-paths</span> <span class="p">[</span><span class="s">&quot;src&quot;</span> <span class="s">&quot;test&quot;</span><span class="p">]</span>
+                      <span class="c1">; blah blah blah</span>
+                      <span class="p">}]}</span>
 </pre></div>
 </td></tr></table>
 
-<p>Most of this is pretty obvious. The documentation on the
-<a href="http://developer.chrome.com/extensions/manifest.html#manifest_version">manifest_version</a>
-indicates that version 1 is deprecate. The version indicated lets Google
-manage the extension among users. This number will be used to determine if a
-user is on an older version of the extension and it needs to be updated.</p>
-<p>Permissions are bit complicated, as they can include whether the extension
-can operate on tabs or windows, have access to sites, etc. For this really
-simple app, I only need to indicate that I want access to the amazon sites.</p>
-<p>Finally, the hardest part of it all was figuring out how to get some javascript
-to run when I visited Amazon's homepage. Using some Google-foo, I discovered
-that <a href="http://developer.chrome.com/extensions/content_scripts.html">Content Scripts</a>
-are the way to do this. As the documentation says, <code>content scripts run in the
-context of web pages</code>. This means the javascript file specified above
-(script.js) will be run when Amazon loads. This is exactly what I wanted!</p>
-<p>So finally I just needed to write the javascript. It turned out to be dead
-simple. Here's the only line needed:</p>
-<div class="codehilite"><pre><span class="n">document</span><span class="p">.</span><span class="n">getElementById</span><span class="p">(</span><span class="s">&quot;twotabsearchtextbox&quot;</span><span class="p">).</span><span class="n">focus</span><span class="p">();</span>
+<p>Finally, make sure to remove the code that was added to <code>index.html</code> in our
+first take at a solution.</p>
+<p>And there you have it. The dev environment will end up compiling <code>dev.cljs</code>,
+and since this namespace includes a call to <code>core/app</code> at the namespace-level,
+it will run when the javascript is loaded. We do not include the file for the
+test build, meaning the tests do not try to run <code>om/root</code>.</p>
+<h1>Alternative Approach</h1>
+<p>An entirely different approach to all of this (and perhaps a lot simpler)
+would be to simply check if your target element exists. Your code could then
+look like</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">if-let </span><span class="p">[</span><span class="nv">target</span> <span class="p">(</span><span class="k">. </span><span class="nv">js/document</span> <span class="p">(</span><span class="nf">getElementById</span> <span class="s">&quot;app&quot;</span><span class="p">))]</span>
+  <span class="p">(</span><span class="nf">om/root</span> <span class="nv">main-view</span>
+           <span class="nv">app-state</span>
+           <span class="p">{</span><span class="ss">:target</span> <span class="nv">target</span><span class="p">}))</span>
 </pre></div>
+</td></tr></table>
 
-
-<p>I briefly examined Amazon's search box using the Chrome
-<a href="https://developers.google.com/chrome-developer-tools/docs/elements">developer tools</a>
-and I saw that the ID of the search box was <code>twotabsearchtextbox</code>. So I used
-some native javascript functions to set the focus and it was done!</p>
-<p>Hopefully this helps if you want to write your own Chrome extension! If I make
-any changes or improvements to this, the updated code will be
-<a href="https://bitbucket.org/b_ryan/amazon-autofocus">on Bitbucket</a> for your viewing
-pleasure.</p>
+<p>You might prefer this approach. The reason I tend to not like this is that you
+still have functionality that executes when you require the namespace. It also
+introduces a silent failure. If you change the main element to have a different
+id, your app would just show up blank with no errors printed.</p>
+<p>I was pretty surprised to not be able to find anything about this. Maybe I'm
+missing something obvious. I am new to Clojurescript and Om, so it could just
+be a newbie mistake. If so let me know!</p>
           </div>
 
         </article>
       </li>
-          <li>
+      <li>
+        <article class="hentry">
+
+          <header>
+            <h2 class="entry-title">
+              <a
+                href="http://buckryan.com/organizing-photos-with-bash.html"
+                rel="bookmark"
+                title="Permalink to Organizing photos with bash"
+              >Organizing photos with bash</a>
+
+            </h2>
+          </header>
+
+          <footer class="post-info">
+            <span>
+              2015-01-02
+            </span>
+              <address class="vcard author">
+              </address>
+          </footer>
+
+          <div class="entry-content">
+            <p>I've been trying to organize my photos recently. I hadn't kept up with them
+and I recently discovered I have a pile of photos dumped into a single
+directory. I like to separate photos by the day they were taken so I end up
+with directories like:</p>
+<div class="highlight"><pre><span></span>2015-01-01_new-years-day
+2014-12-31_new-years-eve
+2014-12-25_christmas
+...
+</pre></div>
+
+
+<p>Wanting to organize these as painlessly as I could think, I sought to run a few
+bash commands to split my pile of photos into directories like these. The first
+issue I ran into was the file formats - these were raw photos. I had found a
+nice tool called <code>exif</code> (<code>sudo apt-get install exif</code>) which I could use to
+extract the date the pictures were taken, but it only works on JPG images.</p>
+<p>So step one was to convert the files. The
+<a href="http://imagemagick.org/">ImageMagick</a> tool (<code>sudo apt-get install
+imagemagick</code>) has a command called <code>convert</code> that will do just that. To convert
+them all without risking overwriting anything, a simple for loop works nicely:</p>
+<div class="highlight"><pre><span></span><span class="k">for</span> f in *.NEF<span class="p">;</span> <span class="k">do</span>
+    convert <span class="nv">$f</span> <span class="nv">$f</span>.jpg
+<span class="k">done</span>
+</pre></div>
+
+
+<p>This will convert files like <code>DSC_0001.NEF</code> to <code>DSC_0001.NEF.jpg</code>. Running this
+command was taking awhile and I wanted to see how much work was left to do.
+<code>watch</code> is the perfect tool for the job. It lets you repeatedly run a command
+and see its output. So all I needed to do was write a command that would list
+all of the <code>.NEF</code> files that did not have corresponding <code>.NEF.jpg</code> files.  To
+do that, I used:</p>
+<div class="highlight"><pre><span></span><span class="k">for</span> f in *.NEF<span class="p">;</span> <span class="k">do</span>
+    ls <span class="nv">$f</span>.jpg <span class="p">&amp;</span>&gt;/dev/null <span class="o">||</span> <span class="nb">echo</span> <span class="nv">$f</span>
+<span class="k">done</span>
+</pre></div>
+
+
+<p>I ignored all output of <code>ls</code> (<code>&amp;&gt;/dev/null</code>) because the return code would be
+enough to determine whether the file existed. More importantly, I didn't want
+to have to parse through whatever output the command threw at me. The <code>|| echo
+$f</code> will only be executed if the <code>ls</code> failed, indicating the file doesn't
+exist.</p>
+<p>I had issues running this directly with <code>watch</code>, but I didn't want to spend
+time debugging. Instead I saved the command to a file and ran:</p>
+<div class="highlight"><pre><span></span>chmod +x script.sh
+watch ./script.sh
+</pre></div>
+
+
+<p>Every 2 seconds the screen updated letting me know how many files were left
+to convert.</p>
+<p>While the conversion was running, I prepared to get exif data out of the jpg
+files. I mentioned above that <code>exif</code> will do just that. Here's what a sample
+run looked like:</p>
+<div class="highlight"><pre><span></span>  $ exif DSC_0093.JPG 
+EXIF tags in &#39;DSC_0093.JPG&#39; (&#39;Motorola&#39; byte order):
+--------------------+----------------------------------------------------------
+Tag                 |Value
+--------------------+----------------------------------------------------------
+Manufacturer        |
+Model               |
+X-Resolution        |500.0000000
+Y-Resolution        |500.0000000
+Resolution Unit     |Inch
+Software            |Picasa 3.0
+Date and Time       |2007:04:09 16:15:47
+YCbCr Positioning   |Centered
+Padding             |2060 bytes undefined data
+Compression         |JPEG compression
+X-Resolution        |72
+Y-Resolution        |72
+Resolution Unit     |Inch
+Exif Version        |Exif Version 2.2
+Date and Time (Origi|2007:12:25 11:07:52
+Date and Time (Digit|2007:12:25 11:07:52
+Components Configura|Y Cb Cr -
+User Comment        |
+Sub-second Time (Ori|00
+Sub-second Time (Dig|00
+FlashPixVersion     |FlashPix Version 1.0
+Color Space         |Internal error (unknown value 65535)
+Pixel X Dimension   |3008
+Pixel Y Dimension   |2000
+Custom Rendered     |Custom process
+Image Unique ID     |517d7ada5c38d78cd60a3032343e64f1
+Padding             |2060 bytes undefined data
+Interoperability Ver|0100
+--------------------+----------------------------------------------------------
+EXIF data contains a thumbnail (5597 bytes).
+</pre></div>
+
+
+<p>(This was a <em>really</em> old photo - most of them were much more recent.)</p>
+<p>I noticed there was the <code>Date and Time</code> tag in there. And in reading the man
+page for <code>exif</code>, saw that I could ask for values of specific tags using the
+<code>--tag</code> argument. Here is what happened for the same file above:</p>
+<div class="highlight"><pre><span></span>  $ exif --tag &#39;Date and Time&#39; DSC_0093.JPG 
+EXIF entry &#39;Date and Time&#39; (0x132, &#39;DateTime&#39;) exists in IFD &#39;0&#39;:
+Tag: 0x132 (&#39;DateTime&#39;)
+  Format: 2 (&#39;ASCII&#39;)
+  Components: 20
+  Size: 20
+  Value: 2007:04:09 16:15:47
+</pre></div>
+
+
+<p>We can work with that! A few <code>grep</code> and <code>awk</code> commands later and I had:</p>
+<div class="highlight"><pre><span></span>  $ exif --tag &#39;Date and Time&#39; DSC_0093.JPG \
+    | grep Value \
+    | awk &#39;{print $2}&#39; \
+    | awk -F&#39;:&#39; &#39;{print $1 &quot;-&quot; $2 &quot;-&quot; $3}&#39;
+2007-04-09
+</pre></div>
+
+
+<p>To break that down: <code>grep Value</code> is pretty obvious. It will leave only the
+line containing <code>Value</code> so now our result will look like</p>
+<div class="highlight"><pre><span></span>  Value: 2007:04:09 16:15:47
+</pre></div>
+
+
+<p>Then this gets piped to <code>awk '{print $2}'</code>. This is a very common type of awk
+command to run. Since awk splits on whitespace by default, this will get us
+the second column, which in this case contains the text</p>
+<div class="highlight"><pre><span></span><span class="mi">2007</span><span class="o">:</span><span class="mi">04</span><span class="o">:</span><span class="mi">09</span>
+</pre></div>
+
+
+<p>I didn't care about the time of the photo since I'm planning to lump all of
+the photos from the same day into a given directory. If I had wanted the date
+<em>and</em> time, I could have used <code>awk '{print $2 " " $3}'</code>.</p>
+<p>Now that I have the date, I want it in my preferred format of <code>yyyy-mm-dd</code> so
+I once again turned to awk. This time I used <code>-F':'</code> to specify that I wanted
+to split on <code>:</code> instead of whitespace. Then I rest of the command glues the
+date, month, and year parts together with <code>-</code> in between.</p>
+<p>So now I have to use all of this to make the directories and dump files into
+them. Before actually creating any directories or moving any files, however,
+I wanted to sanity check everything. I wrote a loop that spit out each of the
+<code>*NEF.jpg</code> files and the date I calculated for them:</p>
+<div class="highlight"><pre><span></span><span class="k">for</span> f in *NEF.jpg<span class="p">;</span> <span class="k">do</span>
+    <span class="nb">echo</span> -n <span class="s2">&quot;</span><span class="nv">$f</span><span class="s2"> &quot;</span>
+    <span class="nv">dt</span><span class="o">=</span><span class="k">$(</span>exif --tag <span class="s1">&#39;Date and Time&#39;</span> <span class="nv">$f</span> <span class="se">\</span>
+            <span class="p">|</span> grep Value <span class="se">\</span>
+            <span class="p">|</span> awk <span class="s1">&#39;{print $2}&#39;</span> <span class="se">\</span>
+            <span class="p">|</span> awk -F<span class="s1">&#39;:&#39;</span> <span class="s1">&#39;{print $1 &quot;-&quot; $2 &quot;-&quot; $3}&#39;</span><span class="k">)</span>
+    <span class="nb">echo</span> <span class="nv">$dt</span>
+<span class="k">done</span>
+</pre></div>
+
+
+<p>The <code>-n</code> flag to <code>echo</code> tells it to not print a newline. I then saved the
+result of the command to calculate the picture's date to a variable called
+<code>dt</code> so that I could reuse it in the code to follow. Here's a snippet of the
+results:</p>
+<div class="highlight"><pre><span></span>DSC_1455.NEF.jpg    2014-07-28
+DSC_1456.NEF.jpg    2014-07-28
+DSC_1457.NEF.jpg    2014-07-28
+DSC_1458.NEF.jpg    2014-07-28
+DSC_1460.NEF.jpg    2014-07-28
+DSC_1461.NEF.jpg    2014-07-28
+DSC_1463.NEF.jpg    2014-07-28
+DSC_1506.NEF.jpg    2014-09-03
+DSC_1507.NEF.jpg    2014-09-03
+DSC_1512.NEF.jpg    2014-09-03
+</pre></div>
+
+
+<p>After sanity checking the results, I felt confident enough to go forward. Here
+is the final product:</p>
+<div class="highlight"><pre><span></span><span class="k">for</span> f in *NEF.jpg<span class="p">;</span> <span class="k">do</span>
+    <span class="nv">dt</span><span class="o">=</span><span class="k">$(</span>exif --tag <span class="s1">&#39;Date and Time&#39;</span> <span class="nv">$f</span> <span class="se">\</span>
+            <span class="p">|</span> grep Value <span class="se">\</span>
+            <span class="p">|</span> awk <span class="s1">&#39;{print $2}&#39;</span> <span class="se">\</span>
+            <span class="p">|</span> awk -F<span class="s1">&#39;:&#39;</span> <span class="s1">&#39;{print $1 &quot;-&quot; $2 &quot;-&quot; $3}&#39;</span><span class="k">)</span>
+
+    mkdir <span class="nv">$dt</span> <span class="p">&amp;</span>&gt;/dev/null
+    mv <span class="si">${</span><span class="nv">f</span><span class="p">%.jpg</span><span class="si">}</span> <span class="nv">$dt</span>/
+<span class="k">done</span>
+</pre></div>
+
+
+<p>The most interesting part of this code is the <code>${f%.jpg}</code>. This chops <code>.jpg</code>
+off of the end of the string. To fully grasp what's going on, check out <a href="http://tldp.org/LDP/abs/html/string-manipulation.html">this
+article</a>, specifically
+the section titled <strong>Substring Removal</strong>.</p>
+<p>And that was it! Was a lot of faster than doing it by hand. Maybe there are
+tools out there that could have done this for me, but I found this more fun.
+You can really do some neat stuff with everyday command-line tools. I highly
+recommend using them for tasks like this to become comfortable writing bash.</p>
+          </div>
+
+        </article>
+      </li>
+      <li>
         <article class="hentry">
 
           <header>
@@ -183,19 +534,19 @@ pleasure.</p>
             <span>
               2014-11-02
             </span>
-                          <address class="vcard author">
-                              </address>
-                      </footer>
+              <address class="vcard author">
+              </address>
+          </footer>
 
           <div class="entry-content">
             <p>Recently I came across PHP code that looked similar to this:</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
 2
 3
 4
 5
 6
-7</pre></div></td><td class="code"><div class="codehilite"><pre><span class="x">const YEAR = 1;</span>
+7</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="x">const YEAR = 1;</span>
 <span class="x">const QUARTER = 2;</span>
 <span class="x">const MONTH = 3;</span>
 <span class="x">const WEEK = 4;</span>
@@ -207,13 +558,13 @@ pleasure.</p>
 
 <p>I wanted to write a switch statement which handled each of those constants.
 This is what each case statement would look like:</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
 2
 3
 4
 5
 6
-7</pre></div></td><td class="code"><div class="codehilite"><pre><span class="x">case self::YEAR:</span>
+7</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="x">case self::YEAR:</span>
 <span class="x">case self::QUARTER:</span>
 <span class="x">case self::MONTH:</span>
 <span class="x">case self::WEEK:</span>
@@ -272,13 +623,13 @@ registers. Here are some examples to start us off:</p>
 <p>Knowing just the above will get us far. Let's see how we can apply them toward
 making our case statements. Our first exercise is pretty simple. We will get
 the contents of register <code>a</code> to be:</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
 2
 3
 4
 5
 6
-7</pre></div></td><td class="code"><div class="codehilite"><pre><span class="x">YEAR</span>
+7</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="x">YEAR</span>
 <span class="x">QUARTER</span>
 <span class="x">MONTH</span>
 <span class="x">WEEK</span>
@@ -291,8 +642,8 @@ the contents of register <code>a</code> to be:</p>
 <p><em>(note that there will actually be an empty first line)</em></p>
 <p>Start by moving your cursor to the word "YEAR" and initializing register <code>a</code> to
 a newline:</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
-2</pre></div></td><td class="code"><div class="codehilite"><pre>/YEAR<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2</pre></div></td><td class="code"><div class="highlight"><pre><span></span>/YEAR<span class="p">&lt;</span>CR<span class="p">&gt;</span>
 <span class="p">:</span><span class="k">let</span> @<span class="k">a</span> <span class="p">=</span> <span class="s2">&quot;\n&quot;</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
 </pre></div>
 </td></tr></table>
@@ -303,7 +654,7 @@ explain below why this happens and what effect is has, but for now, suffice it
 to say that when you yank more text into <code>a</code>, Vim will keep a newline at the
 end of the register. Go ahead and yank the word "YEAR" onto the end of register
 a to see it happen:</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span class="c">&quot;Aye</span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="c">&quot;Aye</span>
 </pre></div>
 </td></tr></table>
 
@@ -318,16 +669,16 @@ the text we were going for.</p>
 need to edit each line in register <code>a</code>, which we wanted to avoid in the first
 place. We can do better. As before, move your cursor to <code>YEAR</code>, but this time
 clear out register <code>a</code> entirely:</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
-2</pre></div></td><td class="code"><div class="codehilite"><pre>/YEAR<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2</pre></div></td><td class="code"><div class="highlight"><pre><span></span>/YEAR<span class="p">&lt;</span>CR<span class="p">&gt;</span>
 <span class="p">:</span><span class="k">let</span> @<span class="k">a</span> <span class="p">=</span> <span class="s2">&quot;&quot;</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
 </pre></div>
 </td></tr></table>
 
 <p>We will use another register to help us. Yank <code>YEAR</code> into register <code>b</code> and use
 it to append to register <code>a</code>:</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
-2</pre></div></td><td class="code"><div class="codehilite"><pre><span class="c">&quot;bye</span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="c">&quot;bye</span>
 <span class="p">:</span><span class="k">let</span> @<span class="k">a</span> .<span class="p">=</span> <span class="s2">&quot;case self::&quot;</span> . @<span class="k">b</span> . <span class="s2">&quot;:\n&quot;</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
 </pre></div>
 </td></tr></table>
@@ -336,13 +687,13 @@ it to append to register <code>a</code>:</p>
 the string <code>:\n</code>. Register <code>a</code> is not linewise this time, so we have to append
 the newline ourselves. <code>a</code> will now be <code>case self::YEAR:^J</code>. If we repeat the
 above for each line (once again - use a macro!), register <code>a</code> will be:</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
 2
 3
 4
 5
 6
-7</pre></div></td><td class="code"><div class="codehilite"><pre><span class="x">case self::YEAR:</span>
+7</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="x">case self::YEAR:</span>
 <span class="x">case self::QUARTER:</span>
 <span class="x">case self::MONTH:</span>
 <span class="x">case self::WEEK:</span>
@@ -363,7 +714,7 @@ make the finished product. It's unnecessary, however, since we can use
 to insert the word under the cursor each time we append to <code>a</code>. To demonstrate
 this, again move to the beginning of <code>YEAR</code> and clear register <code>a</code>. This time,
 skip yanking to register <code>b</code> and do:</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span class="p">:</span><span class="k">let</span> @<span class="k">a</span> .<span class="p">=</span> <span class="s2">&quot;case self::&lt;C-R&gt;&lt;C-W&gt;:\n&quot;</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="p">:</span><span class="k">let</span> @<span class="k">a</span> .<span class="p">=</span> <span class="s2">&quot;case self::&lt;C-R&gt;&lt;C-W&gt;:\n&quot;</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
 </pre></div>
 </td></tr></table>
 
@@ -382,7 +733,7 @@ to get a newline at the end of your register. In insert mode, type
 a trailing newline character.</p>
 <p>A second option, which is perhaps a bit hackier, is to not append just a
 newline to your register, but a newline plus some other character. For example:</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span class="p">:</span><span class="k">let</span> @<span class="k">a</span> <span class="p">=</span> <span class="s2">&quot;\n|&quot;</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="p">:</span><span class="k">let</span> @<span class="k">a</span> <span class="p">=</span> <span class="s2">&quot;\n|&quot;</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
 </pre></div>
 </td></tr></table>
 
@@ -394,189 +745,46 @@ character, for example.</p>
 
         </article>
       </li>
-          <li>
+      <li>
         <article class="hentry">
 
           <header>
             <h2 class="entry-title">
               <a
-                href="http://buckryan.com/om-clojurescript-and-testing.html"
+                href="http://buckryan.com/automatically-focus-on-amazons-search-bar.html"
                 rel="bookmark"
-                title="Permalink to Om, Clojurescript, and Testing"
-              >Om, Clojurescript, and Testing</a>
+                title="Permalink to Automatically Focus on Amazon's Search Bar"
+              >Automatically Focus on Amazon's Search Bar</a>
 
             </h2>
           </header>
 
           <footer class="post-info">
             <span>
-              2015-07-16
+              2013-03-07
             </span>
-                          <address class="vcard author">
-                              </address>
-                      </footer>
+              <address class="vcard author">
+              </address>
+          </footer>
 
           <div class="entry-content">
-            <p>This past week I started learning React, Om, and Clojurescript all at once.
-When beginning to use <a href="https://github.com/cemerick/clojurescript.test">cemerick's
-.clojurescript.test</a>, I kept
-running into this error:</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
-2
-3
-4
-5
-6
-7</pre></div></td><td class="code"><div class="codehilite"><pre>Error: cemerick is undefined
-
-ERROR: cemerick.cljs.test was not required.
-
-You can resolve this issue by ensuring [cemerick.cljs.test] appears
-in the :require clause of your test suite namespaces.
-Also make sure that your build has actually included any test files.
-</pre></div>
-</td></tr></table>
-
-<p>But I clearly had included it in my test! I googled and grumbled, but could not
-figure out what was wrong. Finally I discovered that
-<a href="https://slimerjs.org/">slimerjs</a> has the <code>-jsconsole</code> flag, which, as the docs
-say, will</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre>Open a window to view all javascript errors during the execution
-</pre></div>
-</td></tr></table>
-
-<p>Great, using that I finally found the actual problem:</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
-2
-3
-4</pre></div></td><td class="code"><div class="codehilite"><pre>Script Error: Error: Assert failed: No target specified to om.core/root
-(not (nil? target))
-       Stack:
-         -&gt; file:///tmp/runner6386761518784950059.js.html: 55456
-</pre></div>
-</td></tr></table>
-
-<p>This makes much more sense. The issue is that my <code>core.cljs</code> namespace was
-running <code>om/root</code> when the page loads. The code looked like:</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
-2
-3</pre></div></td><td class="code"><div class="codehilite"><pre><span class="p">(</span><span class="nf">om/root</span> <span class="nv">main-view</span>
-         <span class="nv">app-state</span>
-         <span class="p">{</span><span class="ss">:target</span> <span class="p">(</span><span class="k">. </span><span class="nv">js/document</span> <span class="p">(</span><span class="nf">getElementById</span> <span class="s">&quot;app&quot;</span><span class="p">))}))</span>
-</pre></div>
-</td></tr></table>
-
-<p>But since the tests are not loading the index.html page (as they shouldn't),
-there is no element with ID app. Ultimately the problem is with running code
-at the namespace level. What would be preferred would be if there were some
-way to specify a main function to initialize the app. This would be run for
-the actual application, but not the tests.</p>
-<h1>First take at a Solution</h1>
-<p>It took awhile of searching, but I finally found some inspiration from
-<a href="https://github.com/jalehman/react-tutorial-om">this project</a> and specifically
-<a href="https://github.com/jalehman/react-tutorial-om/blob/60867fb0efcb48a3f20bc94361c2f981e6c96f44/resources/public/index.html#L15">this line of code</a>:</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span><span class="nt">&gt;</span><span class="nx">goog</span><span class="p">.</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;react_tutorial_om.app&quot;</span><span class="p">);</span><span class="nt">&lt;/script&gt;</span>
-</pre></div>
-</td></tr></table>
-
-<p>I realized I could just wrap my <code>om/root</code> call in a main function and then call
-this from the index.html page. Here is what the code in <code>core.cljs</code> looks like
-now:</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
-2
-3
-4</pre></div></td><td class="code"><div class="codehilite"><pre><span class="p">(</span><span class="kd">defn </span><span class="nv">app</span> <span class="p">[]</span>
-  <span class="p">(</span><span class="nf">om/root</span> <span class="nv">main-view</span>
-           <span class="nv">app-state</span>
-           <span class="p">{</span><span class="ss">:target</span> <span class="p">(</span><span class="k">. </span><span class="nv">js/document</span> <span class="p">(</span><span class="nf">getElementById</span> <span class="s">&quot;app&quot;</span><span class="p">))}))</span>
-</pre></div>
-</td></tr></table>
-
-<p>and the corresponding code in <code>index.html</code>:</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
-2
-3
-4</pre></div></td><td class="code"><div class="codehilite"><pre><span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span><span class="nt">&gt;</span>
-<span class="nx">goog</span><span class="p">.</span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;my.namespace.core&quot;</span><span class="p">);</span>
-<span class="nx">my</span><span class="p">.</span><span class="nx">namespace</span><span class="p">.</span><span class="nx">core</span><span class="p">.</span><span class="nx">app</span><span class="p">();</span>
-<span class="nt">&lt;/script&gt;</span>
-</pre></div>
-</td></tr></table>
-
-<p>Now running the tests no longer had any problem. However, I realized that
-lein figwheel was not reloading the page properly when I made changes to the
-code. This is because the javascript would be reloaded, which previously was
-running <code>om/root</code> every time. To solve this I added to the <code>on-js-reload</code>
-function so that the app was reinitialized:</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
-2</pre></div></td><td class="code"><div class="codehilite"><pre><span class="p">(</span><span class="kd">defn </span><span class="nv">on-js-reload</span> <span class="p">[]</span>
-  <span class="p">(</span><span class="nf">app</span><span class="p">))</span>
-</pre></div>
-</td></tr></table>
-
-<h1>Improving the Solution</h1>
-<p>As I continued learning about Om, I came across the
-<a href="https://github.com/omcljs/om-cookbook">om-cookbook</a> repository. The following
-is based on the structure of the project in the
-<code>recipes/routing-with-secretary</code> directory (and possibly others in the repo).</p>
-<p>Let's assume your project currently has this directory structure:</p>
-<div class="codehilite"><pre><span class="n">resources</span><span class="o">/</span><span class="p">...</span>
-<span class="n">src</span><span class="o">/</span><span class="n">my</span><span class="o">/</span><span class="n">namespace</span><span class="o">/</span><span class="n">core</span><span class="p">.</span><span class="n">cljs</span>
-<span class="n">project</span><span class="p">.</span><span class="n">clj</span>
-</pre></div>
-
-
-<p>We are going to add a directory called <code>env</code> which will house code that is
-specific to different environments, namely development vs. production. Create
-directories such that your project now looks like this:</p>
-<div class="codehilite"><pre><span class="n">env</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">my</span><span class="o">/</span><span class="n">namespace</span><span class="o">/</span><span class="n">dev</span><span class="p">.</span><span class="n">cljs</span>
-   <span class="o">/</span><span class="n">prod</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">my</span><span class="o">/</span><span class="n">namespace</span><span class="o">/</span><span class="n">prod</span><span class="p">.</span><span class="n">cljs</span>
-<span class="n">resources</span><span class="o">/</span><span class="p">...</span>
-<span class="n">src</span><span class="o">/</span><span class="n">my</span><span class="o">/</span><span class="n">namespace</span><span class="o">/</span><span class="n">core</span><span class="p">.</span><span class="n">cljs</span>
-<span class="n">project</span><span class="p">.</span><span class="n">clj</span>
-</pre></div>
-
-
-<p>You can see that in <code>env/dev</code> and <code>env/prod</code> we mimick the <code>src</code> directory.
-Within <code>dev.cljs</code> we will add code that is only to be run when developing.
-Here is what that namespace will basically look like for the dev environment:</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10</pre></div></td><td class="code"><div class="codehilite"><pre><span class="p">(</span><span class="kd">ns </span><span class="nv">my.namespace.dev</span>
-  <span class="p">(</span><span class="ss">:require</span> <span class="p">[</span><span class="nv">my.namespace.core</span> <span class="ss">:as</span> <span class="nv">core</span><span class="p">]</span>
-            <span class="p">[</span><span class="nv">figwheel.client</span> <span class="ss">:as</span> <span class="nv">figwheel</span> <span class="ss">:include-macros</span> <span class="nv">true</span><span class="p">]))</span>
-
-<span class="p">(</span><span class="nf">enable-console-print!</span><span class="p">)</span>
-
-<span class="p">(</span><span class="kd">defn </span><span class="nv">on-js-reload</span> <span class="p">[]</span>
-  <span class="p">(</span><span class="nf">core/app</span><span class="p">))</span>
-
-<span class="p">(</span><span class="nf">core/app</span><span class="p">)</span>
-</pre></div>
-</td></tr></table>
-
-<p>For production, this can be much simpler:</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
-2
-3
-4</pre></div></td><td class="code"><div class="codehilite"><pre><span class="p">(</span><span class="kd">ns </span><span class="nv">my.namespace.prod</span>
-  <span class="p">(</span><span class="ss">:require</span> <span class="p">[</span><span class="nv">my.namespace.core</span> <span class="ss">:as</span> <span class="nv">core</span><span class="p">]))</span>
-
-<span class="p">(</span><span class="nf">core/app</span><span class="p">)</span>
-</pre></div>
-</td></tr></table>
-
-<p>Now all we need to do is modify <code>project.clj</code> to use these environments. This
-is accomplished using different build configurations. Here is a sample of
-how that would look:</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+            <p>Whenever I visit Amazon's homepage, I do so hoping to search for things. I'm
+not one to browse around and I'm sure many others are the same. However, I get
+annoyed each time this happens because the search bar does not have the focus
+when you visit the homepage. After coming across a
+<a href="http://news.ycombinator.com/item?id=5333209">comment</a> on Hacker News
+describing the same problem, I realized I could fix this with a pretty simple
+Chrome extension. Check it out
+<a href="https://chrome.google.com/webstore/detail/amazon-search-auto-focus/mlblghbllacignpjknjbpbefjmgnbpca">here</a>
+and read on for a short description of how I put it together.</p>
+<p>About one or two years back, I was interested in making extensions for Chrome,
+but never went very far with it. However, the brief foray meant that yesterday,
+I knew the basics I would need to make the extension. The most important part
+of this is the <a href="http://developer.chrome.com/extensions/manifest.html">manifest</a>,
+which describes your extension, lists the permissions it needs, files it
+contains, and so forth.</p>
+<p>The manifest for this app was really simple:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
  3
  4
@@ -587,279 +795,71 @@ how that would look:</p>
  9
 10
 11
-12</pre></div></td><td class="code"><div class="codehilite"><pre><span class="ss">:cljsbuild</span> <span class="p">{</span><span class="ss">:builds</span> <span class="p">[{</span><span class="ss">:id</span> <span class="s">&quot;dev&quot;</span>
-                      <span class="ss">:source-paths</span> <span class="p">[</span><span class="s">&quot;src&quot;</span> <span class="s">&quot;env/dev/src&quot;</span><span class="p">]</span>
-                      <span class="c1">; blah blah blah</span>
-                      <span class="p">}</span>
-                     <span class="p">{</span><span class="ss">:id</span> <span class="s">&quot;prod&quot;</span>
-                      <span class="ss">:source-paths</span> <span class="p">[</span><span class="s">&quot;src&quot;</span> <span class="s">&quot;env/prod/src&quot;</span><span class="p">]</span>
-                      <span class="c1">; blah blah blah</span>
-                      <span class="p">}</span>
-                     <span class="p">{</span><span class="ss">:id</span> <span class="s">&quot;test&quot;</span>
-                      <span class="ss">:source-paths</span> <span class="p">[</span><span class="s">&quot;src&quot;</span> <span class="s">&quot;test&quot;</span><span class="p">]</span>
-                      <span class="c1">; blah blah blah</span>
-                      <span class="p">}]}</span>
+12
+13
+14
+15
+16</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="nt">&quot;manifest_version&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Amazon Search AutoFocus&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Automatically focus on search bar when visiting Amazon&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;http://*.amazon.com/&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;https://*.amazon.com/&quot;</span>
+    <span class="p">],</span>
+    <span class="nt">&quot;content_scripts&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;matches&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;http://*.amazon.com/&quot;</span><span class="p">],</span>
+            <span class="nt">&quot;js&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;script.js&quot;</span><span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
 </pre></div>
 </td></tr></table>
 
-<p>Finally, make sure to remove the code that was added to <code>index.html</code> in our
-first take at a solution.</p>
-<p>And there you have it. The dev environment will end up compiling <code>dev.cljs</code>,
-and since this namespace includes a call to <code>core/app</code> at the namespace-level,
-it will run when the javascript is loaded. We do not include the file for the
-test build, meaning the tests do not try to run <code>om/root</code>.</p>
-<h1>Alternative Approach</h1>
-<p>An entirely different approach to all of this (and perhaps a lot simpler)
-would be to simply check if your target element exists. Your code could then
-look like</p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
-2
-3
-4</pre></div></td><td class="code"><div class="codehilite"><pre><span class="p">(</span><span class="nb">if-let </span><span class="p">[</span><span class="nv">target</span> <span class="p">(</span><span class="k">. </span><span class="nv">js/document</span> <span class="p">(</span><span class="nf">getElementById</span> <span class="s">&quot;app&quot;</span><span class="p">))]</span>
-  <span class="p">(</span><span class="nf">om/root</span> <span class="nv">main-view</span>
-           <span class="nv">app-state</span>
-           <span class="p">{</span><span class="ss">:target</span> <span class="nv">target</span><span class="p">}))</span>
+<p>Most of this is pretty obvious. The documentation on the
+<a href="http://developer.chrome.com/extensions/manifest.html#manifest_version">manifest_version</a>
+indicates that version 1 is deprecate. The version indicated lets Google
+manage the extension among users. This number will be used to determine if a
+user is on an older version of the extension and it needs to be updated.</p>
+<p>Permissions are bit complicated, as they can include whether the extension
+can operate on tabs or windows, have access to sites, etc. For this really
+simple app, I only need to indicate that I want access to the amazon sites.</p>
+<p>Finally, the hardest part of it all was figuring out how to get some javascript
+to run when I visited Amazon's homepage. Using some Google-foo, I discovered
+that <a href="http://developer.chrome.com/extensions/content_scripts.html">Content Scripts</a>
+are the way to do this. As the documentation says, <code>content scripts run in the
+context of web pages</code>. This means the javascript file specified above
+(script.js) will be run when Amazon loads. This is exactly what I wanted!</p>
+<p>So finally I just needed to write the javascript. It turned out to be dead
+simple. Here's the only line needed:</p>
+<div class="highlight"><pre><span></span>document.getElementById(&quot;twotabsearchtextbox&quot;).focus();
 </pre></div>
-</td></tr></table>
 
-<p>You might prefer this approach. The reason I tend to not like this is that you
-still have functionality that executes when you require the namespace. It also
-introduces a silent failure. If you change the main element to have a different
-id, your app would just show up blank with no errors printed.</p>
-<p>I was pretty surprised to not be able to find anything about this. Maybe I'm
-missing something obvious. I am new to Clojurescript and Om, so it could just
-be a newbie mistake. If so let me know!</p>
+
+<p>I briefly examined Amazon's search box using the Chrome
+<a href="https://developers.google.com/chrome-developer-tools/docs/elements">developer tools</a>
+and I saw that the ID of the search box was <code>twotabsearchtextbox</code>. So I used
+some native javascript functions to set the focus and it was done!</p>
+<p>Hopefully this helps if you want to write your own Chrome extension! If I make
+any changes or improvements to this, the updated code will be
+<a href="https://bitbucket.org/b_ryan/amazon-autofocus">on Bitbucket</a> for your viewing
+pleasure.</p>
           </div>
 
         </article>
       </li>
-          <li>
-        <article class="hentry">
+    </ol>
 
-          <header>
-            <h2 class="entry-title">
-              <a
-                href="http://buckryan.com/organizing-photos-with-bash.html"
-                rel="bookmark"
-                title="Permalink to Organizing photos with bash"
-              >Organizing photos with bash</a>
-
-            </h2>
-          </header>
-
-          <footer class="post-info">
-            <span>
-              2015-01-02
-            </span>
-                          <address class="vcard author">
-                              </address>
-                      </footer>
-
-          <div class="entry-content">
-            <p>I've been trying to organize my photos recently. I hadn't kept up with them
-and I recently discovered I have a pile of photos dumped into a single
-directory. I like to separate photos by the day they were taken so I end up
-with directories like:</p>
-<div class="codehilite"><pre><span class="mi">2015</span><span class="o">-</span><span class="mo">01</span><span class="o">-</span><span class="mo">01</span><span class="n">_new</span><span class="o">-</span><span class="n">years</span><span class="o">-</span><span class="n">day</span>
-<span class="mi">2014</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">31</span><span class="n">_new</span><span class="o">-</span><span class="n">years</span><span class="o">-</span><span class="n">eve</span>
-<span class="mi">2014</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">25</span><span class="n">_christmas</span>
-<span class="p">...</span>
-</pre></div>
-
-
-<p>Wanting to organize these as painlessly as I could think, I sought to run a few
-bash commands to split my pile of photos into directories like these. The first
-issue I ran into was the file formats - these were raw photos. I had found a
-nice tool called <code>exif</code> (<code>sudo apt-get install exif</code>) which I could use to
-extract the date the pictures were taken, but it only works on JPG images.</p>
-<p>So step one was to convert the files. The
-<a href="http://imagemagick.org/">ImageMagick</a> tool (<code>sudo apt-get install
-imagemagick</code>) has a command called <code>convert</code> that will do just that. To convert
-them all without risking overwriting anything, a simple for loop works nicely:</p>
-<div class="codehilite"><pre><span class="k">for </span>f in *.NEF; <span class="k">do</span>
-<span class="k">    </span>convert <span class="nv">$f</span> <span class="nv">$f</span>.jpg
-<span class="k">done</span>
-</pre></div>
-
-
-<p>This will convert files like <code>DSC_0001.NEF</code> to <code>DSC_0001.NEF.jpg</code>. Running this
-command was taking awhile and I wanted to see how much work was left to do.
-<code>watch</code> is the perfect tool for the job. It lets you repeatedly run a command
-and see its output. So all I needed to do was write a command that would list
-all of the <code>.NEF</code> files that did not have corresponding <code>.NEF.jpg</code> files.  To
-do that, I used:</p>
-<div class="codehilite"><pre><span class="k">for </span>f in *.NEF; <span class="k">do</span>
-<span class="k">    </span>ls <span class="nv">$f</span>.jpg &amp;&gt;/dev/null <span class="o">||</span> <span class="nb">echo</span> <span class="nv">$f</span>
-<span class="k">done</span>
-</pre></div>
-
-
-<p>I ignored all output of <code>ls</code> (<code>&amp;&gt;/dev/null</code>) because the return code would be
-enough to determine whether the file existed. More importantly, I didn't want
-to have to parse through whatever output the command threw at me. The <code>|| echo
-$f</code> will only be executed if the <code>ls</code> failed, indicating the file doesn't
-exist.</p>
-<p>I had issues running this directly with <code>watch</code>, but I didn't want to spend
-time debugging. Instead I saved the command to a file and ran:</p>
-<div class="codehilite"><pre>chmod +x script.sh
-watch ./script.sh
-</pre></div>
-
-
-<p>Every 2 seconds the screen updated letting me know how many files were left
-to convert.</p>
-<p>While the conversion was running, I prepared to get exif data out of the jpg
-files. I mentioned above that <code>exif</code> will do just that. Here's what a sample
-run looked like:</p>
-<div class="codehilite"><pre>  <span class="err">$</span> <span class="n">exif</span> <span class="n">DSC_0093</span><span class="p">.</span><span class="n">JPG</span> 
-<span class="n">EXIF</span> <span class="n">tags</span> <span class="n">in</span> <span class="err">&#39;</span><span class="n">DSC_0093</span><span class="p">.</span><span class="n">JPG</span><span class="err">&#39;</span> <span class="p">(</span><span class="err">&#39;</span><span class="n">Motorola</span><span class="err">&#39;</span> <span class="n">byte</span> <span class="n">order</span><span class="p">)</span><span class="o">:</span>
-<span class="o">--------------------+----------------------------------------------------------</span>
-<span class="n">Tag</span>                 <span class="o">|</span><span class="n">Value</span>
-<span class="o">--------------------+----------------------------------------------------------</span>
-<span class="n">Manufacturer</span>        <span class="o">|</span>
-<span class="n">Model</span>               <span class="o">|</span>
-<span class="n">X</span><span class="o">-</span><span class="n">Resolution</span>        <span class="o">|</span><span class="mf">500.0000000</span>
-<span class="n">Y</span><span class="o">-</span><span class="n">Resolution</span>        <span class="o">|</span><span class="mf">500.0000000</span>
-<span class="n">Resolution</span> <span class="n">Unit</span>     <span class="o">|</span><span class="n">Inch</span>
-<span class="n">Software</span>            <span class="o">|</span><span class="n">Picasa</span> <span class="mf">3.0</span>
-<span class="n">Date</span> <span class="n">and</span> <span class="n">Time</span>       <span class="o">|</span><span class="mi">2007</span><span class="o">:</span><span class="mo">04</span><span class="o">:</span><span class="mi">09</span> <span class="mi">16</span><span class="o">:</span><span class="mi">15</span><span class="o">:</span><span class="mi">47</span>
-<span class="n">YCbCr</span> <span class="n">Positioning</span>   <span class="o">|</span><span class="n">Centered</span>
-<span class="n">Padding</span>             <span class="o">|</span><span class="mi">2060</span> <span class="n">bytes</span> <span class="n">undefined</span> <span class="n">data</span>
-<span class="n">Compression</span>         <span class="o">|</span><span class="n">JPEG</span> <span class="n">compression</span>
-<span class="n">X</span><span class="o">-</span><span class="n">Resolution</span>        <span class="o">|</span><span class="mi">72</span>
-<span class="n">Y</span><span class="o">-</span><span class="n">Resolution</span>        <span class="o">|</span><span class="mi">72</span>
-<span class="n">Resolution</span> <span class="n">Unit</span>     <span class="o">|</span><span class="n">Inch</span>
-<span class="n">Exif</span> <span class="n">Version</span>        <span class="o">|</span><span class="n">Exif</span> <span class="n">Version</span> <span class="mf">2.2</span>
-<span class="n">Date</span> <span class="n">and</span> <span class="n">Time</span> <span class="p">(</span><span class="n">Origi</span><span class="o">|</span><span class="mi">2007</span><span class="o">:</span><span class="mi">12</span><span class="o">:</span><span class="mi">25</span> <span class="mi">11</span><span class="o">:</span><span class="mo">07</span><span class="o">:</span><span class="mi">52</span>
-<span class="n">Date</span> <span class="n">and</span> <span class="n">Time</span> <span class="p">(</span><span class="n">Digit</span><span class="o">|</span><span class="mi">2007</span><span class="o">:</span><span class="mi">12</span><span class="o">:</span><span class="mi">25</span> <span class="mi">11</span><span class="o">:</span><span class="mo">07</span><span class="o">:</span><span class="mi">52</span>
-<span class="n">Components</span> <span class="n">Configura</span><span class="o">|</span><span class="n">Y</span> <span class="n">Cb</span> <span class="n">Cr</span> <span class="o">-</span>
-<span class="n">User</span> <span class="n">Comment</span>        <span class="o">|</span>
-<span class="n">Sub</span><span class="o">-</span><span class="n">second</span> <span class="n">Time</span> <span class="p">(</span><span class="n">Ori</span><span class="o">|</span><span class="mo">00</span>
-<span class="n">Sub</span><span class="o">-</span><span class="n">second</span> <span class="n">Time</span> <span class="p">(</span><span class="n">Dig</span><span class="o">|</span><span class="mo">00</span>
-<span class="n">FlashPixVersion</span>     <span class="o">|</span><span class="n">FlashPix</span> <span class="n">Version</span> <span class="mf">1.0</span>
-<span class="n">Color</span> <span class="n">Space</span>         <span class="o">|</span><span class="n">Internal</span> <span class="n">error</span> <span class="p">(</span><span class="n">unknown</span> <span class="n">value</span> <span class="mi">65535</span><span class="p">)</span>
-<span class="n">Pixel</span> <span class="n">X</span> <span class="n">Dimension</span>   <span class="o">|</span><span class="mi">3008</span>
-<span class="n">Pixel</span> <span class="n">Y</span> <span class="n">Dimension</span>   <span class="o">|</span><span class="mi">2000</span>
-<span class="n">Custom</span> <span class="n">Rendered</span>     <span class="o">|</span><span class="n">Custom</span> <span class="n">process</span>
-<span class="n">Image</span> <span class="n">Unique</span> <span class="n">ID</span>     <span class="o">|</span><span class="mi">517</span><span class="n">d7ada5c38d78cd60a3032343e64f1</span>
-<span class="n">Padding</span>             <span class="o">|</span><span class="mi">2060</span> <span class="n">bytes</span> <span class="n">undefined</span> <span class="n">data</span>
-<span class="n">Interoperability</span> <span class="n">Ver</span><span class="o">|</span><span class="mo">0100</span>
-<span class="o">--------------------+----------------------------------------------------------</span>
-<span class="n">EXIF</span> <span class="n">data</span> <span class="n">contains</span> <span class="n">a</span> <span class="n">thumbnail</span> <span class="p">(</span><span class="mi">5597</span> <span class="n">bytes</span><span class="p">).</span>
-</pre></div>
-
-
-<p>(This was a <em>really</em> old photo - most of them were much more recent.)</p>
-<p>I noticed there was the <code>Date and Time</code> tag in there. And in reading the man
-page for <code>exif</code>, saw that I could ask for values of specific tags using the
-<code>--tag</code> argument. Here is what happened for the same file above:</p>
-<div class="codehilite"><pre>  <span class="err">$</span> <span class="n">exif</span> <span class="o">--</span><span class="n">tag</span> <span class="err">&#39;</span><span class="n">Date</span> <span class="n">and</span> <span class="n">Time</span><span class="err">&#39;</span> <span class="n">DSC_0093</span><span class="p">.</span><span class="n">JPG</span> 
-<span class="n">EXIF</span> <span class="n">entry</span> <span class="err">&#39;</span><span class="n">Date</span> <span class="n">and</span> <span class="n">Time</span><span class="err">&#39;</span> <span class="p">(</span><span class="mh">0x132</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">DateTime</span><span class="err">&#39;</span><span class="p">)</span> <span class="n">exists</span> <span class="n">in</span> <span class="n">IFD</span> <span class="sc">&#39;0&#39;</span><span class="o">:</span>
-<span class="nl">Tag:</span> <span class="mh">0x132</span> <span class="p">(</span><span class="err">&#39;</span><span class="n">DateTime</span><span class="err">&#39;</span><span class="p">)</span>
-  <span class="nl">Format:</span> <span class="mi">2</span> <span class="p">(</span><span class="err">&#39;</span><span class="n">ASCII</span><span class="err">&#39;</span><span class="p">)</span>
-  <span class="nl">Components:</span> <span class="mi">20</span>
-  <span class="nl">Size:</span> <span class="mi">20</span>
-  <span class="nl">Value:</span> <span class="mi">2007</span><span class="o">:</span><span class="mo">04</span><span class="o">:</span><span class="mi">09</span> <span class="mi">16</span><span class="o">:</span><span class="mi">15</span><span class="o">:</span><span class="mi">47</span>
-</pre></div>
-
-
-<p>We can work with that! A few <code>grep</code> and <code>awk</code> commands later and I had:</p>
-<div class="codehilite"><pre>  <span class="err">$</span> <span class="n">exif</span> <span class="o">--</span><span class="n">tag</span> <span class="err">&#39;</span><span class="n">Date</span> <span class="n">and</span> <span class="n">Time</span><span class="err">&#39;</span> <span class="n">DSC_0093</span><span class="p">.</span><span class="n">JPG</span> \
-    <span class="o">|</span> <span class="n">grep</span> <span class="n">Value</span> \
-    <span class="o">|</span> <span class="n">awk</span> <span class="err">&#39;</span><span class="p">{</span><span class="n">print</span> <span class="err">$</span><span class="mi">2</span><span class="p">}</span><span class="err">&#39;</span> \
-    <span class="o">|</span> <span class="n">awk</span> <span class="o">-</span><span class="n">F</span><span class="sc">&#39;:&#39;</span> <span class="err">&#39;</span><span class="p">{</span><span class="n">print</span> <span class="err">$</span><span class="mi">1</span> <span class="s">&quot;-&quot;</span> <span class="err">$</span><span class="mi">2</span> <span class="s">&quot;-&quot;</span> <span class="err">$</span><span class="mi">3</span><span class="p">}</span><span class="err">&#39;</span>
-<span class="mi">2007</span><span class="o">-</span><span class="mo">04</span><span class="o">-</span><span class="mi">09</span>
-</pre></div>
-
-
-<p>To break that down: <code>grep Value</code> is pretty obvious. It will leave only the
-line containing <code>Value</code> so now our result will look like</p>
-<div class="codehilite"><pre>  <span class="nl">Value:</span> <span class="mi">2007</span><span class="o">:</span><span class="mo">04</span><span class="o">:</span><span class="mi">09</span> <span class="mi">16</span><span class="o">:</span><span class="mi">15</span><span class="o">:</span><span class="mi">47</span>
-</pre></div>
-
-
-<p>Then this gets piped to <code>awk '{print $2}'</code>. This is a very common type of awk
-command to run. Since awk splits on whitespace by default, this will get us
-the second column, which in this case contains the text</p>
-<div class="codehilite"><pre><span class="mi">2007</span><span class="o">:</span><span class="mi">04</span><span class="o">:</span><span class="mi">09</span>
-</pre></div>
-
-
-<p>I didn't care about the time of the photo since I'm planning to lump all of
-the photos from the same day into a given directory. If I had wanted the date
-<em>and</em> time, I could have used <code>awk '{print $2 " " $3}'</code>.</p>
-<p>Now that I have the date, I want it in my preferred format of <code>yyyy-mm-dd</code> so
-I once again turned to awk. This time I used <code>-F':'</code> to specify that I wanted
-to split on <code>:</code> instead of whitespace. Then I rest of the command glues the
-date, month, and year parts together with <code>-</code> in between.</p>
-<p>So now I have to use all of this to make the directories and dump files into
-them. Before actually creating any directories or moving any files, however,
-I wanted to sanity check everything. I wrote a loop that spit out each of the
-<code>*NEF.jpg</code> files and the date I calculated for them:</p>
-<div class="codehilite"><pre><span class="k">for </span>f in *NEF.jpg; <span class="k">do</span>
-<span class="k">    </span><span class="nb">echo</span> -n <span class="s2">&quot;$f &quot;</span>
-    <span class="nv">dt</span><span class="o">=</span><span class="k">$(</span>exif --tag <span class="s1">&#39;Date and Time&#39;</span> <span class="nv">$f</span> <span class="se">\</span>
-            | grep Value <span class="se">\</span>
-            | awk <span class="s1">&#39;{print $2}&#39;</span> <span class="se">\</span>
-            | awk -F<span class="s1">&#39;:&#39;</span> <span class="s1">&#39;{print $1 &quot;-&quot; $2 &quot;-&quot; $3}&#39;</span><span class="k">)</span>
-    <span class="nb">echo</span> <span class="nv">$dt</span>
-<span class="k">done</span>
-</pre></div>
-
-
-<p>The <code>-n</code> flag to <code>echo</code> tells it to not print a newline. I then saved the
-result of the command to calculate the picture's date to a variable called
-<code>dt</code> so that I could reuse it in the code to follow. Here's a snippet of the
-results:</p>
-<div class="codehilite"><pre><span class="n">DSC_1455</span><span class="p">.</span><span class="n">NEF</span><span class="p">.</span><span class="n">jpg</span>    <span class="mi">2014</span><span class="o">-</span><span class="mo">07</span><span class="o">-</span><span class="mi">28</span>
-<span class="n">DSC_1456</span><span class="p">.</span><span class="n">NEF</span><span class="p">.</span><span class="n">jpg</span>    <span class="mi">2014</span><span class="o">-</span><span class="mo">07</span><span class="o">-</span><span class="mi">28</span>
-<span class="n">DSC_1457</span><span class="p">.</span><span class="n">NEF</span><span class="p">.</span><span class="n">jpg</span>    <span class="mi">2014</span><span class="o">-</span><span class="mo">07</span><span class="o">-</span><span class="mi">28</span>
-<span class="n">DSC_1458</span><span class="p">.</span><span class="n">NEF</span><span class="p">.</span><span class="n">jpg</span>    <span class="mi">2014</span><span class="o">-</span><span class="mo">07</span><span class="o">-</span><span class="mi">28</span>
-<span class="n">DSC_1460</span><span class="p">.</span><span class="n">NEF</span><span class="p">.</span><span class="n">jpg</span>    <span class="mi">2014</span><span class="o">-</span><span class="mo">07</span><span class="o">-</span><span class="mi">28</span>
-<span class="n">DSC_1461</span><span class="p">.</span><span class="n">NEF</span><span class="p">.</span><span class="n">jpg</span>    <span class="mi">2014</span><span class="o">-</span><span class="mo">07</span><span class="o">-</span><span class="mi">28</span>
-<span class="n">DSC_1463</span><span class="p">.</span><span class="n">NEF</span><span class="p">.</span><span class="n">jpg</span>    <span class="mi">2014</span><span class="o">-</span><span class="mo">07</span><span class="o">-</span><span class="mi">28</span>
-<span class="n">DSC_1506</span><span class="p">.</span><span class="n">NEF</span><span class="p">.</span><span class="n">jpg</span>    <span class="mi">2014</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mo">03</span>
-<span class="n">DSC_1507</span><span class="p">.</span><span class="n">NEF</span><span class="p">.</span><span class="n">jpg</span>    <span class="mi">2014</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mo">03</span>
-<span class="n">DSC_1512</span><span class="p">.</span><span class="n">NEF</span><span class="p">.</span><span class="n">jpg</span>    <span class="mi">2014</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mo">03</span>
-</pre></div>
-
-
-<p>After sanity checking the results, I felt confident enough to go forward. Here
-is the final product:</p>
-<div class="codehilite"><pre><span class="k">for </span>f in *NEF.jpg; <span class="k">do</span>
-<span class="k">    </span><span class="nv">dt</span><span class="o">=</span><span class="k">$(</span>exif --tag <span class="s1">&#39;Date and Time&#39;</span> <span class="nv">$f</span> <span class="se">\</span>
-            | grep Value <span class="se">\</span>
-            | awk <span class="s1">&#39;{print $2}&#39;</span> <span class="se">\</span>
-            | awk -F<span class="s1">&#39;:&#39;</span> <span class="s1">&#39;{print $1 &quot;-&quot; $2 &quot;-&quot; $3}&#39;</span><span class="k">)</span>
-
-    mkdir <span class="nv">$dt</span> &amp;&gt;/dev/null
-    mv <span class="k">${</span><span class="nv">f</span><span class="p">%.jpg</span><span class="k">}</span> <span class="nv">$dt</span>/
-<span class="k">done</span>
-</pre></div>
-
-
-<p>The most interesting part of this code is the <code>${f%.jpg}</code>. This chops <code>.jpg</code>
-off of the end of the string. To fully grasp what's going on, check out <a href="http://tldp.org/LDP/abs/html/string-manipulation.html">this
-article</a>, specifically
-the section titled <strong>Substring Removal</strong>.</p>
-<p>And that was it! Was a lot of faster than doing it by hand. Maybe there are
-tools out there that could have done this for me, but I found this more fun.
-You can really do some neat stuff with everyday command-line tools. I highly
-recommend using them for tasks like this to become comfortable writing bash.</p>
-          </div>
-
-        </article>
-      </li>
-        </ol>
-
-    <p class="paginator">
-        Page 1 / 1
-    </p>
+<p class="paginator">
+    Page 1 / 1
+</p>
   </section>
     </div>
 
-    
-          <script src="//static.getclicky.com/js" type="text/javascript"></script>
+
+      <script src="//static.getclicky.com/js" type="text/javascript"></script>
       <script type="text/javascript">
         try {
           clicky.init(100683631);
@@ -871,6 +871,6 @@ recommend using them for tasks like this to become comfortable writing bash.</p>
                 src="//in.getclicky.com/100683631ns.gif" />
         </p>
       </noscript>
-    
+
   </body>
 </html>
