@@ -7,7 +7,7 @@ fi
 commit="$(git rev-parse HEAD)"
 echo "deploying $commit"
 
-output_dir=/tmp/output
+output_dir=/tmp/buckryan.com
 
 echo "Compiling to $output_dir" >&2
 pelican -t theme -o $output_dir -s publishconf.py content || {

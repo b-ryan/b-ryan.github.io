@@ -22,9 +22,8 @@ LINKS =  (('Pelican', 'http://getpelican.com/'),
           ('Jinja2', 'http://jinja.pocoo.org/'),
           ('You can modify those links in your config file', '#'),)
 
-# Social widget
-SOCIAL = (('You can add links in your config file', '#'),
-          ('Another social link', '#'),)
+SOCIAL = (('twitter', 'https://twitter.com/_buckryan'),
+          ('github', 'https://github.com/b-ryan'),)
 
 DEFAULT_PAGINATION = 10
 

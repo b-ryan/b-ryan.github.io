@@ -1,5 +1,5 @@
 .venv/
 cache/
-output
+development/
 *.pyc
 publish.sh
